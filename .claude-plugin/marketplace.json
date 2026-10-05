@@ -1,0 +1,16 @@
+{
+  "name": "mtg-rules-judge",
+  "description": "Magic: The Gathering rules judge for Claude, with the Comprehensive Rules and an offline card database that update automatically.",
+  "owner": {
+    "name": "Simon Boudreault"
+  },
+  "plugins": [
+    {
+      "name": "mtg-rules-judge",
+      "source": "./plugins/mtg-rules-judge",
+      "description": "Answer MTG rules questions like a careful judge, grounded in the bundled Comprehensive Rules and Oracle text with official rulings. Rules and cards refresh automatically after each new set.",
+      "category": "productivity",
+      "keywords": ["magic", "mtg", "magic the gathering", "rules", "judge", "commander"]
+    }
+  ]
+}

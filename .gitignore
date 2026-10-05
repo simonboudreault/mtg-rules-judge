@@ -1,0 +1,13 @@
+# Build leftovers
+__pycache__/
+*.pyc
+*.zip
+
+# Answers written while testing the skill locally
+answer.json
+answer.html
+
+# Scryfall bulk files, if someone downloads them next to the repo
+oracle-cards*.json*
+rulings*.json*
+all-cards*.json*

@@ -1,0 +1,668 @@
+<title>Thassa's Oracle with an empty library</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ============================================================
+   MTG RULES JUDGE — answer template
+   ------------------------------------------------------------
+   The page is data-driven: everything you read comes from the
+   ANSWER object in section 3. To change the look, edit sections
+   1 (tokens) and 2 (config). The renderers in section 4 are plain
+   functions, one per block of the page, so a section can be
+   reordered, removed or restyled without touching the others.
+   ============================================================ */
+
+/* ===== 1. THEME TOKENS — colours, fonts, spacing =====
+   Layout: one reading column (max 780px) under a sticky section
+   nav; cards render as small "proxy" frames; rules/rulings are
+   quotation blocks; the community section is a visibly separate
+   "unofficial" band at the end. */
+:root {
+  --bg: #F3F5F2;            /* page ground: cool off-white with a hint of the accent's green-grey */
+  --surface: #FFFFFF;       /* cards, popovers */
+  --surface-2: #EBEFEC;     /* quiet panels */
+  --fg: #1B1F1D;
+  --muted: #5B655F;
+  --line: #D6DDD8;
+  --accent: #1E5A6E;        /* rules & navigation: deep teal */
+  --accent-soft: #E1ECF0;
+  --accent-ink: #123A47;
+  --gold: #8E6118;          /* official rulings */
+  --gold-soft: #F5EDDA;
+  --card: #7A3E8F;          /* card references */
+  --card-soft: #F0E6F4;
+  --unofficial: #646A6E;    /* community section */
+  --unofficial-bg: #E9EBE8;
+  --good: #2E7A4B;
+  --warn: #A6701A;
+  --bad: #A53E2C;
+  --shadow: 0 10px 30px rgba(20, 30, 26, .14), 0 2px 6px rgba(20, 30, 26, .08);
+
+  --font-display: "Alegreya", "Iowan Old Style", Georgia, serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --measure: 780px;
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131816; --surface: #1B2220; --surface-2: #222B28;
+    --fg: #E6EAE7; --muted: #98A39D; --line: #2D3733;
+    --accent: #7DBFD2; --accent-soft: #19303A; --accent-ink: #BFE1EA;
+    --gold: #D9A95A; --gold-soft: #2E2616;
+    --card: #C79BD6; --card-soft: #2E2235;
+    --unofficial: #A0A7AB; --unofficial-bg: #1A1F1E;
+    --good: #6CBF88; --warn: #D9A95A; --bad: #E0806E;
+    --shadow: 0 10px 30px rgba(0, 0, 0, .5), 0 2px 6px rgba(0, 0, 0, .35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131816; --surface: #1B2220; --surface-2: #222B28;
+  --fg: #E6EAE7; --muted: #98A39D; --line: #2D3733;
+  --accent: #7DBFD2; --accent-soft: #19303A; --accent-ink: #BFE1EA;
+  --gold: #D9A95A; --gold-soft: #2E2616;
+  --card: #C79BD6; --card-soft: #2E2235;
+  --unofficial: #A0A7AB; --unofficial-bg: #1A1F1E;
+  --good: #6CBF88; --warn: #D9A95A; --bad: #E0806E;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .5), 0 2px 6px rgba(0, 0, 0, .35);
+  color-scheme: dark;
+}
+
+/* ----- base ----- */
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: var(--measure); margin: 0 auto; padding-block: 28px 64px; padding-inline: 16px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.7rem, 2.2vw + 1rem, 2.5rem); }
+h2 { font-size: 1.45rem; margin-block: 0 14px; display: flex; align-items: baseline; gap: 10px; }
+h2 .count { font: 500 .8rem var(--font-mono); color: var(--muted); }
+p { margin: 0 0 .8em; }
+p:last-child { margin-bottom: 0; }
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+code, .mono { font-family: var(--font-mono); font-size: .88em; }
+.eyebrow { font: 600 .72rem var(--font-body); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+section { margin-top: 44px; scroll-margin-top: 70px; }
+.hidden { display: none !important; }
+
+/* ----- header ----- */
+header .eyebrow { margin-bottom: 8px; }
+.question { margin-top: 14px; padding: 12px 16px; border-left: 3px solid var(--line); color: var(--muted); font-style: italic; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meta b { color: var(--fg); font-weight: 600; }
+
+/* ----- sticky nav ----- */
+nav.sections {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  margin-top: 22px; background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+}
+nav.sections ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+nav.sections ul::-webkit-scrollbar { display: none; }
+nav.sections a { display: block; padding: 10px 12px; white-space: nowrap; text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 600; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+nav.sections a:hover { color: var(--fg); }
+nav.sections a.active { color: var(--accent); border-bottom-color: var(--accent); }
+nav.sections a.unofficial-link { color: var(--unofficial); }
+
+/* ----- short answer ----- */
+.verdict { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; padding: 20px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.verdict .text { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.4; min-width: 0; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font: 600 .78rem var(--font-body); letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; border: 1px solid currentColor; }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.pill.high { color: var(--good); } .pill.medium { color: var(--warn); } .pill.low { color: var(--bad); }
+@media (max-width: 560px) { .verdict { grid-template-columns: 1fr; } }
+
+/* ----- inline references (hoverable) ----- */
+.ref { font: inherit; background: none; border: 0; padding: 0 1px; margin: 0; cursor: pointer; color: inherit; border-bottom: 1.5px dotted; border-radius: 2px; text-decoration: none; }
+.ref:hover, .ref[aria-expanded="true"] { background: var(--surface-2); }
+.ref-card { color: var(--card); border-color: var(--card); font-weight: 600; }
+.ref-rule { color: var(--accent); border-color: var(--accent); font-family: var(--font-mono); font-size: .9em; }
+.ref-ruling { color: var(--gold); border-color: var(--gold); }
+.ref-missing { color: var(--bad); border-bottom-style: dashed; cursor: help; }
+
+/* ----- mana symbols ----- */
+.ms { display: inline-flex; align-items: center; justify-content: center; width: 1.05em; height: 1.05em; border-radius: 50%; font: 700 .68em var(--font-body); color: #111; background: #CAC5C0; vertical-align: -0.12em; margin: 0 .5px; box-shadow: inset -1px -1px 0 rgba(0,0,0,.25); letter-spacing: 0; }
+.ms-W { background: #F8F6D8; } .ms-U { background: #C1D7E9; } .ms-B { background: #BAB1AB; }
+.ms-R { background: #E49977; } .ms-G { background: #A3C095; } .ms-C { background: #CAC5C0; }
+.ms-T { background: #CAC5C0; font-size: .75em; }
+.ms-hybrid { background: linear-gradient(135deg, var(--h1) 50%, var(--h2) 50%); }
+
+/* ----- card frames ("proxy" render) ----- */
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+.cardframe { position: relative; border-radius: 10px; padding: 7px; background: var(--frame, #B9B3AA); color: #141414; box-shadow: 0 1px 2px rgba(0,0,0,.25); font-family: var(--font-display); text-decoration: none; display: block; aspect-ratio: 63 / 88; min-width: 0; }
+.cardframe:hover { filter: brightness(1.03); }
+.cardframe .inner { display: grid; grid-template-rows: auto auto 1fr; height: 100%; gap: 4px; }
+.cardframe .bar { background: #F6F3EA; border: 1px solid rgba(0,0,0,.35); border-radius: 4px; padding: 3px 7px; display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: .9rem; line-height: 1.2; }
+.cardframe .name { font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.cardframe .cost { white-space: nowrap; display: inline-flex; gap: 1px; }
+.cardframe .type { font-size: .78rem; }
+.cardframe .box { background: #F8F6EF; border: 1px solid rgba(0,0,0,.35); border-radius: 4px; padding: 7px 8px; font-size: .78rem; line-height: 1.35; overflow: auto; min-height: 0; position: relative; }
+.cardframe .box p { margin: 0 0 .5em; }
+.cardframe .pt { position: absolute; right: 9px; bottom: 8px; background: #F6F3EA; border: 1px solid rgba(0,0,0,.45); border-radius: 4px; padding: 1px 8px; font-weight: 700; font-size: .95rem; }
+.cardframe .tag { position: absolute; top: -8px; left: 10px; background: var(--fg); color: var(--bg); font: 600 .62rem var(--font-body); letter-spacing: .08em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; }
+.cardframe img.art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: none; }
+.cardframe.has-image img.art { display: block; }
+.cardframe.has-image .inner { visibility: hidden; }
+/* frame colour by colour identity; same in both themes because they are the cards' own colours */
+.frame-W { --frame: #E9E2C9; } .frame-U { --frame: #4C7FB3; } .frame-B { --frame: #3F3B3A; }
+.frame-R { --frame: #C65A3F; } .frame-G { --frame: #4E8A5A; } .frame-M { --frame: #C9A64A; }
+.frame-A { --frame: #9DA7B3; } .frame-C { --frame: #B8B4AE; } .frame-L { --frame: #A79A86; }
+.cards-foot { margin-top: 14px; font-size: .92rem; }
+
+/* ----- quotation blocks (rules & rulings) ----- */
+.quote { display: grid; grid-template-columns: minmax(84px, auto) 1fr; gap: 6px 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+.quote:last-child { border-bottom: 1px solid var(--line); }
+.quote .key { font-family: var(--font-mono); font-size: .85rem; color: var(--accent); padding-top: 3px; }
+.quote .body { min-width: 0; font-family: var(--font-display); font-size: 1.02rem; }
+.quote .body .ex { color: var(--muted); font-style: italic; display: block; margin-top: .3em; }
+.ruling-group { margin-top: 18px; }
+.ruling-group h3 { font-size: 1.1rem; margin-bottom: 6px; color: var(--card); }
+.quote.ruling .key { color: var(--gold); display: flex; flex-direction: column; gap: 4px; }
+.src { display: inline-block; font: 600 .66rem var(--font-body); letter-spacing: .07em; text-transform: uppercase; padding: 1px 6px; border-radius: 3px; background: var(--gold-soft); color: var(--gold); }
+.src.scryfall { background: var(--surface-2); color: var(--muted); }
+@media (max-width: 480px) { .quote { grid-template-columns: 1fr; gap: 2px; } }
+
+/* ----- walkthrough ----- */
+ol.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; }
+ol.steps li { counter-increment: step; display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+ol.steps li::before { content: counter(step); font: 500 1.1rem var(--font-mono); color: var(--accent); padding-top: 2px; }
+ol.steps li .step { min-width: 0; }
+ol.steps li .note { margin-top: 6px; font-size: .9rem; color: var(--muted); }
+
+/* ----- confidence ----- */
+.confidence { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.confidence .panel { background: var(--surface-2); border-radius: var(--radius); padding: 14px 16px; min-width: 0; }
+.confidence .panel h3 { font: 600 .78rem var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.confidence ul { margin: 0; padding-left: 18px; font-size: .95rem; }
+
+/* ----- community (unofficial) band ----- */
+section.community { border: 1.5px dashed var(--unofficial); border-radius: var(--radius); padding: 20px 22px; background: var(--unofficial-bg); }
+section.community h2 { color: var(--unofficial); }
+section.community .eyebrow { color: var(--unofficial); }
+.agree { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; margin: 8px 0 14px; }
+.agree .pill { text-transform: none; letter-spacing: 0; }
+.threads { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 10px; }
+.threads li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; min-width: 0; }
+.threads .t-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.threads .t-head a { font-size: 1rem; font-weight: 600; }
+.threads .t-sum { margin-top: 6px; font-size: .95rem; }
+.opinions { margin: 10px 0 0; padding-left: 18px; }
+
+/* ----- popover ----- */
+#pop { position: fixed; z-index: 100; max-width: min(360px, calc(100vw - 24px)); background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 12px 14px; font-size: .92rem; line-height: 1.45; opacity: 0; transform: translateY(4px); transition: opacity .12s ease, transform .12s ease; pointer-events: none; }
+#pop.show { opacity: 1; transform: none; pointer-events: auto; }
+#pop .pop-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 6px; }
+#pop .pop-title { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; }
+#pop .pop-kind { font: 600 .66rem var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+#pop .pop-body { font-family: var(--font-display); font-size: .98rem; }
+#pop .pop-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; font-size: .85rem; }
+#pop .cardframe { width: 230px; max-width: 100%; margin: 4px auto 0; font-size: 15px; }
+#pop .pin-hint { font-size: .72rem; color: var(--muted); margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { #pop { transition: none; } }
+
+footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
+.demo-banner { margin: 0 0 18px; padding: 10px 14px; border-radius: var(--radius); background: var(--gold-soft); color: var(--gold); font-size: .9rem; border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent); }
+</style>
+
+<div class="wrap" id="app"></div>
+<div id="pop" role="dialog" aria-live="polite"></div>
+
+<script>
+/* ===== 2. CONFIG — labels, link patterns, behaviour =====
+   Everything here is safe to tweak. Labels are picked by ANSWER.lang. */
+const CONFIG = {
+  hoverDelayMs: 120,          // how long the pointer must rest before a popover opens
+  hideDelayMs: 220,           // grace period to move the pointer into the popover
+  tryExternalImages: true,    // attempt to load card scans; silently falls back to the frame render
+  ruleLink: (num) => "https://magic.wizards.com/en/rules",   // change to a per-rule anchor site if you prefer
+  cardSearchLink: (name) => "https://scryfall.com/search?q=" + encodeURIComponent('!"' + name + '"'),
+  labels: {
+    en: {
+      nav: { answer: "Answer", cards: "Cards", rules: "Rules", rulings: "Rulings", walkthrough: "Walkthrough", confidence: "Confidence", community: "Reddit" },
+      kicker: "Rules question", shortAnswer: "Short answer", cards: "Cards", rules: "Relevant rules",
+      rulings: "Official rulings", walkthrough: "How it plays out", confidence: "Confidence",
+      community: "Reddit discussions", communityKicker: "Unofficial · community opinions",
+      crVersion: "Comprehensive Rules effective", generated: "Researched", allCards: "All cards on Scryfall",
+      card: "Card", rule: "Rule", ruling: "Ruling", official: "Official", scryfallNote: "Scryfall note",
+      openOn: "Open on", why: "Why", assumptions: "Assumptions", notRetrieved: "Not retrieved",
+      high: "High", medium: "Medium", low: "Low", agrees: "Matches the official sources:",
+      yes: "Yes", partly: "Partly", no: "No", unknown: "Unknown", noThreads: "No Reddit thread could be retrieved for this question.",
+      searchReddit: "Search r/mtgrules yourself", opinions: "Main opinions", pinHint: "Click to pin · Esc to close",
+      missingRef: "referenced but not present in the data", footer: "Rules text and card data are quoted verbatim from the sources named above. Community opinions are summarised, not verified. Check with a judge for tournament play.",
+      example: "Example:"
+    },
+    fr: {
+      nav: { answer: "Réponse", cards: "Cartes", rules: "Règles", rulings: "Rulings", walkthrough: "Déroulement", confidence: "Confiance", community: "Reddit" },
+      kicker: "Question de règles", shortAnswer: "Réponse courte", cards: "Cartes", rules: "Règles pertinentes",
+      rulings: "Rulings officiels", walkthrough: "Déroulement", confidence: "Confiance",
+      community: "Discussions Reddit", communityKicker: "Non officiel · opinions de la communauté",
+      crVersion: "Règles complètes en vigueur le", generated: "Recherche effectuée le", allCards: "Toutes les cartes sur Scryfall",
+      card: "Carte", rule: "Règle", ruling: "Ruling", official: "Officiel", scryfallNote: "Note Scryfall",
+      openOn: "Ouvrir sur", why: "Pourquoi", assumptions: "Hypothèses", notRetrieved: "Non récupéré",
+      high: "Élevée", medium: "Moyenne", low: "Faible", agrees: "Concorde avec les sources officielles :",
+      yes: "Oui", partly: "En partie", no: "Non", unknown: "Inconnu", noThreads: "Aucun fil Reddit n'a pu être récupéré pour cette question.",
+      searchReddit: "Chercher vous-même sur r/mtgrules", opinions: "Principales opinions", pinHint: "Cliquer pour épingler · Échap pour fermer",
+      missingRef: "référencé mais absent des données", footer: "Le texte des règles et des cartes est cité mot pour mot depuis les sources nommées ci-dessus. Les opinions de la communauté sont résumées, pas vérifiées. Consultez un arbitre en tournoi.",
+      example: "Exemple :"
+    }
+  }
+};
+</script>
+
+<script id="answer-data" type="application/json">
+{
+  "lang": "en",
+  "demo": true,
+  "title": "Thassa's Oracle with an empty library",
+  "question": "If I cast Demonic Consultation naming a card that isn't in my library, then cast Thassa's Oracle, do I win even if my opponent kills the Oracle in response to its trigger?",
+  "generatedAt": "2026-10-02",
+  "crEffectiveDate": "September 25, 2026",
+  "shortAnswer": "Yes. Exiling your whole library with [[card:Demonic Consultation]] doesn't make you lose: [[rule:704.5b]] and [[rule:121.4]] only care about *attempting to draw* from an empty library. When [[card:Thassa's Oracle]]'s trigger resolves, X is compared to the number of cards in your library, which is 0, so X ≥ 0 is always true and you win, even if the Oracle has already left the battlefield.",
+  "confidence": {
+    "level": "high",
+    "reasons": [
+      "The Oracle's own Oracle text states the win condition as a comparison with the library size, and a 2008 ruling on Demonic Consultation confirms exiling the whole library doesn't make you lose.",
+      "Both results follow from the same two sentences; no competing reading was found."
+    ],
+    "assumptions": [
+      "The named card isn't in your library (or was among the six exiled cards), so Demonic Consultation exiles everything.",
+      "No effect puts cards into your library before the Oracle's trigger resolves."
+    ],
+    "notRetrieved": [
+      "Reddit threads could not be fetched from the research environment; the community section is empty on purpose rather than invented."
+    ]
+  },
+  "cards": [
+    {
+      "id": "thassas-oracle",
+      "name": "Thassa's Oracle",
+      "manaCost": "{U}{U}",
+      "typeLine": "Creature — Merfolk Wizard",
+      "oracleText": "When this creature enters, look at the top X cards of your library, where X is your devotion to blue. Put up to one of them on top of your library and the rest on the bottom of your library in a random order. If X is greater than or equal to the number of cards in your library, you win the game.",
+      "power": "1",
+      "toughness": "3",
+      "colors": [
+        "U"
+      ],
+      "scryfallUri": "https://scryfall.com/search?q=%21%22Thassa%27s+Oracle%22",
+      "imageUrl": "https://api.scryfall.com/cards/named?exact=Thassa%27s%20Oracle&format=image&version=normal",
+      "source": "mtg.wtf, 2026-10-02"
+    },
+    {
+      "id": "demonic-consultation",
+      "name": "Demonic Consultation",
+      "manaCost": "{B}",
+      "typeLine": "Instant",
+      "oracleText": "Choose a card name. Exile the top six cards of your library, then reveal cards from the top of your library until you reveal a card with the chosen name. Put that card into your hand and exile all other cards revealed this way.",
+      "colors": [
+        "B"
+      ],
+      "scryfallUri": "https://scryfall.com/search?q=%21%22Demonic+Consultation%22",
+      "imageUrl": "https://api.scryfall.com/cards/named?exact=Demonic%20Consultation&format=image&version=normal",
+      "source": "mtg.wtf, 2026-10-02"
+    }
+  ],
+  "allCardsLink": "https://scryfall.com/search?q=%21%22Thassa%27s+Oracle%22+or+%21%22Demonic+Consultation%22&unique=cards",
+  "rules": [
+    {
+      "id": "704.5b",
+      "text": "If a player attempted to draw a card from a library with no cards in it since the last time state-based actions were checked, that player loses the game."
+    },
+    {
+      "id": "121.4",
+      "text": "A player who attempts to draw a card from a library with no cards in it loses the game the next time a player would receive priority. (This is a state-based action. See rule 704.)"
+    },
+    {
+      "id": "603.2",
+      "text": "Whenever a game event or game state matches a triggered ability’s trigger event, that ability automatically triggers. The ability doesn’t do anything at this point."
+    },
+    {
+      "id": "603.3",
+      "text": "Once an ability has triggered, its controller puts it on the stack as an object that’s not a card the next time a player would receive priority. See rule 117, “Timing and Priority.” The ability becomes the topmost object on the stack. It has the text of the ability that created it, and no other characteristics. It remains on the stack until it’s countered, it resolves, a rule causes it to be removed from the stack, or an effect moves it elsewhere."
+    },
+    {
+      "id": "113.7a",
+      "text": "Once activated or triggered, an ability exists on the stack independently of its source. Destruction or removal of the source after that time won’t affect the ability. Note that some abilities cause a source to do something (for example, “This creature deals 1 damage to any target”) rather than the ability doing anything directly. In these cases, any activated or triggered ability that references information about the source for use while announcing an activated ability or putting a triggered ability on the stack checks that information when the ability is put onto the stack. Otherwise, it will check that information when it resolves. In both instances, if the source is no longer in the zone it’s expected to be in at that time, its last known information is used. The source can still perform the action even though it no longer exists."
+    }
+  ],
+  "rulings": [
+    {
+      "id": "dc-2008-whole-library",
+      "card": "demonic-consultation",
+      "date": "2008-10-01",
+      "source": "wotc",
+      "text": "If you don't reveal the named card (perhaps because it was in the top six cards of your library), you'll end up exiling your entire library. You don't lose the game at that point, but will lose the next time you're instructed to draw a card.",
+      "links": [
+        {
+          "label": "Gatherer",
+          "url": "https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=2445"
+        }
+      ]
+    },
+    {
+      "id": "dc-2008-name-on-resolution",
+      "card": "demonic-consultation",
+      "date": "2008-10-01",
+      "source": "wotc",
+      "text": "You don't name a card until Demonic Consultation resolves."
+    },
+    {
+      "id": "to-2020-devotion-zero",
+      "card": "thassas-oracle",
+      "date": "2020-01-24",
+      "source": "wotc",
+      "text": "If your devotion to blue is zero at the time the triggered ability of Thassa's Oracle resolves, you don't look at or move any cards in your library."
+    },
+    {
+      "id": "to-2020-devotion-count",
+      "card": "thassas-oracle",
+      "date": "2020-01-24",
+      "source": "wotc",
+      "text": "If an activated ability or triggered ability has an effect that depends on your devotion to a color, you count the number of mana symbols of that color among the mana costs of permanents you control as the ability resolves."
+    }
+  ],
+  "steps": [
+    {
+      "text": "[[card:Demonic Consultation]] resolves. You name a card as it resolves ([[ruling:dc-2008-name-on-resolution]]), exile the top six cards, then reveal until the named card appears. If it never appears, your whole library is exiled.",
+      "note": "Naming a card you know isn't in the library is the usual way to do this on purpose."
+    },
+    {
+      "text": "Having an empty library is not a loss. The state-based action in [[rule:704.5b]] (and [[rule:121.4]]) applies only when a player *attempted to draw* from an empty library. The 2008 ruling says the same thing in plain words: [[ruling:dc-2008-whole-library]]."
+    },
+    {
+      "text": "You cast [[card:Thassa's Oracle]]. It resolves, enters the battlefield, and its ability triggers ([[rule:603.2]]) and goes on the stack the next time a player would receive priority ([[rule:603.3]])."
+    },
+    {
+      "text": "Your opponent kills the Oracle in response. The trigger is already on the stack as an object independent of its source and still resolves ([[rule:113.7a]]). Your devotion to blue is counted as the ability resolves ([[ruling:to-2020-devotion-count]]), so with the Oracle gone X may be 0."
+    },
+    {
+      "text": "The trigger resolves. With X = 0 you look at nothing ([[ruling:to-2020-devotion-zero]]), but the last sentence still applies: 0 is greater than or equal to 0 cards in your library, so you win the game.",
+      "note": "Ways to actually stop this: counter the Oracle, counter or exile the trigger (Stifle effects), or put cards into the library before the trigger resolves."
+    }
+  ],
+  "reddit": {
+    "searched": true,
+    "threads": [],
+    "overview": "Reddit could not be fetched from this environment, so no threads are summarised here. The link below runs the search in your own browser.",
+    "opinions": [],
+    "agreesWithOfficial": "unknown",
+    "searchUrl": "https://www.reddit.com/r/mtgrules/search/?q=%22Thassa%27s+Oracle%22+%22Demonic+Consultation%22"
+  }
+}
+</script>
+
+<script>
+/* ===== 3. ANSWER DATA is the JSON block above (id="answer-data").
+   Claude replaces its contents for each answer; the schema is documented
+   in references/answer-schema.md. Inline references inside any text:
+     [[card:Card Name or id]]   [[rule:704.5b]]   [[ruling:ruling-id]]
+     [[link:Label|https://...]]
+   Mana symbols like {U}, {2}, {U/B}, {T} render as symbols anywhere. */
+const ANSWER = JSON.parse(document.getElementById("answer-data").textContent);
+const L = CONFIG.labels[ANSWER.lang] || CONFIG.labels.en;
+
+/* ===== 4. RENDERERS — one function per block of the page ===== */
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+const cardById = {};
+(ANSWER.cards || []).forEach((c) => { c.id = c.id || slug(c.name); cardById[c.id] = c; cardById[slug(c.name)] = c; });
+const ruleById = Object.fromEntries((ANSWER.rules || []).map((r) => [r.id, r]));
+const rulingById = Object.fromEntries((ANSWER.rulings || []).map((r) => [r.id, r]));
+
+function mana(text) {
+  // {U} {2} {X} {U/B} {2/W} {T} {Q} {E} {S} -> symbol spans
+  return text.replace(/\{([^}]{1,4})\}/g, (m, sym) => {
+    const s = sym.toUpperCase();
+    if (s.includes("/")) {
+      const [a, b] = s.split("/");
+      const col = { W: "#F8F6D8", U: "#C1D7E9", B: "#BAB1AB", R: "#E49977", G: "#A3C095" };
+      const ca = col[a] || "#CAC5C0", cb = col[b] || "#CAC5C0";
+      return `<span class="ms ms-hybrid" style="--h1:${ca};--h2:${cb}" title="${esc(m)}">${esc(a)}/${esc(b)}</span>`;
+    }
+    const cls = /^[WUBRGC]$/.test(s) ? "ms-" + s : s === "T" ? "ms-T" : "";
+    const label = s === "T" ? "⟳" : s;
+    return `<span class="ms ${cls}" title="${esc(m)}">${esc(label)}</span>`;
+  });
+}
+
+function inline(text) {
+  // escape, then light markup, then [[refs]], then mana symbols
+  let h = esc(text);
+  h = h.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<i>$2</i>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  h = h.replace(/\[\[(card|rule|ruling|link):([^\]|]+)(?:\|([^\]]+))?\]\]/g, (m, kind, key, label) => {
+    const unesc = (x) => x.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+    key = unesc(key.trim()); if (label) label = unesc(label);
+    if (kind === "link") return `<a href="${esc(label || key)}" target="_blank" rel="noopener">${esc(key)}</a>`;
+    if (kind === "card") {
+      const c = cardById[key] || cardById[slug(key)];
+      if (!c) return `<span class="ref ref-missing" title="${esc(L.missingRef)}">${esc(label || key)}</span>`;
+      return `<button type="button" class="ref ref-card" data-kind="card" data-key="${esc(c.id)}" aria-expanded="false">${esc(label || c.name)}</button>`;
+    }
+    if (kind === "rule") {
+      const r = ruleById[key];
+      if (!r) return `<span class="ref ref-missing" title="${esc(L.missingRef)}">${esc(label || "CR " + key)}</span>`;
+      return `<button type="button" class="ref ref-rule" data-kind="rule" data-key="${esc(key)}" aria-expanded="false">${esc(label || "CR " + key)}</button>`;
+    }
+    const r = rulingById[key];
+    if (!r) return `<span class="ref ref-missing" title="${esc(L.missingRef)}">${esc(label || key)}</span>`;
+    const card = cardById[r.card];
+    const lbl = label || `${L.ruling.toLowerCase()} ${card ? card.name + ", " : ""}${r.date}`;
+    return `<button type="button" class="ref ref-ruling" data-kind="ruling" data-key="${esc(key)}" aria-expanded="false">${esc(lbl)}</button>`;
+  });
+  return mana(h);
+}
+const paras = (text) => String(text ?? "").split(/\n{2,}/).map((p) => `<p>${inline(p).replace(/\n/g, "<br>")}</p>`).join("");
+
+function frameClass(c) {
+  const cols = c.colors || [];
+  const type = (c.typeLine || "").toLowerCase();
+  if (cols.length > 1) return "frame-M";
+  if (cols.length === 1) return "frame-" + cols[0];
+  if (type.includes("land")) return "frame-L";
+  if (type.includes("artifact")) return "frame-A";
+  return "frame-C";
+}
+
+function cardFrame(c, opts = {}) {
+  const faces = c.faces && c.faces.length ? c.faces : [c];
+  const f = faces[0];
+  const pt = f.power != null ? `${esc(f.power)}/${esc(f.toughness)}` : f.loyalty != null ? esc(f.loyalty) : f.defense != null ? esc(f.defense) : "";
+  const extraFaces = faces.slice(1).map((x) => `<hr style="border:0;border-top:1px solid rgba(0,0,0,.3);margin:6px 0"><b>${esc(x.name)}</b> ${mana(esc(x.manaCost || ""))}<br><i>${esc(x.typeLine || "")}</i>${paras(x.oracleText)}`).join("");
+  const img = CONFIG.tryExternalImages && (c.imageDataUri || c.imageUrl)
+    ? `<img class="art" alt="" src="${esc(c.imageDataUri || c.imageUrl)}" onload="this.parentElement.classList.add('has-image')" onerror="this.remove()">` : "";
+  const tag = c.note ? `<span class="tag">${esc(c.note)}</span>` : "";
+  const href = c.scryfallUri || CONFIG.cardSearchLink(c.name);
+  return `<a class="cardframe ${frameClass(c)}" href="${esc(href)}" target="_blank" rel="noopener" title="${esc(L.openOn)} Scryfall">${tag}${img}
+    <div class="inner">
+      <div class="bar"><span class="name">${esc(f.name || c.name)}</span><span class="cost">${mana(esc(f.manaCost || c.manaCost || ""))}</span></div>
+      <div class="bar type"><span>${esc(f.typeLine || c.typeLine || "")}</span></div>
+      <div class="box">${paras(f.oracleText || c.oracleText)}${extraFaces}${pt ? `<div class="pt">${pt}</div>` : ""}</div>
+    </div></a>`;
+}
+
+function renderHeader() {
+  const demo = ANSWER.demo ? `<div class="demo-banner">Sample answer, to show the layout. Card text and rulings were retrieved from mtg.wtf on ${esc(ANSWER.generatedAt)}; rules are quoted verbatim from the Comprehensive Rules effective ${esc(ANSWER.crEffectiveDate)}.</div>` : "";
+  return `${demo}<header>
+    <div class="eyebrow">${esc(L.kicker)}</div>
+    <h1>${esc(ANSWER.title)}</h1>
+    ${ANSWER.question ? `<div class="question">${paras(ANSWER.question)}</div>` : ""}
+    <div class="meta">
+      <span>${esc(L.crVersion)} <b>${esc(ANSWER.crEffectiveDate || "?")}</b></span>
+      <span>${esc(L.generated)} <b>${esc(ANSWER.generatedAt || "")}</b></span>
+    </div>
+  </header>`;
+}
+
+function renderNav() {
+  const N = L.nav;
+  const items = [["answer", N.answer], ["cards", N.cards], ["rules", N.rules], ["rulings", N.rulings], ["walkthrough", N.walkthrough], ["confidence", N.confidence]];
+  if (ANSWER.reddit) items.push(["community", N.community, "unofficial-link"]);
+  return `<nav class="sections"><ul>${items.map(([id, label, cls]) => `<li><a href="#${id}" class="${cls || ""}">${esc(label)}</a></li>`).join("")}</ul></nav>`;
+}
+
+function renderAnswer() {
+  const lvl = (ANSWER.confidence && ANSWER.confidence.level) || "medium";
+  return `<section id="answer"><h2>${esc(L.shortAnswer)}</h2>
+    <div class="verdict"><div class="text">${paras(ANSWER.shortAnswer)}</div><span class="pill ${esc(lvl)}">${esc(L.confidence)}: ${esc(L[lvl] || lvl)}</span></div></section>`;
+}
+
+function renderCards() {
+  const cards = ANSWER.cards || [];
+  if (!cards.length) return "";
+  return `<section id="cards"><h2>${esc(L.cards)} <span class="count">${cards.length}</span></h2>
+    <div class="cards-grid">${cards.map((c) => cardFrame(c)).join("")}</div>
+    ${ANSWER.allCardsLink ? `<p class="cards-foot"><a href="${esc(ANSWER.allCardsLink)}" target="_blank" rel="noopener">${esc(L.allCards)} →</a></p>` : ""}</section>`;
+}
+
+function ruleBody(text) {
+  // "Example:" lines in the CR are set apart in italics, as in the printed rules
+  return String(text ?? "").split("\n").map((line) => /^\s*Example:/i.test(line) ? `<span class="ex">${inline(line)}</span>` : inline(line)).join("<br>");
+}
+
+function renderRules() {
+  const rules = ANSWER.rules || [];
+  if (!rules.length) return "";
+  return `<section id="rules"><h2>${esc(L.rules)} <span class="count">${rules.length}</span></h2>
+    ${rules.map((r) => `<div class="quote" id="rule-${esc(slug(r.id))}"><div class="key"><a href="${esc(CONFIG.ruleLink(r.id))}" target="_blank" rel="noopener">${esc(r.id)}</a></div><div class="body">${ruleBody(r.text)}</div></div>`).join("")}</section>`;
+}
+
+function rulingSrc(r) {
+  return r.source === "wotc" ? `<span class="src">${esc(L.official)}</span>` : `<span class="src scryfall">${esc(r.sourceLabel || L.scryfallNote)}</span>`;
+}
+
+function renderRulings() {
+  const rulings = ANSWER.rulings || [];
+  if (!rulings.length) return "";
+  const groups = {};
+  rulings.forEach((r) => { (groups[r.card] = groups[r.card] || []).push(r); });
+  return `<section id="rulings"><h2>${esc(L.rulings)} <span class="count">${rulings.length}</span></h2>
+    ${Object.entries(groups).map(([cid, rs]) => { const c = cardById[cid]; return `<div class="ruling-group"><h3>${esc(c ? c.name : cid)}</h3>
+      ${rs.map((r) => `<div class="quote ruling" id="ruling-${esc(slug(r.id))}"><div class="key"><span>${esc(r.date || "")}</span>${rulingSrc(r)}</div><div class="body">${paras(r.text)}${(r.links || []).length ? `<div class="pop-links">${r.links.map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} →</a>`).join("")}</div>` : ""}</div></div>`).join("")}</div>`; }).join("")}</section>`;
+}
+
+function renderSteps() {
+  const steps = ANSWER.steps || [];
+  if (!steps.length) return "";
+  return `<section id="walkthrough"><h2>${esc(L.walkthrough)}</h2><ol class="steps">${steps.map((s) => `<li><div class="step">${paras(s.text)}${s.note ? `<div class="note">${inline(s.note)}</div>` : ""}</div></li>`).join("")}</ol></section>`;
+}
+
+function renderConfidence() {
+  const c = ANSWER.confidence;
+  if (!c) return "";
+  const panel = (title, items) => items && items.length ? `<div class="panel"><h3>${esc(title)}</h3><ul>${items.map((i) => `<li>${inline(i)}</li>`).join("")}</ul></div>` : "";
+  return `<section id="confidence"><h2>${esc(L.confidence)} <span class="pill ${esc(c.level)}">${esc(L[c.level] || c.level)}</span></h2>
+    <div class="confidence">${panel(L.why, c.reasons)}${panel(L.assumptions, c.assumptions)}${panel(L.notRetrieved, c.notRetrieved)}</div></section>`;
+}
+
+function renderCommunity() {
+  const r = ANSWER.reddit;
+  if (!r) return "";
+  const agreeMap = { yes: ["high", L.yes], partly: ["medium", L.partly], no: ["low", L.no] };
+  const [cls, txt] = agreeMap[r.agreesWithOfficial] || ["", L.unknown];
+  const threads = (r.threads || []).length
+    ? `<ul class="threads">${r.threads.map((t) => `<li><div class="t-head"><a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.title)}</a><span>${esc(t.subreddit || "")}</span><span>${esc(t.date || "")}</span>${t.comments != null ? `<span>${esc(t.comments)} comments</span>` : ""}${t.judgeFlair ? `<span class="src">judge</span>` : ""}</div>${t.summary ? `<div class="t-sum">${inline(t.summary)}</div>` : ""}</li>`).join("")}</ul>`
+    : r.searched === false ? "" : `<p class="muted">${esc(L.noThreads)}</p>`;
+  const search = r.searchUrl ? `<p><a href="${esc(r.searchUrl)}" target="_blank" rel="noopener">${esc(L.searchReddit)} →</a></p>` : "";
+  return `<section id="community" class="community"><div class="eyebrow">${esc(L.communityKicker)}</div><h2>${esc(L.community)}</h2>
+    ${r.threads && r.threads.length ? `<div class="agree">${esc(L.agrees)} <span class="pill ${cls}">${esc(txt)}</span></div>` : ""}
+    ${r.overview ? paras(r.overview) : ""}
+    ${(r.opinions || []).length ? `<div class="eyebrow" style="margin-top:12px">${esc(L.opinions)}</div><ul class="opinions">${r.opinions.map((o) => `<li>${inline(o)}</li>`).join("")}</ul>` : ""}
+    ${threads}${r.notes ? `<p class="muted" style="margin-top:10px">${inline(r.notes)}</p>` : ""}${search}</section>`;
+}
+
+function renderFooter() {
+  const srcs = [...new Set((ANSWER.cards || []).map((c) => c.source).filter(Boolean))];
+  return `<footer>${esc(L.footer)}${srcs.length ? ` <span class="mono">${esc(srcs.join(" · "))}</span>` : ""}</footer>`;
+}
+
+document.getElementById("app").innerHTML = [renderHeader(), renderNav(), renderAnswer(), renderCards(), renderRules(), renderRulings(), renderSteps(), renderConfidence(), renderCommunity(), renderFooter()].join("");
+
+/* ===== 5. POPOVER ENGINE — hover, focus, click-to-pin, keyboard ===== */
+(function () {
+  const pop = document.getElementById("pop");
+  let current = null, pinned = false, showTimer = null, hideTimer = null;
+
+  function content(kind, key) {
+    if (kind === "card") {
+      const c = cardById[key];
+      return `<div class="pop-head"><span class="pop-title">${esc(c.name)}</span><span class="pop-kind">${esc(L.card)}</span></div>${cardFrame(c)}
+        <div class="pop-links"><a href="${esc(c.scryfallUri || CONFIG.cardSearchLink(c.name))}" target="_blank" rel="noopener">${esc(L.openOn)} Scryfall →</a>${(c.links || []).map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} →</a>`).join("")}</div>`;
+    }
+    if (kind === "rule") {
+      const r = ruleById[key];
+      return `<div class="pop-head"><span class="pop-title mono">${esc(r.id)}</span><span class="pop-kind">${esc(L.rule)} · CR ${esc(ANSWER.crEffectiveDate || "")}</span></div><div class="pop-body">${ruleBody(r.text)}</div>
+        <div class="pop-links"><a href="#rule-${esc(slug(r.id))}">↓ ${esc(L.rules)}</a><a href="${esc(CONFIG.ruleLink(r.id))}" target="_blank" rel="noopener">magic.wizards.com →</a></div>`;
+    }
+    const r = rulingById[key];
+    const c = cardById[r.card];
+    return `<div class="pop-head"><span class="pop-title">${esc(c ? c.name : r.card)}</span><span class="pop-kind">${esc(L.ruling)} · ${esc(r.date || "")}</span></div>${rulingSrc(r)}<div class="pop-body" style="margin-top:6px">${paras(r.text)}</div>
+      <div class="pop-links"><a href="#ruling-${esc(slug(r.id))}">↓ ${esc(L.rulings)}</a>${(r.links || []).map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} →</a>`).join("")}${c && c.scryfallUri ? `<a href="${esc(c.scryfallUri)}" target="_blank" rel="noopener">Scryfall →</a>` : ""}</div>`;
+  }
+
+  function place(trigger) {
+    const r = trigger.getBoundingClientRect();
+    const pw = pop.offsetWidth, ph = pop.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+    let top = r.bottom + 8;
+    if (top + ph > vh - 8 && r.top - ph - 8 > 8) top = r.top - ph - 8;
+    top = Math.max(8, Math.min(top, vh - ph - 8));
+    let left = r.left + r.width / 2 - pw / 2;
+    left = Math.max(12, Math.min(left, vw - pw - 12));
+    pop.style.top = top + "px"; pop.style.left = left + "px";
+  }
+
+  function open(trigger) {
+    clearTimeout(hideTimer);
+    if (current && current !== trigger) current.setAttribute("aria-expanded", "false");
+    current = trigger;
+    pop.innerHTML = content(trigger.dataset.kind, trigger.dataset.key) + `<div class="pin-hint">${esc(L.pinHint)}</div>`;
+    pop.classList.add("show");
+    trigger.setAttribute("aria-expanded", "true");
+    place(trigger);
+  }
+  function close() {
+    clearTimeout(showTimer); clearTimeout(hideTimer);
+    pop.classList.remove("show"); pinned = false;
+    if (current) current.setAttribute("aria-expanded", "false");
+    current = null;
+  }
+  function scheduleHide() { if (pinned) return; clearTimeout(hideTimer); hideTimer = setTimeout(close, CONFIG.hideDelayMs); }
+
+  document.addEventListener("pointerover", (e) => {
+    const t = e.target.closest(".ref[data-kind]");
+    if (t) { if (e.pointerType === "touch") return; clearTimeout(hideTimer); if (pinned && current !== t) return; clearTimeout(showTimer); showTimer = setTimeout(() => open(t), CONFIG.hoverDelayMs); }
+  });
+  document.addEventListener("pointerout", (e) => {
+    const t = e.target.closest(".ref[data-kind]");
+    if (t) { clearTimeout(showTimer); if (!pop.contains(e.relatedTarget)) scheduleHide(); }
+  });
+  pop.addEventListener("pointerenter", () => clearTimeout(hideTimer));
+  pop.addEventListener("pointerleave", () => scheduleHide());
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest(".ref[data-kind]");
+    if (t) { e.preventDefault(); if (current === t && pinned) { close(); } else { open(t); pinned = true; } return; }
+    if (!pop.contains(e.target)) close();
+  });
+  document.addEventListener("focusin", (e) => { const t = e.target.closest(".ref[data-kind]"); if (t && !pinned) open(t); });
+  document.addEventListener("focusout", (e) => { if (e.target.closest(".ref[data-kind]") && !pinned) scheduleHide(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+  window.addEventListener("scroll", () => { if (current) place(current); }, { passive: true });
+  window.addEventListener("resize", () => { if (current) place(current); });
+
+  // highlight the section in view in the sticky nav
+  const links = [...document.querySelectorAll("nav.sections a")];
+  const secs = links.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) links.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === "#" + en.target.id)); });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    secs.forEach((s) => io.observe(s));
+  }
+})();
+</script>

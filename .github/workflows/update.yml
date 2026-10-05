@@ -1,0 +1,79 @@
+name: Update rules and cards
+
+on:
+  schedule:
+    # Daily at 15:00 UTC. Sets release on Fridays; Scryfall has finished importing
+    # them by then, and Wizards posts new Comprehensive Rules a few days before.
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+    inputs:
+      force_cards:
+        description: "Rebuild the card database even if no new set was released"
+        type: boolean
+        default: false
+      force_rules:
+        description: "Re-download the Comprehensive Rules even if the date is unchanged"
+        type: boolean
+        default: false
+
+# Only one update at a time, so two runs never race on the same commit
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check and update
+        id: update
+        run: |
+          args=""
+          if [ "${{ inputs.force_cards }}" = "true" ]; then args="$args --force-cards"; fi
+          if [ "${{ inputs.force_rules }}" = "true" ]; then args="$args --force-rules"; fi
+          python tools/update.py $args
+
+      - name: Smoke-test the skill
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          python plugins/mtg-rules-judge/skills/mtg-rules-judge/scripts/lookup.py \
+            --card "Lightning Bolt" --rule 601.2f | head -20
+          python plugins/mtg-rules-judge/skills/mtg-rules-judge/scripts/rules.py info
+
+      - name: Commit and push
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A plugins/
+          git commit -m "Update to ${{ steps.update.outputs.version }}" \
+                     -m "${{ steps.update.outputs.summary }}"
+          git push
+
+      - name: Zip the skill for manual upload
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          cd plugins/mtg-rules-judge/skills
+          zip -qr "$GITHUB_WORKSPACE/mtg-rules-judge-skill.zip" mtg-rules-judge
+          ls -l "$GITHUB_WORKSPACE/mtg-rules-judge-skill.zip"
+
+      - name: Publish release
+        if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.update.outputs.version }}" mtg-rules-judge-skill.zip \
+            --title "v${{ steps.update.outputs.version }}" \
+            --notes "${{ steps.update.outputs.summary }}
+
+          Plugin users get this automatically. The zip is the bare skill folder, for anyone who uploads it by hand under Settings > Skills instead."
