@@ -67,6 +67,20 @@ python tools/update.py --force-cards    # rebuild cards even if nothing is new
 The card rebuild downloads Scryfall's "all cards" file (large) for the French names;
 `--no-french` skips it.
 
+## Repository size
+
+Each card rebuild adds a ~9 MB gzip file that git can't delta-compress, and anyone
+who adds the marketplace clones the whole repository, history included. To keep that
+clone small, `tools/compact.sh` runs after every data release:
+
+- it keeps only the newest 5 GitHub releases (older zips are deleted with their tags);
+- once the packed history passes 150 MB, it replaces `main` with a single snapshot
+  commit of the current files and force-pushes it.
+
+Installed plugins aren't affected: they always fetch the current tree. If you have a
+local clone when a compaction happens, `git pull` will refuse; run
+`git fetch origin && git reset --hard origin/main` instead.
+
 ## Repository layout
 
 ```
@@ -80,6 +94,7 @@ plugins/mtg-rules-judge/
     references/MagicCompRules.txt      the Comprehensive Rules (Wizards of the Coast)
     assets/answer-template.html        the interactive answer page
 tools/update.py                        the updater the workflow runs
+tools/compact.sh                       prunes old releases, compacts history when heavy
 .github/workflows/update.yml           daily schedule
 ```
 

@@ -30,6 +30,8 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history, so tools/compact.sh can measure it
 
       - uses: actions/setup-python@v5
         with:
@@ -77,3 +79,11 @@ jobs:
             --notes "${{ steps.update.outputs.summary }}
 
           Plugin users get this automatically. The zip is the bare skill folder, for anyone who uploads it by hand under Settings > Skills instead."
+
+      - name: Prune old releases and compact history if heavy
+        if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMPACT_THRESHOLD_MB: "150"
+          KEEP_RELEASES: "5"
+        run: bash tools/compact.sh
