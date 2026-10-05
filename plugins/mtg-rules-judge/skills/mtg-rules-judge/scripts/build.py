@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Turn a compact answer JSON (prose + ids) into the finished answer page.
 
-  build.py answer.json [-o answer.html] [--force]
+  build.py answer.json [-o answer.html] [--json answer.data.json] [--force]
 
 You write only the prose and the ids; this script fills in, verbatim:
   - card Oracle text, mana cost, type, P/T, colours, Scryfall link and image (from the card DB)
@@ -10,12 +10,14 @@ You write only the prose and the ids; this script fills in, verbatim:
   - crEffectiveDate, generatedAt, allCardsLink, the default Reddit link block
 Anything referenced inline ([[card:..]], [[rule:..]], [[ruling:..]]) is added automatically,
 so the "cards", "rules" and "rulings" lists only need extras you want shown.
+The page is rendered to static HTML here (scripts/render.py), so it shows as soon as it
+loads; the resolved data is also embedded in it as JSON (id="answer-data"), and --json
+writes the same data to a file, for any other renderer such as a hosted viewer.
 Every reference is checked; if one can't be resolved the script lists them all
 and writes nothing (use --force to write anyway). See references/answer-schema.md.
 """
 import argparse
 import datetime
-import html
 import json
 import os
 import re
@@ -26,6 +28,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import rules as cr  # noqa: E402
 from carddb import CardDB, slug, to_template_card  # noqa: E402
+from render import render_page  # noqa: E402
 
 TEMPLATE = os.path.join(HERE, "..", "assets", "answer-template.html")
 REF_RE = re.compile(r"\[\[(card|rule|ruling):([^\]|]+)(?:\|[^\]]+)?\]\]")
@@ -55,6 +58,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("answer")
     ap.add_argument("-o", "--out", default="answer.html")
+    ap.add_argument("--json", help="also write the resolved answer data to this file")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
 
@@ -170,7 +174,7 @@ def main():
 
     out = rewrite(prose) if renames else dict(prose)
     out.setdefault("lang", "en")
-    out["demo"] = False
+    out["schemaVersion"] = 1
     out.setdefault("generatedAt", datetime.date.today().isoformat())
     out["crEffectiveDate"] = eff
     out["cards"], out["rules"], out["rulings"] = cards, rules_out, rulings
@@ -192,16 +196,15 @@ def main():
         if not a.force:
             sys.exit("Nothing written. Fix the ids above (or --force to write with missing references).")
 
-    tpl = open(TEMPLATE, encoding="utf-8").read()
-    data = json.dumps(out, ensure_ascii=False, indent=1).replace("</", "<\\/")
-    tpl = re.sub(r"<title>.*?</title>", lambda m: f"<title>{html.escape(out.get('title', 'MTG rules answer'))}</title>", tpl, count=1, flags=re.S)
-    tpl = re.sub(r'(<script id="answer-data" type="application/json">).*?(</script>)',
-                 lambda m: m.group(1) + "\n" + data + "\n" + m.group(2), tpl, count=1, flags=re.S)
+    if a.json:  # the same resolved data, on its own (e.g. for a hosted viewer)
+        with open(a.json, "w", encoding="utf-8") as f:
+            json.dump(out, f, ensure_ascii=False, indent=1)
+    page = render_page(out, open(TEMPLATE, encoding="utf-8").read())
     with open(a.out, "w", encoding="utf-8") as f:
-        f.write(tpl)
-    print(f"Wrote {a.out}: {len(cards)} card(s), {len(rules_out)} rule(s), {len(rulings)} ruling(s), CR {eff}."
-          " Publish this file by path; don't paste it.")
-
+        f.write(page)
+    print(f"Wrote {a.out} ({len(page.encode()) // 1024} KB): {len(cards)} card(s), {len(rules_out)} rule(s), "
+          f"{len(rulings)} ruling(s), CR {eff}." + (f" Data: {a.json}." if a.json else "")
+          + " Publish this file by path; don't paste it.")
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,10 @@
 # answer.json — the input to build.py
 
-You write prose and ids; `scripts/build.py` produces the page data the template
-renders. Text fields may contain:
+You write prose and ids; `scripts/build.py` resolves them into the full answer data
+and `scripts/render.py` turns that data into static HTML. The resolved data (with
+`"schemaVersion": 1`) is embedded in the page as `<script id="answer-data">` and can be
+written to its own file with `build.py --json`, so another renderer can reuse it.
+Text fields may contain:
 
 - `[[card:Name]]` — hover shows the card (English name, or any name `lookup.py` resolves)
 - `[[rule:704.5b]]` — hover shows the verbatim rule

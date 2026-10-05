@@ -55,6 +55,8 @@ def load(path):
     except UnicodeDecodeError:
         text = raw.decode("cp1252", errors="replace")
     text = _repair_mojibake(text)
+    # Wizards indents example paragraphs with non-breaking spaces; make them plain spaces
+    text = text.replace("\xa0", " ")
     # U+2028 (line separator) is used inside glossary entries; treat it as a newline
     text = text.replace(" ", "\n").replace("\r\n", "\n").replace("\r", "\n")
     return [l.rstrip() for l in text.split("\n")]

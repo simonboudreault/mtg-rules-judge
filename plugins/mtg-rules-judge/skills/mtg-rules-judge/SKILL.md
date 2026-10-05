@@ -43,12 +43,14 @@ Put independent tool calls in the same turn.
 - `data/cards.json.gz` — offline Oracle text and rulings for every card (built from
   Scryfall bulk data by `scripts/build_card_db.py`, run on a computer with internet).
 - `scripts/build.py` — turns your compact answer JSON into the finished page, filling
-  in every verbatim text and checking every reference.
+  in every verbatim text and checking every reference. It renders the page to static
+  HTML (`scripts/render.py`), so it shows as soon as it loads; the resolved data is
+  also embedded in the page as JSON, and `--json <file>` writes it out on its own.
 - `references/MagicCompRules.txt` + `scripts/rules.py` — the CR; `rules.py` still works
   for one-off queries (`rule`, `search`, `glossary`, `toc`).
 - `scripts/scryfall.py` — live Scryfall API; only useful where the sandbox has network.
-- `assets/answer-template.html`, `references/answer-schema.md` — used by `build.py`;
-  read the schema only for an unusual field.
+- `assets/answer-template.html` (page styles + popover script), `references/answer-schema.md`
+  — used by `build.py`; read the schema only for an unusual field.
 
 ## Workflow
 
@@ -192,7 +194,7 @@ python3 <skill-dir>/scripts/build.py answer.json -o answer.html
 
 If it prints `ERROR` lines, fix those ids (it writes nothing until every reference
 resolves) and run it again. Then **publish `answer.html` by its file path** with your
-artifact tool. Never paste the HTML into your reply — it's a 45 KB file and retyping it
+artifact tool. Never paste the HTML into your reply — it's a 25–50 KB file and retyping it
 is the slowest thing this skill could do. If there is no artifact tool, send the file.
 
 **In the chat reply:** the short answer (1–3 sentences per question asked, with the
