@@ -30,10 +30,10 @@ The evidence is all local, so a full answer takes about four tool steps:
    a rule you didn't ask for.
 3. **Say the short answer in the chat, then write `answer.json`** (prose and ids only)
    in the same turn and run **`build.py`** on it.
-4. **Publish the HTML by path**, then close with one line.
+4. **Close with the link** `build.py` printed. Don't publish an artifact.
 
 The person is often mid-game: the short answer is what they are waiting for, and the
-page takes a while to write. So the answer goes out first and the page follows.
+page takes a while to write. So the answer goes out first and the link follows.
 
 Don't create a task list, don't read the template or the schema file (the example
 below is enough), and don't run `rules.py info` (the lookup header shows the dates).
@@ -149,7 +149,7 @@ only for the separate community section: what people concluded, where they disag
 and whether the consensus matches the official sources (if it contradicts the CR or a
 ruling, say so plainly). Note thread dates when old rules may be involved.
 
-### 5. Build and publish
+### 5. Build and share the link
 
 Write `answer.json` in your working directory. You write **only prose and ids**;
 `build.py` fills in the verbatim Oracle text, rule text and ruling text, the dates
@@ -197,26 +197,32 @@ python3 <skill-dir>/scripts/build.py answer.json -o answer.html
 ```
 
 If it prints `ERROR` lines, fix those ids (it writes nothing until every reference
-resolves) and run it again. Then **publish `answer.html` by its file path** with your
+resolves) and run it again. `answer.html` is a by-product: don't publish it as an
+artifact, don't send it and don't paste it. The link is the deliverable.
+
+<!-- DISABLED (artifact delivery is switched off; do not follow this block. Restore it to bring artifacts back):
+Then **publish `answer.html` by its file path** with your
 artifact tool. Never paste the HTML into your reply — it's a 25–50 KB file and retyping it
 is the slowest thing this skill could do. If there is no artifact tool, send the file.
+-->
 
 **In the chat, before you write `answer.json`:** the short answer (1–3 sentences per
 question asked, with the key rule/ruling number), the confidence level, and any
 assumption or missing fact that matters. Write it as soon as your reasoning is settled,
 as plain text ahead of the tool calls in the same turn, so it reaches the person while
-the page is still being built. That's enough to read at the table; the page carries the
-evidence.
+the page is still being built. That's enough to read at the table; the linked page
+carries the evidence.
 
-**After publishing:** one line saying the page is ready and that its share bar (under
-the title) opens or copies a link anyone can view. Don't repeat the answer. If writing
-the page changed your conclusion, say so plainly here.
+**After `build.py`:** it ends with a `Link: …` line. When it holds a URL, finish the
+reply with that URL on its own line (e.g. "Full answer: <url>"); it opens the complete
+page for anyone. Copy it character for character; never shorten or rebuild it. Don't
+repeat the answer or add anything after the link. If writing the page changed your
+conclusion, say so plainly before the link. If the line says the link was omitted, say
+in one sentence that the answer was too large for a link.
 
-**Share link:** the link is inside the page, so never type it into the chat: it is
-1,000–2,000 characters that would take longer to type than everything else in the
-reply. Only if the person explicitly asks for the link as text, run `build.py` again
-with `--print-link` and copy the printed URL character for character. If `build.py`
-says the link was omitted, say in one sentence that the answer was too large for one.
+**Keep the link short:** you type the link by hand, and its length follows the length
+of your prose in `answer.json` (card, rule and ruling texts cost almost nothing: they
+travel as ids). Tight steps and notes make the link arrive sooner.
 
 **Language:** write the prose in the language the person used and set `"lang"`
 (`"en"` or `"fr"`) so the page labels match. CR text, Oracle text and rulings stay

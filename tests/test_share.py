@@ -118,7 +118,7 @@ class Payload(unittest.TestCase):
 
 
 class PageLink(unittest.TestCase):
-    """build.py puts the link in the page, so Claude never types it."""
+    """build.py prints the link for the reply and also puts it in the page."""
 
     def build(self, *extra):
         with tempfile.TemporaryDirectory() as tmp:
@@ -133,22 +133,20 @@ class PageLink(unittest.TestCase):
     def page_links(self, html):
         return set(re.findall(r'(?:href|data-url|value)="(https://example\.test/#1\.[^"]+)"', html))
 
-    def test_page_carries_the_link_and_stdout_does_not(self):
+    def test_link_is_printed_and_in_the_page(self):
         html, stdout = self.build()
         urls = self.page_links(html)
         self.assertEqual(len(urls), 1)  # open link, copy button and manual field all hold the same URL
-        self.assertEqual(share.decode_fragment(urls.pop().split("#", 1)[1]), load("ruby-medallion.share.json"))
-        self.assertIn("share-copy", html)
-        self.assertNotIn("https://example.test/#", stdout)
-        self.assertIn("Share link: in the page", stdout)
+        url = urls.pop()
+        self.assertEqual(share.decode_fragment(url.split("#", 1)[1]), load("ruby-medallion.share.json"))
+        self.assertEqual(stdout.strip().splitlines()[-1], "Link: " + url)
+        self.assertNotIn("ublish this file", stdout)  # artifact delivery is off
 
-    def test_print_link_and_no_link(self):
-        html, stdout = self.build("--print-link")
-        self.assertIn("Link: " + self.page_links(html).pop(), stdout)
+    def test_no_link(self):
         html, stdout = self.build("--no-link")
         self.assertEqual(self.page_links(html), set())
         self.assertNotIn('class="share"', html)
-        self.assertNotIn("Share link", stdout)
+        self.assertNotIn("Link:", stdout)
 
 
 class DataFeed(unittest.TestCase):

@@ -3,8 +3,8 @@
 
   share.py resolved.json [--base URL] [--payload OUT.json] [--fragment OUT.txt]
 
-build.py puts the link in the page (the Share bar under the title), so normally you
-never run this.
+build.py prints the link (and puts it in the page's share bar), so normally you never
+run this.
 The link is  <site>#1.<base64url(zlib(json))>  where the JSON is the "share payload":
 the prose Claude wrote plus identifiers (card oracle ids, rule numbers, ruling ids with
 a hash of their text). The site fetches the rule text from the plugin's own data feed

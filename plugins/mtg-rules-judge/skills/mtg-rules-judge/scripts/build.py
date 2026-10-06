@@ -61,9 +61,7 @@ def main():
     ap.add_argument("-o", "--out", default="answer.html")
     ap.add_argument("--json", help="also write the resolved answer data to this file")
     ap.add_argument("--force", action="store_true")
-    ap.add_argument("--no-link", action="store_true", help="leave the hosted-viewer link out of the page")
-    ap.add_argument("--print-link", action="store_true",
-                    help="also print the link (only when the person wants it in the chat: it is slow to type)")
+    ap.add_argument("--no-link", action="store_true", help="no hosted-viewer link: neither printed nor in the page")
     a = ap.parse_args()
 
     src = json.load(open(a.answer, encoding="utf-8"))
@@ -212,14 +210,10 @@ def main():
         f.write(page)
     print(f"Wrote {a.out} ({len(page.encode()) // 1024} KB): {len(cards)} card(s), {len(rules_out)} rule(s), "
           f"{len(rulings)} ruling(s), CR {eff}." + (f" Data: {a.json}." if a.json else "")
-          + " Publish this file by path; don't paste it.")
-    if url:
-        print("Share link: in the page (bar under the title). Don't type it in the reply.")
-        if a.print_link:
-            print(f"Link: {url}" if url_len <= share.link_max() else
-                  f"Link: too long to type ({url_len} chars); point the person to the page's share bar.")
-    elif url_len:  # 0 = no viewer URL configured, or --no-link
-        print(f"Share link: omitted, the answer is too large for a link ({url_len} chars).")
+          + " Don't publish or paste it; the link below is what the person gets.")
+    if url_len:  # 0 = no viewer URL configured, or --no-link
+        print(f"Link: {url}" if url and url_len <= share.link_max() else
+              f"Link: omitted, URL would be {url_len} chars (cap {share.link_max()}); say so in the reply.")
 
 if __name__ == "__main__":
     main()

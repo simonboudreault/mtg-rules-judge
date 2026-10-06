@@ -3,8 +3,8 @@
 An answer can be opened as a web page at the viewer (`docs/` of this repository,
 served by GitHub Pages). The whole answer travels in the URL fragment; nothing is
 stored on a server and the fragment never leaves the browser. `scripts/share.py`
-builds the link, `build.py` puts it in the page (the share bar under the title: open
-or copy) and prints it only with `--print-link`. This file is the contract
+builds the link, `build.py` prints it as a `Link:` line for Claude to put in the reply
+(and also puts it in the page's share bar). This file is the contract
 between `share.py` and the viewer's `decode.js` / `render.js`.
 
 ## URL
@@ -21,8 +21,8 @@ https://<viewer>/#1.<base64url(zlib_compress(utf8(json)))>
   instead of producing garbage.
 - base64url alphabet (`-` and `_`), padding removed. The JSON is minified
   (`separators=(",", ":")`, `ensure_ascii=False`).
-- A link in the page can be up to `EMBED_MAX_CHARS` (8000): nobody types it. A printed
-  link (`--print-link`, `share.py`) is capped at `LINK_MAX_CHARS` (3000, env
+- A link in the page can be up to `EMBED_MAX_CHARS` (8000): nobody types it. The printed
+  link is capped at `LINK_MAX_CHARS` (3000, env
   `MTG_JUDGE_LINK_MAX`), because Claude then types it into the reply by hand, about as
   slowly as writing a long paragraph. A typical answer is 1,000–2,000 characters.
 
