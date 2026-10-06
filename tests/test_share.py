@@ -8,6 +8,7 @@ Runs in the daily workflow too, so a data update that breaks the link contract i
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -64,19 +65,78 @@ class Encoding(unittest.TestCase):
         self.assertIsNone(url)
         self.assertGreater(n, 100)
         url, n = share.make_link(p, "https://example.test/")
-        self.assertTrue(url.startswith("https://example.test/#1."))
-        self.assertLessEqual(n, share.LINK_MAX_CHARS)
+        self.assertTrue(url.startswith("https://example.test/#2."))
+        self.assertLessEqual(n, share.READABLE_MAX_CHARS)
         self.assertEqual(share.make_link(p, ""), (None, 0))
 
     def test_link_line(self):
         r = load("ruby-medallion.resolved.json")
         self.assertEqual(share.link_line(r, ""), "")
-        self.assertTrue(share.link_line(r, "https://example.test").startswith("Link: https://example.test/#1."))
+        self.assertTrue(share.link_line(r, "https://example.test").startswith("Link: https://example.test/#2."))
         os.environ["MTG_JUDGE_LINK_MAX"] = "50"
         try:
             self.assertIn("omitted", share.link_line(r, "https://example.test/"))
         finally:
             del os.environ["MTG_JUDGE_LINK_MAX"]
+
+
+class Readable(unittest.TestCase):
+    """The "2.…" form: the prose as words, so Claude can type the link quickly."""
+
+    def test_round_trip_is_exact(self):
+        for name in fixtures(".share.json"):
+            p = load(name)
+            frag = share.encode_readable(p)
+            self.assertIsNotNone(frag, name)
+            self.assertEqual(share.decode_fragment(frag), p, name)
+
+    def test_fixture_files_match_payloads(self):
+        for name in fixtures(".readable.txt"):
+            with open(os.path.join(FIX, name), encoding="utf-8") as f:
+                frag = f.read().strip()
+            self.assertEqual(share.decode_fragment(frag), load(name.replace(".readable.txt", ".share.json")), name)
+
+    def test_only_characters_that_survive_a_chat_app(self):
+        for name in fixtures(".share.json"):
+            frag = share.encode_readable(load(name))
+            odd = {c for c in frag if not (c.isalnum() or c in "-.,:;/!+=")}
+            self.assertEqual(odd, set(), name)
+            self.assertTrue(frag[-1].isalnum(), name)  # a trailing "." or ")" would be left out of the link
+            self.assertNotIn("..", frag, name)
+
+    def test_escaping(self):
+        nasty = "a_b ~c~ 100% [x] <y> #1 & co\u2026 \u00ab\u00a0oui\u00a0\u00bb l\u2019\u00e9t\u00e9 \u2014 fin... $5 `q` \\ \U0001F600 e\u0301 a  b\n=+!?"
+        self.assertEqual(share._unesc(share._esc(nasty)), nasty)
+        self.assertEqual(share._esc("**Pay {1}** ([[rule:601.2f]])"), "!bPay+!m1!M!b+!p!r601.2f!z!P")
+
+    def test_damaged_fragment_is_rejected(self):
+        frag = share.encode_readable(load("ruby-medallion.share.json"))
+        i = frag.index("Medallion")
+        for bad in (frag[:-1], frag[:i] + "m" + frag[i + 1:], frag.replace("=z", "=Z"), "2.en"):
+            with self.assertRaises(ValueError, msg=bad[:30]):
+                share.decode_fragment(bad)
+
+    def test_unusual_payload_falls_back_to_compressed(self):
+        p = load("ruby-medallion.share.json")
+        p["steps"][0]["extra"] = 1  # a field the readable form has no place for
+        self.assertIsNone(share.encode_readable(p))
+        url, _ = share.make_link(p, "https://example.test/")
+        self.assertTrue(url.startswith("https://example.test/#1."))
+        self.assertEqual(share.decode_fragment(url.split("#", 1)[1]), p)
+
+    def test_format_can_be_forced(self):
+        os.environ["MTG_JUDGE_LINK_FORMAT"] = "1"
+        try:
+            url, _ = share.make_link(load("ruby-medallion.share.json"), "https://example.test/")
+        finally:
+            del os.environ["MTG_JUDGE_LINK_FORMAT"]
+        self.assertTrue(url.startswith("https://example.test/#1."))
+
+    @unittest.skipUnless(shutil.which("node"), "node is not installed")
+    def test_viewer_decodes_the_same(self):
+        res = subprocess.run(["node", os.path.join(HERE, "test_decode.mjs")], capture_output=True, text=True,
+                             encoding="utf-8")
+        self.assertEqual(res.returncode, 0, res.stdout + res.stderr)
 
 
 class Payload(unittest.TestCase):
@@ -131,7 +191,7 @@ class PageLink(unittest.TestCase):
                 return f.read(), res.stdout
 
     def page_links(self, html):
-        return set(re.findall(r'(?:href|data-url|value)="(https://example\.test/#1\.[^"]+)"', html))
+        return set(re.findall(r'(?:href|data-url|value)="(https://example\.test/#2\.[^"]+)"', html))
 
     def test_link_is_printed_and_in_the_page(self):
         html, stdout = self.build()
@@ -150,7 +210,7 @@ class PageLink(unittest.TestCase):
                                  env=dict(os.environ, MTG_JUDGE_SITE="https://example.test/", PYTHONIOENCODING="utf-8"))
             self.assertEqual(os.listdir(tmp), [])  # no answer.html, nothing else
         last = res.stdout.strip().splitlines()[-1]
-        self.assertTrue(last.startswith("Link: https://example.test/#1."), last)
+        self.assertTrue(last.startswith("Link: https://example.test/#2."), last)
         self.assertEqual(share.decode_fragment(last.split("#", 1)[1]), load("ruby-medallion.share.json"))
 
     def test_no_link(self):

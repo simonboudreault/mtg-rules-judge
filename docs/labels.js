@@ -57,11 +57,12 @@ export const SITE = {
     ruleLoading: "Loading…",
     ruleMissing: "This rule isn't available here. Check the official rules:",
     rulingLoading: "Loading…",
-    rulingMissing: "This ruling couldn't be loaded. It is in the answer page attached in the chat.",
+    rulingMissing: "This ruling couldn't be loaded from Scryfall.",
     rulingMaybe: "Matched by date only: the wording may have changed since this answer.",
     textChanged: "Oracle text changed since this answer.",
     rulesUpdated: "The Comprehensive Rules were updated since this answer (now effective {now}). The rule text shown is the current version.",
-    scryfallDown: "Scryfall couldn't be reached, so card text and rulings are missing. The answer itself is complete; the page attached in the chat has everything.",
+    scryfallDown: "Scryfall couldn't be reached, so card text and rulings are missing. The answer itself is complete; reload the page to try again.",
+    damagedLink: "This link was changed on its way here: a character differs from what the plugin wrote, so a word or a reference below may be wrong. Ask Claude for the link again to be sure.",
     flip: "Flip",
     sources: "Card text, images and rulings: Scryfall, live.",
     attribution: "Card data and images provided by Scryfall. Unofficial Fan Content permitted under the Fan Content Policy; not endorsed by Wizards of the Coast or Scryfall. Rules text © Wizards of the Coast.",
@@ -73,11 +74,11 @@ export const SITE = {
       which your browser never sends to a server. Rules text comes from the Comprehensive Rules bundled with
       the plugin; card text, images and rulings come from Scryfall.</p>`,
     badLinkTitle: "This link is damaged or incomplete",
-    badLinkHtml: `<p>Part of the link was probably lost when it was copied. Open the answer page Claude attached
-      in the same chat instead; it has the same content.</p>`,
+    badLinkHtml: `<p>Part of the link was probably lost when it was copied. Ask Claude for the link again in the
+      same chat.</p>`,
     tooNewTitle: "This answer needs a newer viewer",
     tooNewHtml: `<p>The link was made by a newer version of the plugin. Reload this page; if it still shows this
-      message, open the answer page Claude attached in the chat.</p>`,
+      message, try again in a few minutes.</p>`,
     oldBrowserTitle: "This browser can't open answer links",
     oldBrowserHtml: `<p>Answer links need a browser from 2023 or later (Safari 16.4, Chrome 80, Firefox 113).
       Update your browser, or open the answer page Claude attached in the chat.</p>`,
@@ -90,11 +91,12 @@ export const SITE = {
     ruleLoading: "Chargement…",
     ruleMissing: "Cette règle n'est pas disponible ici. Consultez les règles officielles :",
     rulingLoading: "Chargement…",
-    rulingMissing: "Ce ruling n'a pas pu être chargé. Il figure dans la page de réponse jointe dans la conversation.",
+    rulingMissing: "Ce ruling n'a pas pu être chargé depuis Scryfall.",
     rulingMaybe: "Retrouvé par la date seulement : le texte a peut-être changé depuis cette réponse.",
     textChanged: "Le texte Oracle a changé depuis cette réponse.",
     rulesUpdated: "Les règles complètes ont été mises à jour depuis cette réponse (en vigueur le {now}). Le texte affiché est la version actuelle.",
-    scryfallDown: "Scryfall est injoignable : le texte des cartes et les rulings manquent. La réponse elle-même est complète ; la page jointe dans la conversation contient tout.",
+    scryfallDown: "Scryfall est injoignable : le texte des cartes et les rulings manquent. La réponse elle-même est complète ; rechargez la page pour réessayer.",
+    damagedLink: "Ce lien a été modifié en chemin : un caractère diffère de ce que le plugin a écrit, donc un mot ou une référence ci-dessous peut être faux. Redemandez le lien à Claude pour en être sûr.",
     flip: "Retourner",
     sources: "Texte des cartes, images et rulings : Scryfall, en direct.",
     attribution: "Données et images des cartes fournies par Scryfall. Contenu de fan non officiel autorisé par la Fan Content Policy ; non approuvé par Wizards of the Coast ni Scryfall. Texte des règles © Wizards of the Coast.",
@@ -106,11 +108,11 @@ export const SITE = {
       navigateur n'envoie jamais à un serveur. Le texte des règles vient des règles complètes incluses dans le plugin ;
       le texte des cartes, les images et les rulings viennent de Scryfall.</p>`,
     badLinkTitle: "Ce lien est abîmé ou incomplet",
-    badLinkHtml: `<p>Une partie du lien s'est probablement perdue à la copie. Ouvrez plutôt la page de réponse que
-      Claude a jointe dans la même conversation ; elle a le même contenu.</p>`,
+    badLinkHtml: `<p>Une partie du lien s'est probablement perdue à la copie. Redemandez le lien à Claude dans la
+      même conversation.</p>`,
     tooNewTitle: "Cette réponse demande une version plus récente",
     tooNewHtml: `<p>Le lien a été créé par une version plus récente du plugin. Rechargez la page ; si ce message
-      reste, ouvrez la page de réponse jointe dans la conversation.</p>`,
+      reste, réessayez dans quelques minutes.</p>`,
     oldBrowserTitle: "Ce navigateur ne peut pas ouvrir les liens de réponse",
     oldBrowserHtml: `<p>Il faut un navigateur de 2023 ou plus récent (Safari 16.4, Chrome 80, Firefox 113).
       Mettez-le à jour, ou ouvrez la page de réponse jointe dans la conversation.</p>`,

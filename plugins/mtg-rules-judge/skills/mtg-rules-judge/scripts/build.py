@@ -66,6 +66,8 @@ def main():
     ap.add_argument("--link-only", action="store_true",
                     help="check every reference and print the hosted-viewer link; write no page")
     a = ap.parse_args()
+    if hasattr(sys.stdout, "reconfigure"):  # the link holds accented letters; a Windows pipe would mangle them
+        sys.stdout.reconfigure(encoding="utf-8")
 
     src = json.load(open(a.answer, encoding="utf-8"))
     errors, warnings = [], []
@@ -206,12 +208,12 @@ def main():
     if a.json:  # the same resolved data, on its own (e.g. for a hosted viewer)
         with open(a.json, "w", encoding="utf-8") as f:
             json.dump(out, f, ensure_ascii=False, indent=1)
-    url, url_len = (None, 0) if a.no_link else share.make_link(share.to_share_payload(out),
-                                                                max_chars=share.EMBED_MAX_CHARS)
+    url, url_len = (None, 0) if a.no_link else share.make_link(share.to_share_payload(out))
     counts = f"{len(cards)} card(s), {len(rules_out)} rule(s), {len(rulings)} ruling(s), CR {eff}"
     if a.link_only:
         print(f"Checked {a.answer}: {counts}. No page written."
-              + (" Reply with the link below on its own line and nothing else." if url_len else
+              + (" Reply with the link below on its own line and nothing else. It is long, mostly"
+                 " readable words: copy all of it, to the last character." if url_len else
                  " No viewer URL is configured, so there is no link; say so in the reply."))
     else:
         page = render_page(out, open(TEMPLATE, encoding="utf-8").read(), share_url=url)
@@ -220,8 +222,8 @@ def main():
         print(f"Wrote {a.out} ({len(page.encode()) // 1024} KB): {counts}." + (f" Data: {a.json}." if a.json else "")
               + " Don't publish or paste it; the link below is what the person gets.")
     if url_len:  # 0 = no viewer URL configured, or --no-link
-        print(f"Link: {url}" if url and url_len <= share.link_max() else
-              f"Link: omitted, URL would be {url_len} chars (cap {share.link_max()}); say so in the reply.")
+        print(f"Link: {url}" if url else
+              f"Link: omitted, URL would be {url_len} chars, too long to type; say so in the reply.")
 
 if __name__ == "__main__":
     main()

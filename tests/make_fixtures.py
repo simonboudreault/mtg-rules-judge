@@ -4,7 +4,8 @@
 For each <name>.in.json (an answer.json as Claude writes it) this writes:
   <name>.resolved.json   build.py output (full text, what the artifact embeds)
   <name>.share.json      the share payload (ids only, what the link carries)
-  <name>.fragment.txt    the bare fragment "1.…" so a link can be built for any base URL
+  <name>.fragment.txt    the bare compressed fragment "1.…" so a link can be built for any base URL
+  <name>.readable.txt    the bare readable fragment "2.…", the form Claude types
 and copies the share payloads to docs/fixtures/ so the viewer can load them with
 ?fixture=<name> while developing.
 
@@ -43,8 +44,13 @@ def main():
             frag = share.encode_fragment(payload)
             with open(os.path.join(FIX, name + ".fragment.txt"), "w", encoding="utf-8", newline="\n") as f:
                 f.write(frag + "\n")
+            readable = share.encode_readable(payload)
+            if readable is None:
+                sys.exit(f"{name}: the readable link format can't carry this payload")
+            with open(os.path.join(FIX, name + ".readable.txt"), "w", encoding="utf-8", newline="\n") as f:
+                f.write(readable + "\n")
             shutil.copy(os.path.join(FIX, name + ".share.json"), os.path.join(DOCS_FIX, name + ".json"))
-            print(f"{name}: fragment {len(frag)} chars")
+            print(f"{name}: compressed {len(frag)} chars, readable {len(readable)} chars")
 
 
 if __name__ == "__main__":

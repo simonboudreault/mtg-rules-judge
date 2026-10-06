@@ -252,8 +252,10 @@ It writes no file. It checks every reference and prints a `Link: …` line.
 - If `answer.json` is gone (new session, cleaned sandbox), write it again from the
   conversation, then run the command.
 - When the line holds a URL, the reply is that URL on its own line (e.g.
-  "Full answer: <url>") and nothing else: the person already has the answer. Copy it
-  character for character; never shorten or rebuild it.
+  "Full answer: <url>") and nothing else: the person already has the answer. The URL
+  is long (2,000 characters or more) and mostly readable: your own prose with `+` for
+  spaces and `!` codes for punctuation. Copy it character for character, to the very
+  end; never shorten it, rebuild it, or tidy a word, an accent or a code inside it.
 - If the line says the link was omitted, say in one sentence that the answer is too
   large for a link and offer the plain-text version below.
 - If fixing the file changed your conclusion, say so plainly before the link.
