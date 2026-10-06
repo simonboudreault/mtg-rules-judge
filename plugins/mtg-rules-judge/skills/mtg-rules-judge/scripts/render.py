@@ -25,6 +25,8 @@ LABELS = {
         "searchReddit": "Search r/mtgrules yourself", "opinions": "Main opinions",
         "pinHint": "Click to pin · Esc to close", "comments": "comments",
         "missingRef": "referenced but not present in the data",
+        "shareOpen": "Open the shareable page", "shareCopy": "Copy link", "shareCopied": "Copied",
+        "shareManual": "Copy this link:",
         "footer": "Rules text and card data are quoted verbatim from the sources named above. Community opinions "
                   "are summarised, not verified. Check with a judge for tournament play.",
     },
@@ -44,6 +46,8 @@ LABELS = {
         "searchReddit": "Chercher vous-même sur r/mtgrules", "opinions": "Principales opinions",
         "pinHint": "Toucher pour épingler · Échap pour fermer", "comments": "commentaires",
         "missingRef": "référencé mais absent des données",
+        "shareOpen": "Ouvrir la page à partager", "shareCopy": "Copier le lien", "shareCopied": "Copié",
+        "shareManual": "Copiez ce lien :",
         "footer": "Le texte des règles et des cartes est cité mot pour mot depuis les sources nommées ci-dessus. "
                   "Les opinions de la communauté sont résumées, pas vérifiées. Consultez un arbitre en tournoi.",
     },
@@ -75,8 +79,9 @@ def search_link(name):
 
 
 class Page:
-    def __init__(self, data):
+    def __init__(self, data, share_url=None):
         self.d = data
+        self.share_url = share_url  # hosted-viewer link for this answer (scripts/share.py), or None
         self.L = LABELS.get(data.get("lang"), LABELS["en"])
         self.cards = {}
         for c in data.get("cards") or []:
@@ -192,7 +197,18 @@ class Page:
         q = f'<div class="question">{self.paras(d["question"])}</div>' if d.get("question") else ""
         return (f'<header><div class="eyebrow">{esc(L["kicker"])}</div><h1>{esc(d.get("title"))}</h1>{q}'
                 f'<div class="meta"><span>{esc(L["crVersion"])} <b>{esc(d.get("crEffectiveDate") or "?")}</b></span>'
-                f'<span>{esc(L["generated"])} <b>{esc(d.get("generatedAt") or "")}</b></span></div></header>')
+                f'<span>{esc(L["generated"])} <b>{esc(d.get("generatedAt") or "")}</b></span></div>'
+                f'{self.share_bar()}</header>')
+
+    def share_bar(self):
+        """The share link lives in the page so nobody has to type it: open it, or copy it."""
+        if not self.share_url:
+            return ""
+        L, u = self.L, esc(self.share_url)
+        return (f'<div class="share"><a class="share-open" href="{u}"{EXT}>{esc(L["shareOpen"])} →</a>'
+                f'<button type="button" class="share-copy" data-url="{u}" data-done="{esc(L["shareCopied"])}">'
+                f'{esc(L["shareCopy"])}</button>'
+                f'<label class="share-manual hidden">{esc(L["shareManual"])} <input readonly value="{u}"></label></div>')
 
     def nav(self, present):
         N = self.L["nav"]
@@ -344,8 +360,8 @@ class Page:
         return app, pops
 
 
-def render_page(data, template):
-    page = Page(data)
+def render_page(data, template, share_url=None):
+    page = Page(data, share_url)
     app, pops = page.render()
     blob = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     fills = {

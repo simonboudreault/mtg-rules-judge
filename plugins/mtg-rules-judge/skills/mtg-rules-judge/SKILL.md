@@ -28,8 +28,12 @@ The evidence is all local, so a full answer takes about four tool steps:
 1. **One `lookup.py` call** with every card and every rule you expect to need.
 2. **Think it through.** At most one more `lookup.py` call if the reasoning turns up
    a rule you didn't ask for.
-3. **Write `answer.json`** (prose and ids only) and run **`build.py`** on it.
-4. **Publish the HTML by path**, then reply.
+3. **Say the short answer in the chat, then write `answer.json`** (prose and ids only)
+   in the same turn and run **`build.py`** on it.
+4. **Publish the HTML by path**, then close with one line.
+
+The person is often mid-game: the short answer is what they are waiting for, and the
+page takes a while to write. So the answer goes out first and the page follows.
 
 Don't create a task list, don't read the template or the schema file (the example
 below is enough), and don't run `rules.py info` (the lookup header shows the dates).
@@ -197,15 +201,22 @@ resolves) and run it again. Then **publish `answer.html` by its file path** with
 artifact tool. Never paste the HTML into your reply — it's a 25–50 KB file and retyping it
 is the slowest thing this skill could do. If there is no artifact tool, send the file.
 
-**In the chat reply:** the short answer (1–3 sentences per question asked, with the
-key rule/ruling number), the confidence level, and any assumption or missing fact that matters. That's
-enough to read at the table; the page carries the evidence.
+**In the chat, before you write `answer.json`:** the short answer (1–3 sentences per
+question asked, with the key rule/ruling number), the confidence level, and any
+assumption or missing fact that matters. Write it as soon as your reasoning is settled,
+as plain text ahead of the tool calls in the same turn, so it reaches the person while
+the page is still being built. That's enough to read at the table; the page carries the
+evidence.
 
-**Share link:** `build.py` ends with a `Link: …` line. When it holds a URL, put that URL
-in the reply exactly as printed, on its own line at the end (e.g. "Shareable link:
-<url>"); it opens the same page for anyone, without the artifact. Copy it character for
-character; never shorten or rebuild it. If the line says the link was omitted, say in
-one sentence that the answer was too large for a share link.
+**After publishing:** one line saying the page is ready and that its share bar (under
+the title) opens or copies a link anyone can view. Don't repeat the answer. If writing
+the page changed your conclusion, say so plainly here.
+
+**Share link:** the link is inside the page, so never type it into the chat: it is
+1,000–2,000 characters that would take longer to type than everything else in the
+reply. Only if the person explicitly asks for the link as text, run `build.py` again
+with `--print-link` and copy the printed URL character for character. If `build.py`
+says the link was omitted, say in one sentence that the answer was too large for one.
 
 **Language:** write the prose in the language the person used and set `"lang"`
 (`"en"` or `"fr"`) so the page labels match. CR text, Oracle text and rulings stay

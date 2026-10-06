@@ -3,7 +3,8 @@
 
   share.py resolved.json [--base URL] [--payload OUT.json] [--fragment OUT.txt]
 
-build.py calls link_line() after writing the page, so normally you never run this.
+build.py puts the link in the page (the Share bar under the title), so normally you
+never run this.
 The link is  <site>#1.<base64url(zlib(json))>  where the JSON is the "share payload":
 the prose Claude wrote plus identifiers (card oracle ids, rule numbers, ruling ids with
 a hash of their text). The site fetches the rule text from the plugin's own data feed
@@ -24,7 +25,8 @@ import zlib
 DEFAULT_SITE_URL = "https://simonboudreault.github.io/mtg-rules-judge/"  # $MTG_JUDGE_SITE overrides; empty = print no link
 ENCODING_VERSION = "1"
 PAYLOAD_VERSION = 1
-LINK_MAX_CHARS = 3000  # a long link is slow and error-prone for Claude to type into the reply
+LINK_MAX_CHARS = 3000   # cap for a link printed for Claude to type into the reply (slow, error-prone)
+EMBED_MAX_CHARS = 8000  # cap for the link placed in the page: nobody types it, it only has to survive a paste
 
 
 def site_url():
@@ -135,7 +137,7 @@ def make_link(payload, base=None, max_chars=None):
 
 
 def link_line(resolved, base=None):
-    """The one line build.py prints. Empty when no viewer URL is configured."""
+    """The line this script prints. Empty when no viewer URL is configured."""
     base = base if base is not None else site_url()
     if not base:
         return ""

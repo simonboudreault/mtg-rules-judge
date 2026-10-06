@@ -101,6 +101,11 @@ header .eyebrow { margin-bottom: 8px; }
 .question { margin-top: 14px; padding: 12px 16px; border-left: 3px solid var(--line); color: var(--muted); font-style: italic; }
 .meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .meta b { color: var(--fg); font-weight: 600; }
+.share { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 12px; font-size: .85rem; }
+.share-copy { font: inherit; color: var(--accent); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 3px 10px; cursor: pointer; }
+.share-copy:hover { border-color: var(--accent); }
+.share-manual { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; color: var(--muted); }
+.share-manual input { flex: 1 1 220px; min-width: 0; font: .8rem var(--font-mono); color: var(--fg); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
 
 /* ----- sticky nav ----- */
 nav.sections {
@@ -293,5 +298,20 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
     }, { rootMargin: "-20% 0px -70% 0px" });
     secs.forEach((s) => io.observe(s));
   }
+
+  /* share bar: copy the link; if the frame forbids the clipboard, show it to copy by hand */
+  const copyBtn = document.querySelector(".share-copy");
+  if (copyBtn) copyBtn.addEventListener("click", () => {
+    const url = copyBtn.dataset.url, label = copyBtn.textContent;
+    const done = () => { copyBtn.textContent = copyBtn.dataset.done; setTimeout(() => { copyBtn.textContent = label; }, 1600); };
+    const manual = () => {
+      const box = copyBtn.parentNode.querySelector(".share-manual");
+      box.classList.remove("hidden");
+      const input = box.querySelector("input");
+      input.focus(); input.select();
+      try { if (document.execCommand("copy")) done(); } catch (err) { /* stays selected for a manual copy */ }
+    };
+    try { navigator.clipboard.writeText(url).then(done, manual); } catch (err) { manual(); }
+  });
 })();
 </script>

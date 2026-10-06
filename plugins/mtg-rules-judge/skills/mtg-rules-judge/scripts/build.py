@@ -61,7 +61,9 @@ def main():
     ap.add_argument("-o", "--out", default="answer.html")
     ap.add_argument("--json", help="also write the resolved answer data to this file")
     ap.add_argument("--force", action="store_true")
-    ap.add_argument("--no-link", action="store_true", help="don't print the hosted-viewer link")
+    ap.add_argument("--no-link", action="store_true", help="leave the hosted-viewer link out of the page")
+    ap.add_argument("--print-link", action="store_true",
+                    help="also print the link (only when the person wants it in the chat: it is slow to type)")
     a = ap.parse_args()
 
     src = json.load(open(a.answer, encoding="utf-8"))
@@ -203,16 +205,21 @@ def main():
     if a.json:  # the same resolved data, on its own (e.g. for a hosted viewer)
         with open(a.json, "w", encoding="utf-8") as f:
             json.dump(out, f, ensure_ascii=False, indent=1)
-    page = render_page(out, open(TEMPLATE, encoding="utf-8").read())
+    url, url_len = (None, 0) if a.no_link else share.make_link(share.to_share_payload(out),
+                                                                max_chars=share.EMBED_MAX_CHARS)
+    page = render_page(out, open(TEMPLATE, encoding="utf-8").read(), share_url=url)
     with open(a.out, "w", encoding="utf-8") as f:
         f.write(page)
     print(f"Wrote {a.out} ({len(page.encode()) // 1024} KB): {len(cards)} card(s), {len(rules_out)} rule(s), "
           f"{len(rulings)} ruling(s), CR {eff}." + (f" Data: {a.json}." if a.json else "")
           + " Publish this file by path; don't paste it.")
-    if not a.no_link:
-        line = share.link_line(out)  # empty when no viewer URL is configured
-        if line:
-            print(line)
+    if url:
+        print("Share link: in the page (bar under the title). Don't type it in the reply.")
+        if a.print_link:
+            print(f"Link: {url}" if url_len <= share.link_max() else
+                  f"Link: too long to type ({url_len} chars); point the person to the page's share bar.")
+    elif url_len:  # 0 = no viewer URL configured, or --no-link
+        print(f"Share link: omitted, the answer is too large for a link ({url_len} chars).")
 
 if __name__ == "__main__":
     main()

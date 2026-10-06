@@ -7,14 +7,18 @@ Runs in the daily workflow too, so a data update that breaks the link contract i
 """
 import json
 import os
+import re
+import subprocess
 import sys
+import tempfile
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 FIX = os.path.join(HERE, "fixtures")
 DATA = os.path.join(ROOT, "docs", "data")
-sys.path.insert(0, os.path.join(ROOT, "plugins", "mtg-rules-judge", "skills", "mtg-rules-judge", "scripts"))
+SCRIPTS = os.path.join(ROOT, "plugins", "mtg-rules-judge", "skills", "mtg-rules-judge", "scripts")
+sys.path.insert(0, SCRIPTS)
 import share  # noqa: E402
 
 
@@ -111,6 +115,40 @@ class Payload(unittest.TestCase):
     def test_typical_link_is_short(self):
         frag = share.encode_fragment(load("ruby-medallion.share.json"))
         self.assertLess(len(frag), 1500)
+
+
+class PageLink(unittest.TestCase):
+    """build.py puts the link in the page, so Claude never types it."""
+
+    def build(self, *extra):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = os.path.join(tmp, "a.html")
+            res = subprocess.run([sys.executable, os.path.join(SCRIPTS, "build.py"),
+                                  os.path.join(FIX, "ruby-medallion.in.json"), "-o", out, *extra],
+                                 check=True, capture_output=True, text=True, encoding="utf-8",
+                                 env=dict(os.environ, MTG_JUDGE_SITE="https://example.test/", PYTHONIOENCODING="utf-8"))
+            with open(out, encoding="utf-8") as f:
+                return f.read(), res.stdout
+
+    def page_links(self, html):
+        return set(re.findall(r'(?:href|data-url|value)="(https://example\.test/#1\.[^"]+)"', html))
+
+    def test_page_carries_the_link_and_stdout_does_not(self):
+        html, stdout = self.build()
+        urls = self.page_links(html)
+        self.assertEqual(len(urls), 1)  # open link, copy button and manual field all hold the same URL
+        self.assertEqual(share.decode_fragment(urls.pop().split("#", 1)[1]), load("ruby-medallion.share.json"))
+        self.assertIn("share-copy", html)
+        self.assertNotIn("https://example.test/#", stdout)
+        self.assertIn("Share link: in the page", stdout)
+
+    def test_print_link_and_no_link(self):
+        html, stdout = self.build("--print-link")
+        self.assertIn("Link: " + self.page_links(html).pop(), stdout)
+        html, stdout = self.build("--no-link")
+        self.assertEqual(self.page_links(html), set())
+        self.assertNotIn('class="share"', html)
+        self.assertNotIn("Share link", stdout)
 
 
 class DataFeed(unittest.TestCase):
