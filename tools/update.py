@@ -43,7 +43,7 @@ RULES_PAGE = "https://magic.wizards.com/en/rules"
 SCRYFALL_SETS = "https://api.scryfall.com/sets"
 HEADERS = {"User-Agent": "mtg-rules-judge-updater/1.0 (github.com/simonboudreault/mtg-rules-judge)",
            "Accept": "*/*"}
-MAX_DB_AGE_DAYS = 90
+MAX_DB_AGE_DAYS = 14
 # Scryfall set types that never carry new Oracle text or rulings of their own
 IGNORED_SET_TYPES = {"token", "promo", "memorabilia", "minigame"}
 

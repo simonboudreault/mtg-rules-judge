@@ -56,7 +56,7 @@ You'll have to re-upload it yourself after each release; the plugin route doesn'
 | Source | Check | Action |
 |---|---|---|
 | **Comprehensive Rules** | The "effective as of" date on [magic.wizards.com/en/rules](https://magic.wizards.com/en/rules) is later than the bundled file's | Download the new `.txt` |
-| **Cards and rulings** | Scryfall lists a real set (not tokens/promos) released since the database was built, or the database is over 90 days old | Rebuild `cards.json` from Scryfall's bulk data, French names included |
+| **Cards and rulings** | Scryfall lists a real set (not tokens/promos) released since the database was built, or the database is over 14 days old | Rebuild `cards.json` from Scryfall's bulk data, French names included |
 
 When either changed, it bumps the plugin version (`YYYY.MDD.n`, e.g. `2026.1005.0`),
 commits, pushes and publishes a GitHub release with the zip. Claude only re-downloads
