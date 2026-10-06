@@ -1,6 +1,6 @@
 ---
 name: mtg-rules-judge
-description: "Answer Magic: The Gathering rules questions like a careful judge, grounded in the bundled Comprehensive Rules and an offline database of Oracle text and official card rulings, delivered as a short answer with a confidence level and, when the person then asks for it (\"link\"), a link to a full answer page (hover cards, rules and rulings), with Reddit discussion on request. Use it for ANY MTG rules question, card interaction, \"does X work with Y\", \"what happens if\", timing, stack, layers, replacement effects, combat, commander rules or a disputed play at the table, in English or French, even when the person only names cards and describes a board state without saying \"rules\", and for the follow-up \"link\" / \"lien\" after such an answer."
+description: "Answer Magic: The Gathering rules questions like a careful judge, grounded in the bundled Comprehensive Rules and an offline database of Oracle text and official card rulings, delivered as a link to a full answer page (hover cards, rules and rulings) or, when the message starts or ends with the flag \"quick\" (\"rapide\", \"vite\"), as a short answer with a confidence level first and the link when the person then asks for it (\"link\"), with Reddit discussion on request. Use it for ANY MTG rules question, card interaction, \"does X work with Y\", \"what happens if\", timing, stack, layers, replacement effects, combat, commander rules or a disputed play at the table, in English or French, even when the person only names cards and describes a board state without saying \"rules\", and for the follow-up \"link\" / \"lien\" after such an answer."
 ---
 
 # MTG Rules Judge
@@ -21,20 +21,36 @@ Your memory of Magic is useful for knowing *where to look* and *what might matte
 It is not a source. Cards get errata, rules get rewritten every few months, and
 memory blends versions.
 
-## Speed: the answer now, the link on request
+## Two modes: the link by default, the short answer with `quick`
 
-The evidence is all local, so an answer is four short steps, and then you stop:
+Before anything else, check the person's message for the **`quick` flag**: the word
+`quick` (in French `rapide` or `vite`) standing on its own at the very start or the
+very end of the message, in any case and with any punctuation around it (`quick: …`,
+`… quick`, `(quick)`, `--quick`). The word in the middle of a sentence or inside a
+card name is not the flag. The flag is not part of the question: leave it out of
+`answer.json`.
+
+| The message has | The first turn ends with | The link |
+|---|---|---|
+| no flag (default) | the link, and nothing else | built in the first turn |
+| the `quick` flag | the short answer and the confidence level | a second turn, when the person types "link" |
+
+The evidence is all local, so either way an answer is four short steps, and then you
+stop:
 
 1. **One `lookup.py` call** with every card and every rule you expect to need.
 2. **Think it through.** At most one more `lookup.py` call if the reasoning turns up
    a rule you didn't ask for.
 3. **Write `answer.json`** (prose and ids only).
-4. **Reply with the short answer and the confidence level, and end your turn.**
+4. **Finish the turn in the mode the message set:**
+   - **default:** one `build.py --link-only` call, then a reply that is the link and
+     nothing else;
+   - **`quick`:** a reply with the short answer and the confidence level, and no
+     `build.py`. The person is mid-game and the short answer is what they are waiting
+     for, so nothing else runs before it. The link is a second turn, and only when
+     they ask for it.
 
-That is the whole first turn. The person is often mid-game and the short answer is
-what they are waiting for, so nothing else runs before it: no `build.py`, no page, no
-artifact, no link. The link is a **second turn**, and only when the person asks for it
-(they type "link"): one `build.py --link-only` call, then the link.
+Neither mode builds a page or an artifact.
 
 Don't create a task list, don't read the template or the schema file (the example
 below is enough), and don't run `rules.py info` (the lookup header shows the dates).
@@ -165,7 +181,7 @@ ruling, say so plainly). Note thread dates when old rules may be involved.
 ### 5. Write `answer.json`
 
 Write `answer.json` in your working directory. It is the full answer in compact form,
-and the link is made from it later. You write **only prose and ids**; `build.py` fills
+and the link is made from it. You write **only prose and ids**; `build.py` fills
 in the verbatim Oracle text, rule text and ruling text, the dates and the Scryfall
 links.
 
@@ -208,12 +224,15 @@ links.
 the link follows the length of your prose (card, rule and ruling texts cost almost
 nothing: they travel as ids). A few short steps beat a long walkthrough.
 
-Don't run `build.py` now.
+### 6. Finish the turn
 
-### 6. Reply with the short answer, then stop
+**No `quick` flag (default): the link alone.** As soon as `answer.json` is written,
+build the link (step 7) and reply with it. The reply is the link and nothing else: no
+verdict, no confidence line, no summary, no offer. All of that is on the page the link
+opens.
 
-As soon as `answer.json` is written, send the reply. It holds, in the person's
-language:
+**`quick` flag: the short answer, then stop.** As soon as `answer.json` is written,
+send the reply, without running `build.py`. It holds, in the person's language:
 
 - the verdict: 1–3 sentences per question asked, with the key rule/ruling number;
 - the confidence level, with the reason in a few words when it isn't high;
@@ -230,17 +249,20 @@ Say "link" for the full page: cards, rules, rulings and the step-by-step.
 In French the last line is: `Dites « lien » pour la page complète : cartes, règles,
 rulings et le déroulement pas à pas.`
 
-Then **end your turn**. After `answer.json` there is no other tool call in this turn:
-no `build.py`, no HTML page, no artifact, no file sent. The person may never ask for
-the link, and everything built ahead of the answer is time they spend waiting.
+Then **end your turn**. In `quick` mode there is no other tool call after
+`answer.json`: no `build.py`, no HTML page, no artifact, no file sent. The person may
+never ask for the link, and everything built ahead of the answer is time they spend
+waiting.
 
-One exception: if the person already asked for the link in the same message as the
-question, do step 7 in this turn and put the link under the short answer.
+If a `quick` message also asks for the link, do step 7 in this turn and put the link
+under the short answer.
 
-### 7. When the person asks for the link
+### 7. Build the link
 
-"link", "lien", "full page", "show me the details / the sources": any of these after an
-answer means this step, and nothing more than this step.
+In the default mode this runs in the first turn, straight after `answer.json`. In
+`quick` mode it runs when the person asks: "link", "lien", "full page", "show me the
+details / the sources" after an answer means this step, and nothing more than this
+step.
 
 ```
 python3 <skill-dir>/scripts/build.py answer.json --link-only
@@ -251,13 +273,15 @@ It writes no file. It checks every reference and prints a `Link: …` line.
 - If it prints `ERROR` lines, fix those ids in `answer.json` and run it again.
 - If `answer.json` is gone (new session, cleaned sandbox), write it again from the
   conversation, then run the command.
-- When the line holds a URL, the reply is that URL on its own line (e.g.
-  "Full answer: <url>") and nothing else: the person already has the answer. The URL
-  is long (2,000 characters or more) and mostly readable: your own prose with `+` for
+- When the line holds a URL, the reply is that URL alone on one line: no label in
+  front of it, no sentence before or after. The answer is on the page, and in `quick`
+  mode the person already has it. The URL is long (2,000 characters or more) and mostly readable: your own prose with `+` for
   spaces and `!` codes for punctuation. Copy it character for character, to the very
   end; never shorten it, rebuild it, or tidy a word, an accent or a code inside it.
 - If the line says the link was omitted, say in one sentence that the answer is too
-  large for a link and offer the plain-text version below.
+  large for a link and offer the plain-text version below. In the default mode, give
+  the short answer and the confidence level first, as in `quick` mode, so the person
+  doesn't leave the turn with nothing.
 - If fixing the file changed your conclusion, say so plainly before the link.
 
 <!-- DISABLED (page and artifact delivery are switched off; do not follow this block. Restore it to bring them back):
@@ -278,7 +302,7 @@ made, use these sections in Markdown with the same content: Short answer · Card
 rulings · How it plays out (numbered steps with rule/ruling citations) · Confidence
 (with assumptions and anything not retrieved).
 
-For a quick, simple question ("does deathtouch work with fight?"), keep every section
+For a short, simple question ("does deathtouch work with fight?"), keep every section
 short.
 
 ## Keeping the data current

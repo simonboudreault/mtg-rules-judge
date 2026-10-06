@@ -4,7 +4,8 @@ An answer can be opened as a web page at the viewer (`docs/` of this repository,
 served by GitHub Pages). The whole answer travels in the URL fragment; nothing is
 stored on a server and the fragment never leaves the browser. `scripts/share.py`
 builds the link, `build.py --link-only` prints it as a `Link:` line for Claude to put in
-the reply when the person asks for it (a full `build.py` run also puts it in the HTML
+the reply (in the first turn by default, or when the person asks for it after a
+`quick` answer; a full `build.py` run also puts it in the HTML
 page's share bar). This file is the contract
 between `share.py` and the viewer's `decode.js` / `render.js`.
 
