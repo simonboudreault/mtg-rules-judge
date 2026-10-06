@@ -38,10 +38,19 @@ ROOT = os.path.dirname(HERE)
 PLUGIN = os.path.join(ROOT, "plugins", "mtg-rules-judge")
 
 REF_RE = re.compile(r"\[\[(card|rule|ruling):([^\]|]+)(?:\|[^\]]+)?\]\]")
-# The runs are unattended, so Bash is limited to the skill's own scripts (lookup.py, build.py, rules.py);
-# anything else the model tries through Bash is denied, and the reply shows it.
-TOOLS = ("Bash(python *lookup.py*),Bash(python3 *lookup.py*),Bash(python *build.py*),Bash(python3 *build.py*),"
-         "Bash(python *rules.py*),Bash(python3 *rules.py*),Read,Write,Edit,Skill,Glob,Grep,WebFetch,WebSearch")
+def tools_for(plugin, workdir):
+    """The runs are unattended, so Bash may only run the skill's own scripts, by their full path
+    (the model can't run a lookup.py of its own making), and files may only be written inside the
+    run's folder. Anything else the model tries is denied, and the reply shows it."""
+    scripts = os.path.join(plugin, "skills", "mtg-rules-judge", "scripts")
+    rules = []
+    for script in ("lookup.py", "build.py", "rules.py"):
+        for path in {os.path.join(scripts, script), os.path.join(scripts, script).replace("\\", "/")}:
+            for py in ("python", "python3", "py"):
+                rules.append(f"Bash({py} {path}:*)")
+                rules.append(f'Bash({py} "{path}":*)')
+    return ",".join(rules + [f"Write({workdir}/**)", f"Edit({workdir}/**)",
+                             "Read", "Skill", "Glob", "Grep", "WebFetch", "WebSearch"])
 
 JUDGE = """You are grading an answer to a Magic: The Gathering rules question against a reference.
 Judge only whether the answer agrees with the reference; do not use your own knowledge of the rules.
@@ -98,7 +107,8 @@ def claude(prompt, cwd, extra, timeout):
 def ask_skill(question, plugin, model, timeout):
     """-> dict with the reply, answer.json (or None), the tool calls and the cost."""
     tmp = tempfile.mkdtemp(prefix="mtgj-eval-")
-    extra = ["--plugin-dir", plugin, "--allowedTools", TOOLS, "--output-format", "stream-json", "--verbose"]
+    extra = ["--plugin-dir", plugin, "--allowedTools", tools_for(plugin, tmp.replace("\\", "/")),
+             "--output-format", "stream-json", "--verbose"]
     if model:
         extra += ["--model", model]
     out = {"reply": "", "answer": None, "lookups": 0, "builds": 0, "tools": 0, "cost": 0.0, "seconds": 0.0, "error": None}
