@@ -13,3 +13,5 @@ rulings*.json*
 all-cards*.json*
 
 previous versions/
+# Eval results (evals/run.py): they hold model output and change every run
+evals/results/

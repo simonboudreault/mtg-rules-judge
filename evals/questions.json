@@ -1,0 +1,280 @@
+{
+  "about": "Known-answer rules questions for evals/run.py. Every expected verdict comes from a ruling or rule printed by lookup.py when the question was written (card database built 2026-10-05, CR effective 2026-09-25), never from memory. Rulings are quoted by text, not by id: ruling ids are positional and shift when Scryfall adds one.",
+  "questions": [
+    {
+      "id": "urborg-blood-moon",
+      "tags": ["layers", "shorthand"],
+      "question": "Blood Moon and Urborg are both on the battlefield. Can I tap my Forest for black mana?",
+      "expect": {
+        "verdict": "No. Blood Moon turns Urborg, Tomb of Yawgmoth into a Mountain that loses its ability, so it no longer makes lands Swamps, whichever of the two entered first. The Forest taps only for green.",
+        "cards": ["Blood Moon", "Urborg, Tomb of Yawgmoth"],
+        "source": [{"ruling": "it won't turn lands into Swamps, no matter in what order those effects started to apply"}, {"rule": "305.7"}]
+      }
+    },
+    {
+      "id": "humility-opalescence-ordered",
+      "tags": ["layers"],
+      "question": "Opalescence was on the battlefield first, then Humility entered. What are Humility's power and toughness now?",
+      "expect": {
+        "verdict": "Humility is a 1/1 creature (still an enchantment) with no abilities. Opalescence makes it 4/4 in layer 7b, then Humility's later timestamp makes it 1/1.",
+        "cards": ["Humility", "Opalescence"],
+        "source": [{"ruling": "Humility becomes 4/4 and Worship becomes 4/4. (Opalescence). Humility becomes 1/1 and Worship becomes 1/1 (Humility)"}]
+      }
+    },
+    {
+      "id": "humility-opalescence-unordered",
+      "tags": ["layers", "underspecified"],
+      "question": "Humility and Opalescence are both in play. How big is Humility?",
+      "expect": {
+        "asks": true,
+        "verdict": "It depends on which entered last, which the question doesn't say: Humility is 1/1 if Humility entered after Opalescence, and 4/4 if Humility entered before Opalescence. A correct reply asks for the order or gives both branches.",
+        "cards": ["Humility", "Opalescence"],
+        "source": [{"ruling": "But if Humility entered before Opalescence"}]
+      }
+    },
+    {
+      "id": "doubling-season-planeswalker",
+      "tags": ["replacement", "planeswalker"],
+      "question": "I control Doubling Season and cast Jace, the Mind Sculptor. How much loyalty does he enter with, and where is he after I use his +2 right away?",
+      "expect": {
+        "verdict": "He enters with 6 loyalty (double his printed 3). The +2 is a cost, not an effect, so it isn't doubled: he goes to 8.",
+        "cards": ["Doubling Season", "Jace, the Mind Sculptor"],
+        "source": [{"ruling": "those counters are put on as a cost, not as an effect"}]
+      }
+    },
+    {
+      "id": "scales-season-order",
+      "tags": ["replacement"],
+      "question": "I control Hardened Scales and Doubling Season. An effect puts one +1/+1 counter on my creature. How many counters does it get?",
+      "expect": {
+        "verdict": "The creature's controller chooses the order of the two replacement effects: 4 counters if Hardened Scales applies first (1+1, then doubled), 3 if Doubling Season applies first (doubled, then +1). So up to 4.",
+        "cards": ["Hardened Scales", "Doubling Season"],
+        "source": [{"ruling": "you choose the order to apply those effects"}, {"rule": "616.1"}]
+      }
+    },
+    {
+      "id": "zero-toughness-indestructible",
+      "tags": ["sba"],
+      "question": "My indestructible creature gets -5/-5 and its toughness drops to 0. Does it die?",
+      "expect": {
+        "verdict": "Yes. A creature with toughness 0 or less is put into its owner's graveyard as a state-based action. That isn't destruction, so indestructible doesn't stop it.",
+        "cards": [],
+        "source": [{"rule": "704.5f"}]
+      }
+    },
+    {
+      "id": "clone-counters",
+      "tags": ["copy"],
+      "question": "I Clone a creature that has three +1/+1 counters and an Aura on it. Does my Clone get the counters or the Aura's bonus?",
+      "expect": {
+        "verdict": "No. Clone copies only what is printed on the creature (its copiable values), not counters, attached Auras or other effects changing its power and toughness.",
+        "cards": ["Clone"],
+        "source": [{"ruling": "It doesn't copy whether that creature is tapped or untapped, whether it has any counters on it or Auras and Equipment attached to it"}, {"rule": "707.2"}]
+      }
+    },
+    {
+      "id": "cloudshift-aura",
+      "tags": ["zone-change"],
+      "question": "My creature is enchanted with my opponent's Pacifism. I Cloudshift it. What happens to Pacifism?",
+      "expect": {
+        "verdict": "Pacifism is put into its owner's graveyard. The creature returns as a new object with no relation to the old one, so the Aura is no longer attached to anything.",
+        "cards": ["Cloudshift", "Pacifism"],
+        "source": [{"ruling": "Auras attached to the exiled permanent will be put into their owners' graveyards"}, {"rule": "400.7"}]
+      }
+    },
+    {
+      "id": "delver-mana-value",
+      "tags": ["dfc"],
+      "question": "What is the mana value of Insectile Aberration on the battlefield?",
+      "expect": {
+        "verdict": "1. The back face of a transforming double-faced card uses the mana cost of its front face, Delver of Secrets ({U}).",
+        "cards": ["Delver of Secrets // Insectile Aberration"],
+        "source": [{"rule": "202.3b"}]
+      }
+    },
+    {
+      "id": "fire-ice-mana-value",
+      "tags": ["split"],
+      "question": "What is the mana value of Fire // Ice in my hand, and what is it on the stack if I cast Ice?",
+      "expect": {
+        "verdict": "4 in hand (both halves combined, {1}{R} + {1}{U}); 2 on the stack when cast as Ice (only that half).",
+        "cards": ["Fire // Ice"],
+        "source": [{"ruling": "A split card's characteristics are a combination of its two halves while it is not on the stack"}, {"rule": "709.4"}, {"rule": "709.4b"}]
+      }
+    },
+    {
+      "id": "stomp-countered",
+      "tags": ["adventure"],
+      "question": "My opponent counters my Stomp. Can I still cast Bonecrusher Giant from exile later?",
+      "expect": {
+        "verdict": "No. A countered Adventure spell isn't exiled; the card goes to the graveyard, so there is nothing to cast later.",
+        "cards": ["Bonecrusher Giant // Stomp"],
+        "source": [{"ruling": "that card won't be exiled and the spell's controller won't be able to cast it as a permanent later"}]
+      }
+    },
+    {
+      "id": "ragavan-land",
+      "tags": ["shorthand", "token-trap"],
+      "question": "Ragavan connects and exiles a land from the top of my opponent's library. Can I play that land this turn?",
+      "expect": {
+        "verdict": "No. Ragavan, Nimble Pilferer lets you cast the exiled card, and a land can't be cast; you can't play it.",
+        "cards": ["Ragavan, Nimble Pilferer"],
+        "source": [{"ruling": "If you exile a land card, you can't play that card"}]
+      }
+    },
+    {
+      "id": "treasure-stony-silence",
+      "tags": ["token"],
+      "question": "My opponent has Stony Silence. Can I still sacrifice my Treasure tokens for mana?",
+      "expect": {
+        "verdict": "No. Treasure's ability is an activated ability of an artifact, and Stony Silence stops all of those, mana abilities included.",
+        "cards": ["Stony Silence", {"name": "Treasure", "typeHas": "Token"}],
+        "source": [{"ruling": "No abilities of artifacts can be activated, including mana abilities"}]
+      }
+    },
+    {
+      "id": "ring-bearer",
+      "tags": ["emblem"],
+      "question": "The Ring tempts me for the second time and I choose a different creature. Do I now have two Ring-bearers?",
+      "expect": {
+        "verdict": "No. Each player can have only one Ring-bearer at a time; the newly chosen creature becomes the Ring-bearer and the first one stops being it.",
+        "cards": ["The Ring // The Ring Tempts You"],
+        "source": [{"ruling": "only one Ring-bearer at a time"}, {"rule": "701.54a"}]
+      }
+    },
+    {
+      "id": "fr-blood-moon-saga",
+      "tags": ["french", "layers", "rule-change"],
+      "question": "Lune de sang est en jeu chez mon adversaire. Je joue Épopée d'Urza. Est-ce que je dois la sacrifier ?",
+      "expect": {
+        "verdict": "Non. Lune de sang en fait une Montagne qui perd ses capacités de chapitre, et seule une Saga qui a au moins une capacité de chapitre est sacrifiée (règle 714.4). Elle reste en jeu et produit du rouge. (No: it stays on the battlefield as a Mountain.)",
+        "cards": ["Blood Moon", "Urza's Saga"],
+        "source": [{"rule": "714.4"}, {"rule": "305.7"}]
+      }
+    },
+    {
+      "id": "bob-reveal-split",
+      "tags": ["nickname", "split"],
+      "question": "Bob reveals Fire // Ice on my upkeep. How much life do I lose?",
+      "expect": {
+        "verdict": "4. The card is not on the stack, so its mana value is that of both halves combined.",
+        "cards": ["Dark Confidant", "Fire // Ice"],
+        "source": [{"ruling": "A split card's characteristics are a combination of its two halves while it is not on the stack"}, {"rule": "709.4b"}]
+      }
+    },
+    {
+      "id": "teferi-ambiguous",
+      "tags": ["shorthand", "underspecified"],
+      "question": "My opponent has Teferi on the battlefield. Can I cast my instant during their turn?",
+      "expect": {
+        "asks": true,
+        "verdict": "It depends on which Teferi, which the question doesn't say. Under Teferi, Time Raveler or Teferi, Mage of Zhalfir, no: opponents can cast spells only at sorcery timing. Most other Teferi cards don't restrict it. A correct reply asks which Teferi or says explicitly which one it assumed.",
+        "cards": [],
+        "source": [{"ruling": "it must be that opponent's turn, during a main phase, and the stack must be empty"}]
+      }
+    },
+    {
+      "id": "elesh-norn-ambiguous",
+      "tags": ["shorthand", "underspecified"],
+      "question": "My opponent controls Elesh Norn. I cast Mulldrifter for its full cost. Do I draw two cards?",
+      "expect": {
+        "asks": true,
+        "verdict": "It depends on which Elesh Norn. With Elesh Norn, Mother of Machines, no: permanents entering don't cause abilities of permanents her opponents control to trigger. With Elesh Norn, Grand Cenobite, yes: the enters trigger still happens even though Mulldrifter then dies as a 0/0. A correct reply asks which one or gives the branches.",
+        "cards": ["Mulldrifter"],
+        "source": [{"ruling": "affects a permanent's own enters-the-battlefield triggered abilities"}]
+      }
+    },
+    {
+      "id": "unknown-card",
+      "tags": ["missing-card"],
+      "question": "How does Zorvax, the Unprinted work with Doubling Season? Does its token get doubled?",
+      "expect": {
+        "asks": true,
+        "verdict": "No card named Zorvax, the Unprinted exists. A correct reply says it could not find the card and asks for its Oracle text (or the right name). It must not invent what the card does.",
+        "cards": [],
+        "source": []
+      }
+    },
+    {
+      "id": "legality-mana-crypt",
+      "tags": ["legality"],
+      "question": "Is Mana Crypt legal in Commander?",
+      "expect": {
+        "behaviour": true,
+        "verdict": "The bundled data holds no format legality. A correct reply either gives the legality with a web source it retrieved in this session, or says plainly that it could not retrieve it. A bare answer from memory, presented as certain, is a fail whatever it says.",
+        "cards": [],
+        "source": []
+      }
+    },
+    {
+      "id": "panharmonicon-evoke",
+      "tags": ["triggers"],
+      "question": "I control Panharmonicon and evoke Mulldrifter. How many cards do I draw?",
+      "expect": {
+        "verdict": "Four. Mulldrifter's enters ability triggers twice. (The evoke sacrifice also triggers twice; the second does nothing.)",
+        "cards": ["Panharmonicon", "Mulldrifter"],
+        "source": [{"ruling": "it just causes the ability to trigger twice"}, {"rule": "702.74a"}]
+      }
+    },
+    {
+      "id": "medallion-fireball",
+      "tags": ["costs", "quick"],
+      "question": "quick: Ruby Medallion is out and I cast Fireball with X=3 at a single target. What do I pay?",
+      "expect": {
+        "verdict": "{2}{R}, three mana in total: {X}{R} with X=3 is {3}{R}, and Ruby Medallion takes {1} off the generic part once.",
+        "cards": ["Ruby Medallion", "Fireball"],
+        "source": [{"ruling": "you choose the value of X before calculating the spell's total cost"}, {"rule": "601.2f"}]
+      }
+    },
+    {
+      "id": "deathtouch-trample",
+      "tags": ["combat", "quick"],
+      "question": "My 5/5 with deathtouch and trample is blocked by a 4/4. How much damage can I assign to the player? quick",
+      "expect": {
+        "verdict": "4. One damage from a deathtouch source is lethal damage, so 1 goes to the blocker and the other 4 can trample over.",
+        "cards": [],
+        "source": [{"rule": "702.2c"}, {"rule": "702.19b"}]
+      }
+    },
+    {
+      "id": "split-second-top",
+      "tags": ["stack"],
+      "question": "My opponent casts Krosan Grip on my Sensei's Divining Top. Can I respond by tapping the Top to draw a card?",
+      "expect": {
+        "verdict": "No. While a spell with split second is on the stack, players can't activate abilities that aren't mana abilities, and the Top's draw ability isn't one.",
+        "cards": ["Krosan Grip", "Sensei's Divining Top"],
+        "source": [{"rule": "702.61a"}, {"ruling": "their options are just limited to mana abilities and certain special actions"}]
+      }
+    },
+    {
+      "id": "commander-exiled",
+      "tags": ["commander"],
+      "question": "My commander gets hit by Path to Exile. Can I put it in the command zone, and what will it cost me to cast it again?",
+      "expect": {
+        "verdict": "Yes: once it is in exile its owner may put it into the command zone (a state-based action). Casting it from the command zone costs {2} more for each previous time it was cast from there.",
+        "cards": ["Path to Exile"],
+        "source": [{"rule": "903.9a"}, {"rule": "903.8"}]
+      }
+    },
+    {
+      "id": "rest-in-peace-dies",
+      "tags": ["replacement"],
+      "question": "Rest in Peace is out. My creature is destroyed. Does my Blood Artist trigger?",
+      "expect": {
+        "verdict": "No. The creature is exiled instead of being put into the graveyard, so it never dies and abilities that trigger on a creature dying don't trigger.",
+        "cards": ["Rest in Peace", "Blood Artist"],
+        "source": [{"ruling": "abilities that trigger whenever a creature dies won't trigger"}, {"rule": "700.4"}]
+      }
+    },
+    {
+      "id": "fr-deathtouch-fight",
+      "tags": ["french", "quick", "keywords"],
+      "question": "Est-ce que le contact mortel fonctionne quand ma créature se bat (fight) contre une autre ? vite",
+      "expect": {
+        "verdict": "Oui. Le contact mortel s'applique à tout dégât infligé par la source, pas seulement aux dégâts de combat : la créature qui reçoit les dégâts est détruite. (Yes, deathtouch works with fight.)",
+        "cards": [],
+        "source": [{"rule": "702.2b"}, {"rule": "701.14a"}]
+      }
+    }
+  ]
+}
