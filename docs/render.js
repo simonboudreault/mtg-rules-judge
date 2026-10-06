@@ -128,7 +128,7 @@ export class Page {
     return t.includes("land") ? "frame-L" : t.includes("artifact") ? "frame-A" : "frame-C";
   }
 
-  /** The text "proxy" frame; in the grid it is covered by the Scryfall image when there is one. */
+  /** The text "proxy" frame; it is covered by the Scryfall image when there is one. */
   cardFrame(c, withImage) {
     const S = this.S;
     const faces = c.faces && c.faces.length ? c.faces : [c];
@@ -159,10 +159,10 @@ export class Page {
       `<div class="box">${box}</div></div></a>`;
   }
 
-  cardSlot(c) {
+  cardSlot(c, withNote = true) {
     const flip = (c._images || []).length > 1
       ? `<button type="button" class="flip" data-flip>${esc(this.S.flip)}</button>` : "";
-    const note = c._changed ? `<p class="card-note">${esc(this.S.textChanged)}</p>` : "";
+    const note = withNote && c._changed ? `<p class="card-note">${esc(this.S.textChanged)}</p>` : "";
     return `<div class="cardslot">${this.cardFrame(c, true)}${flip}${note}</div>`;
   }
 
@@ -315,7 +315,7 @@ export class Page {
       const c = this.cards.get(key);
       const links = `<a href="${esc(safeUrl(c.scryfallUri || searchLink(c.name)))}"${EXT}>${esc(L.openOn)} Scryfall →</a>`;
       return `<div class="pop-head"><span class="pop-title">${esc(c.name)}</span><span class="pop-kind">${esc(L.card)}</span></div>` +
-        `${this.cardFrame(c, false)}<div class="pop-links">${links}${Page.links(c.links)}</div>`;
+        `${this.cardSlot(c, false)}<div class="pop-links">${links}${Page.links(c.links)}</div>`;
     }
     if (kind === "rule") {
       const r = this.rules.get(key);

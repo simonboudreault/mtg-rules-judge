@@ -219,6 +219,11 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 .cardslot .flip { position: absolute; right: 10px; bottom: 10px; z-index: 2; font: 600 .75rem var(--font-body); padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; box-shadow: var(--shadow); }
 .card-note { font-size: .8rem; color: var(--warn); margin: 6px 2px 0; }
 .cardframe.has-image { padding: 0; background: transparent; box-shadow: none; }
+/* a card popover: the frame sits in a .cardslot (for the flip button), and is wider when it
+   shows the card image so the printed text stays readable, without outgrowing a short window */
+#pop .cardslot { width: 230px; max-width: 100%; margin: 4px auto 0; }
+#pop .cardslot:has(.has-image) { width: min(300px, calc((100vh - 150px) * 63 / 88)); min-width: 180px; }
+#pop .cardslot .cardframe { width: 100%; margin: 0; }
 .landing { margin-top: 12vh; }
 .landing .landing-body { margin-top: 18px; max-width: 60ch; }
 .attrib { margin-top: 8px; }
