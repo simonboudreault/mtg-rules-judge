@@ -3,8 +3,9 @@
 An answer can be opened as a web page at the viewer (`docs/` of this repository,
 served by GitHub Pages). The whole answer travels in the URL fragment; nothing is
 stored on a server and the fragment never leaves the browser. `scripts/share.py`
-builds the link, `build.py` prints it as a `Link:` line for Claude to put in the reply
-(and also puts it in the page's share bar). This file is the contract
+builds the link, `build.py --link-only` prints it as a `Link:` line for Claude to put in
+the reply when the person asks for it (a full `build.py` run also puts it in the HTML
+page's share bar). This file is the contract
 between `share.py` and the viewer's `decode.js` / `render.js`.
 
 ## URL
@@ -80,7 +81,8 @@ any network request.
 
 Known vectors: `sha1("Flash")[:8] = b6248223`, `sha1("x")[:8] = 11f6ad8e`.
 A mismatch is not an error: the viewer shows the current text with a small
-"text changed since this answer" note. The artifact page remains the verified copy.
+"text changed since this answer" note. The short answer in the chat was reasoned from
+the text retrieved at the time and remains the verified copy.
 
 ## What the viewer fetches
 

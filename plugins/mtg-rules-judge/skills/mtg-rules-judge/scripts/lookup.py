@@ -48,6 +48,8 @@ def main():
 
     db = CardDB() if a.card else None
     date, rules, gloss = cr_data()
+    # First line: where the skill lives, so later commands don't have to guess the path.
+    print("# Skill dir: " + os.path.dirname(HERE).replace("\\", "/"))
     if db is not None:
         if db.loaded:
             m = db.meta
@@ -119,13 +121,11 @@ def main():
             first = t.split("\n")[0]
             print(cr.fmt(n, first if len(first) < 300 else first[:300] + " [...]"))
 
-    # The model reads this right before it decides what to do next (see SKILL.md, step 4).
+    # The model reads this right before it decides what to do next (see SKILL.md, steps 5-7).
     print("\n## NEXT\n"
-          "Once your reasoning is settled, the message in which you write answer.json has two blocks, in\n"
-          "this order: (1) a TEXT block with the short answer for the person (1-3 sentences with the key\n"
-          "rule number, confidence, assumptions), (2) the tool call. Your thinking is hidden from them:\n"
-          "an answer you only reasoned out has not been said. They are waiting for it now; the link takes\n"
-          "another minute.")
+          "Write answer.json, then reply with the short answer and the confidence level, and end your turn.\n"
+          "Don't run build.py and don't build a page or an artifact: the link comes only if the person\n"
+          "then asks for it.")
 
 
 if __name__ == "__main__":

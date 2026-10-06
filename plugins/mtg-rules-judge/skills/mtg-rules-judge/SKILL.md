@@ -1,6 +1,6 @@
 ---
 name: mtg-rules-judge
-description: "Answer Magic: The Gathering rules questions like a careful judge, grounded in the bundled Comprehensive Rules and an offline database of Oracle text and official card rulings, delivered as an interactive answer page (hover cards, rules and rulings), with Reddit discussion on request. Use it for ANY MTG rules question, card interaction, \"does X work with Y\", \"what happens if\", timing, stack, layers, replacement effects, combat, commander rules or a disputed play at the table, in English or French, even when the person only names cards and describes a board state without saying \"rules\"."
+description: "Answer Magic: The Gathering rules questions like a careful judge, grounded in the bundled Comprehensive Rules and an offline database of Oracle text and official card rulings, delivered as a short answer with a confidence level and, when the person then asks for it (\"link\"), a link to a full answer page (hover cards, rules and rulings), with Reddit discussion on request. Use it for ANY MTG rules question, card interaction, \"does X work with Y\", \"what happens if\", timing, stack, layers, replacement effects, combat, commander rules or a disputed play at the table, in English or French, even when the person only names cards and describes a board state without saying \"rules\", and for the follow-up \"link\" / \"lien\" after such an answer."
 ---
 
 # MTG Rules Judge
@@ -21,44 +21,53 @@ Your memory of Magic is useful for knowing *where to look* and *what might matte
 It is not a source. Cards get errata, rules get rewritten every few months, and
 memory blends versions.
 
-## Speed: the answer first, the link second
+## Speed: the answer now, the link on request
 
-The evidence is all local, so a full answer is five short steps, and the person sees
-your reply in **two parts**:
+The evidence is all local, so an answer is four short steps, and then you stop:
 
 1. **One `lookup.py` call** with every card and every rule you expect to need.
 2. **Think it through.** At most one more `lookup.py` call if the reasoning turns up
    a rule you didn't ask for.
-3. **Part one of the reply: write the short answer to the person now**, as visible
-   reply text, before any further tool call.
-4. **Write `answer.json`** (prose and ids only) and run **`build.py`** on it.
-5. **Part two of the reply: the short answer again in brief, then the link**
-   `build.py` printed. Don't publish an artifact.
+3. **Write `answer.json`** (prose and ids only).
+4. **Reply with the short answer and the confidence level, and end your turn.**
 
-The person is often mid-game: the short answer is what they are waiting for, and steps
-4 and 5 take a minute or more. A final reply that shows only the link has failed them
-even when the answer is right: they have to open a page to learn what you already knew.
+That is the whole first turn. The person is often mid-game and the short answer is
+what they are waiting for, so nothing else runs before it: no `build.py`, no page, no
+artifact, no link. The link is a **second turn**, and only when the person asks for it
+(they type "link"): one `build.py --link-only` call, then the link.
 
 Don't create a task list, don't read the template or the schema file (the example
 below is enough), and don't run `rules.py info` (the lookup header shows the dates).
 Put independent tool calls in the same turn.
 
-`<skill-dir>` below is the base directory shown when this skill loads.
+### Finding the scripts
+
+`<skill-dir>` below is the folder that holds this file. Use the base directory shown
+when the skill loaded, if a real path was shown. If none was shown, don't build a path
+from the skill's name: a guess such as `/mnt/skills/…` costs a failed call and then a
+search. Start your first command with this line instead, which finds the folder, and
+use `"$D"` as `<skill-dir>` in that same command:
+
+```
+D=$(find ~/.claude /root/.claude /mnt / -type d -path '*/skills/mtg-rules-judge' -not -path '*/.trash/*' -print -quit 2>/dev/null)
+```
+
+`lookup.py` prints the folder on its first line (`# Skill dir: …`); use that path in
+every later command.
 
 ## Resources
 
 - `scripts/lookup.py` — cards, rulings, CR rules, glossary and rule search in one call.
 - `data/cards.json` — offline Oracle text and rulings for every card (built from
   Scryfall bulk data by `scripts/build_card_db.py`, run on a computer with internet).
-- `scripts/build.py` — turns your compact answer JSON into the finished page, filling
-  in every verbatim text and checking every reference. It renders the page to static
-  HTML (`scripts/render.py`), so it shows as soon as it loads; the resolved data is
-  also embedded in the page as JSON, and `--json <file>` writes it out on its own.
+- `scripts/build.py` — checks every reference in your compact answer JSON, fills in
+  every verbatim text and, with `--link-only`, prints the link to the full answer page.
+  (It can also render that page to a static HTML file; that delivery is switched off.)
 - `references/MagicCompRules.txt` + `scripts/rules.py` — the CR; `rules.py` still works
   for one-off queries (`rule`, `search`, `glossary`, `toc`).
 - `scripts/scryfall.py` — live Scryfall API; only useful where the sandbox has network.
-- `assets/answer-template.html` (page styles + popover script), `references/answer-schema.md`
-  — used by `build.py`; read the schema only for an unusual field.
+- `references/answer-schema.md` — the fields of `answer.json`; read it only for an
+  unusual field.
 
 ## Workflow
 
@@ -120,7 +129,7 @@ parallel and keeping the first that works:
 
 Ask WebFetch for verbatim fields: *"Copy character for character, no paraphrase: name,
 mana cost, type line, full Oracle text, power/toughness, and every ruling with its
-date."* Pass that card to `build.py` as a full object (see below) and say where its
+date."* Put that card in `answer.json` as a full object (see below) and say where its
 text came from under `confidence.notRetrieved`. If nothing works, ask the person to
 paste the Oracle text and mark confidence Low. For a French name the database doesn't
 know, WebSearch `"<nom>" carte magic` for the English name, then look it up again.
@@ -139,36 +148,10 @@ decides it, say so — that is a real and useful answer.
 Check the result against the official rulings: if a ruling contradicts your trace,
 the ruling wins and your trace has a mistake — find it.
 
-### 4. Send the short answer now
+### 4. Community discussion — only on request
 
-The moment your reasoning is settled, write the short answer to the person. This is
-part one of the reply and it goes out **before** you search Reddit, write
-`answer.json` or call any other tool:
-
-- 1–3 sentences per question asked, with the key rule/ruling number;
-- the confidence level;
-- any assumption or missing fact that matters.
-
-**Where it goes matters.** Your reasoning (thinking) is hidden from the person: a
-conclusion you reach there, however clearly worded, has not been said to them. The
-short answer must be a **text block of your reply**, and it must come before the tool
-call that writes `answer.json`. The message has this shape:
-
-```
-[text]      No. Ruby Medallion takes {1} off the total cost once, not once per X
-            (CR 601.2f; ruling of 2004-10-04). Confidence: high. Full page coming.
-[tool call] Write answer.json
-```
-
-A message that goes from the lookup result straight to the tool call, with no text
-block before it, is the mistake this step exists to prevent. The person reads the
-answer while you build the page behind the link; that's enough to read at the table,
-and the linked page carries the evidence.
-
-### 5. Community discussion — only on request
-
-By default, skip it: `build.py` adds a small "search r/mtgrules yourself" link to the
-page. Search only when the person asks, or when the official sources truly don't
+By default, skip it: the answer page carries a small "search r/mtgrules yourself"
+link. Search only when the person asks, or when the official sources truly don't
 decide the question. Then do one WebSearch (e.g. `reddit mtgrules "<Card A>" "<Card B>"`)
 and work from the snippets — don't try to open Reddit threads, they can't be fetched.
 Never invent a thread.
@@ -179,14 +162,12 @@ only for the separate community section: what people concluded, where they disag
 and whether the consensus matches the official sources (if it contradicts the CR or a
 ruling, say so plainly). Note thread dates when old rules may be involved.
 
-### 6. Build and share the link
+### 5. Write `answer.json`
 
-You sent the short answer in step 4; the final reply states it again before the link
-(see "The final reply" below).
-
-Write `answer.json` in your working directory. You write **only prose and ids**;
-`build.py` fills in the verbatim Oracle text, rule text and ruling text, the dates
-and the Scryfall links.
+Write `answer.json` in your working directory. It is the full answer in compact form,
+and the link is made from it later. You write **only prose and ids**; `build.py` fills
+in the verbatim Oracle text, rule text and ruling text, the dates and the Scryfall
+links.
 
 ```json
 {
@@ -223,58 +204,77 @@ and the Scryfall links.
 - `reddit`: leave it out for the default link block, `false` to hide the section, or a
   full object when you did search (see the schema file).
 
-Then run:
+**Keep it tight:** the person is waiting while you write this file, and the length of
+the link follows the length of your prose (card, rule and ruling texts cost almost
+nothing: they travel as ids). A few short steps beat a long walkthrough.
 
-```
-python3 <skill-dir>/scripts/build.py answer.json -o answer.html
-```
+Don't run `build.py` now.
 
-If it prints `ERROR` lines, fix those ids (it writes nothing until every reference
-resolves) and run it again. `answer.html` is a by-product: don't publish it as an
-artifact, don't send it and don't paste it. The link is the deliverable.
+### 6. Reply with the short answer, then stop
 
-<!-- DISABLED (artifact delivery is switched off; do not follow this block. Restore it to bring artifacts back):
-Then **publish `answer.html` by its file path** with your
-artifact tool. Never paste the HTML into your reply — it's a 25–50 KB file and retyping it
-is the slowest thing this skill could do. If there is no artifact tool, send the file.
--->
+As soon as `answer.json` is written, send the reply. It holds, in the person's
+language:
 
-**The final reply, after `build.py`:** two things, always in this order.
-
-1. **The short answer, once more, in brief:** the verdict in one or two sentences with
-   the key rule/ruling number, then the confidence level. Include it every time, even
-   though you wrote it in step 4: many apps fold away or never show what is written
-   between tool calls, and then this is the only answer the person sees. It comes
-   first so they are reading it while the link is still being typed.
-2. **The link.** `build.py` ends with a `Link: …` line. When it holds a URL, put that
-   URL on its own line (e.g. "Full answer: <url>"); it opens the complete page for
-   anyone. Copy it character for character; never shorten or rebuild it, and add
-   nothing after it. If the line says the link was omitted, say in one sentence that
-   the answer was too large for a link.
+- the verdict: 1–3 sentences per question asked, with the key rule/ruling number;
+- the confidence level, with the reason in a few words when it isn't high;
+- any assumption or missing fact that matters;
+- a last line offering the link.
 
 ```
 No. Ruby Medallion takes {1} off the total cost once, not once per X (CR 601.2f;
 ruling of 2004-10-04). Confidence: high.
 
-Full answer: https://…
+Say "link" for the full page: cards, rules, rulings and the step-by-step.
 ```
 
-If writing the page changed your conclusion, say so plainly at the top.
+In French the last line is: `Dites « lien » pour la page complète : cartes, règles,
+rulings et le déroulement pas à pas.`
 
-**Keep the link short:** you type the link by hand, and its length follows the length
-of your prose in `answer.json` (card, rule and ruling texts cost almost nothing: they
-travel as ids). Tight steps and notes make the link arrive sooner.
+Then **end your turn**. After `answer.json` there is no other tool call in this turn:
+no `build.py`, no HTML page, no artifact, no file sent. The person may never ask for
+the link, and everything built ahead of the answer is time they spend waiting.
+
+One exception: if the person already asked for the link in the same message as the
+question, do step 7 in this turn and put the link under the short answer.
+
+### 7. When the person asks for the link
+
+"link", "lien", "full page", "show me the details / the sources": any of these after an
+answer means this step, and nothing more than this step.
+
+```
+python3 <skill-dir>/scripts/build.py answer.json --link-only
+```
+
+It writes no file. It checks every reference and prints a `Link: …` line.
+
+- If it prints `ERROR` lines, fix those ids in `answer.json` and run it again.
+- If `answer.json` is gone (new session, cleaned sandbox), write it again from the
+  conversation, then run the command.
+- When the line holds a URL, the reply is that URL on its own line (e.g.
+  "Full answer: <url>") and nothing else: the person already has the answer. Copy it
+  character for character; never shorten or rebuild it.
+- If the line says the link was omitted, say in one sentence that the answer is too
+  large for a link and offer the plain-text version below.
+- If fixing the file changed your conclusion, say so plainly before the link.
+
+<!-- DISABLED (page and artifact delivery are switched off; do not follow this block. Restore it to bring them back):
+Run `python3 <skill-dir>/scripts/build.py answer.json -o answer.html`, then **publish
+`answer.html` by its file path** with your artifact tool. Never paste the HTML into your
+reply — it's a 25–50 KB file and retyping it is the slowest thing this skill could do.
+If there is no artifact tool, send the file.
+-->
 
 **Language:** write the prose in the language the person used and set `"lang"`
 (`"en"` or `"fr"`) so the page labels match. CR text, Oracle text and rulings stay
 verbatim in English; when the person writes in French, add a short translation after a
 quote in your prose where it helps.
 
-**Plain-text fallback:** if the person asks for text only, or no page can be made, use
-these sections in Markdown with the same content: Short answer · Cards (Oracle text +
-one Scryfall link for all cards) · Relevant rules (CR date) · Official rulings · How it
-plays out (numbered steps with rule/ruling citations) · Confidence (with assumptions
-and anything not retrieved).
+**Plain-text version:** if the person asks for the details as text, or no link can be
+made, use these sections in Markdown with the same content: Short answer · Cards
+(Oracle text + one Scryfall link for all cards) · Relevant rules (CR date) · Official
+rulings · How it plays out (numbered steps with rule/ruling citations) · Confidence
+(with assumptions and anything not retrieved).
 
 For a quick, simple question ("does deathtouch work with fight?"), keep every section
 short.

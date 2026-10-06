@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Turn a compact answer JSON (prose + ids) into the finished answer page.
 
+  build.py answer.json --link-only          check the references, print the link, write nothing
   build.py answer.json [-o answer.html] [--json answer.data.json] [--force]
 
 You write only the prose and the ids; this script fills in, verbatim:
@@ -62,6 +63,8 @@ def main():
     ap.add_argument("--json", help="also write the resolved answer data to this file")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--no-link", action="store_true", help="no hosted-viewer link: neither printed nor in the page")
+    ap.add_argument("--link-only", action="store_true",
+                    help="check every reference and print the hosted-viewer link; write no page")
     a = ap.parse_args()
 
     src = json.load(open(a.answer, encoding="utf-8"))
@@ -205,14 +208,17 @@ def main():
             json.dump(out, f, ensure_ascii=False, indent=1)
     url, url_len = (None, 0) if a.no_link else share.make_link(share.to_share_payload(out),
                                                                 max_chars=share.EMBED_MAX_CHARS)
-    page = render_page(out, open(TEMPLATE, encoding="utf-8").read(), share_url=url)
-    with open(a.out, "w", encoding="utf-8") as f:
-        f.write(page)
-    print(f"Wrote {a.out} ({len(page.encode()) // 1024} KB): {len(cards)} card(s), {len(rules_out)} rule(s), "
-          f"{len(rulings)} ruling(s), CR {eff}." + (f" Data: {a.json}." if a.json else "")
-          + " Don't publish or paste it; the link below is what the person gets."
-          + " Final reply: the short answer in one or two sentences with the confidence level,"
-          + " then the link on its own line. Never the link alone.")
+    counts = f"{len(cards)} card(s), {len(rules_out)} rule(s), {len(rulings)} ruling(s), CR {eff}"
+    if a.link_only:
+        print(f"Checked {a.answer}: {counts}. No page written."
+              + (" Reply with the link below on its own line and nothing else." if url_len else
+                 " No viewer URL is configured, so there is no link; say so in the reply."))
+    else:
+        page = render_page(out, open(TEMPLATE, encoding="utf-8").read(), share_url=url)
+        with open(a.out, "w", encoding="utf-8") as f:
+            f.write(page)
+        print(f"Wrote {a.out} ({len(page.encode()) // 1024} KB): {counts}." + (f" Data: {a.json}." if a.json else "")
+              + " Don't publish or paste it; the link below is what the person gets.")
     if url_len:  # 0 = no viewer URL configured, or --no-link
         print(f"Link: {url}" if url and url_len <= share.link_max() else
               f"Link: omitted, URL would be {url_len} chars (cap {share.link_max()}); say so in the reply.")

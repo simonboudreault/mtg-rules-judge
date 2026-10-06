@@ -142,6 +142,17 @@ class PageLink(unittest.TestCase):
         self.assertEqual(stdout.strip().splitlines()[-1], "Link: " + url)
         self.assertNotIn("ublish this file", stdout)  # artifact delivery is off
 
+    def test_link_only_writes_no_page(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            res = subprocess.run([sys.executable, os.path.join(SCRIPTS, "build.py"),
+                                  os.path.join(FIX, "ruby-medallion.in.json"), "--link-only"],
+                                 check=True, capture_output=True, text=True, encoding="utf-8", cwd=tmp,
+                                 env=dict(os.environ, MTG_JUDGE_SITE="https://example.test/", PYTHONIOENCODING="utf-8"))
+            self.assertEqual(os.listdir(tmp), [])  # no answer.html, nothing else
+        last = res.stdout.strip().splitlines()[-1]
+        self.assertTrue(last.startswith("Link: https://example.test/#1."), last)
+        self.assertEqual(share.decode_fragment(last.split("#", 1)[1]), load("ruby-medallion.share.json"))
+
     def test_no_link(self):
         html, stdout = self.build("--no-link")
         self.assertEqual(self.page_links(html), set())
