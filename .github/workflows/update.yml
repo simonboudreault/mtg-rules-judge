@@ -30,8 +30,6 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0   # full history, so tools/compact.sh can measure it
 
       - uses: actions/setup-python@v5
         with:
@@ -45,19 +43,25 @@ jobs:
           if [ "${{ inputs.force_rules }}" = "true" ]; then args="$args --force-rules"; fi
           python tools/update.py $args
 
+      - name: Publish rules data for the hosted viewer
+        if: steps.update.outputs.changed == 'true'
+        run: python tools/build_site_data.py
+
       - name: Smoke-test the skill
         if: steps.update.outputs.changed == 'true'
         run: |
           python plugins/mtg-rules-judge/skills/mtg-rules-judge/scripts/lookup.py \
             --card "Lightning Bolt" --rule 601.2f | head -20
           python plugins/mtg-rules-judge/skills/mtg-rules-judge/scripts/rules.py info
+          python tests/make_fixtures.py
+          python tests/test_share.py
 
       - name: Commit and push
         if: steps.update.outputs.changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A plugins/
+          git add -A plugins/ docs/ tests/fixtures/
           git commit -m "Update to ${{ steps.update.outputs.version }}" \
                      -m "${{ steps.update.outputs.summary }}"
           git push
@@ -65,7 +69,14 @@ jobs:
       - name: Zip the skill for manual upload
         if: steps.update.outputs.changed == 'true'
         run: |
-          cd plugins/mtg-rules-judge/skills
+          # The repo keeps cards.json uncompressed so git can delta it; the zip ships it
+          # gzipped (carddb.py reads either) to keep the upload small.
+          stage="$RUNNER_TEMP/skill"
+          mkdir -p "$stage"
+          cp -r plugins/mtg-rules-judge/skills/mtg-rules-judge "$stage/"
+          rm -rf "$stage"/mtg-rules-judge/scripts/__pycache__
+          gzip -9 "$stage/mtg-rules-judge/data/cards.json"
+          cd "$stage"
           zip -qr "$GITHUB_WORKSPACE/mtg-rules-judge-skill.zip" mtg-rules-judge
           ls -l "$GITHUB_WORKSPACE/mtg-rules-judge-skill.zip"
 
@@ -79,11 +90,3 @@ jobs:
             --notes "${{ steps.update.outputs.summary }}
 
           Plugin users get this automatically. The zip is the bare skill folder, for anyone who uploads it by hand under Settings > Skills instead."
-
-      - name: Prune old releases and compact history if heavy
-        if: steps.update.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          COMPACT_THRESHOLD_MB: "150"
-          KEEP_RELEASES: "5"
-        run: bash tools/compact.sh
