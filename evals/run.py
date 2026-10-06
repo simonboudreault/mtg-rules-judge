@@ -221,7 +221,10 @@ def run_one(q, n, a, db):
         row["cards_missing"] = [] if q["expect"].get("asks") or q["expect"].get("behaviour") else \
             [c if isinstance(c, str) else c["name"] for c in q["expect"].get("cards") or []]
         graded = "Chat reply (no answer.json was written): %s" % (row["reply"][:3000] or "[empty]")
-    row.update(judge(q, graded, a.judge_model, a.timeout))
+    if row["error"] and not row["reply"].strip() or "session limit" in row["reply"] or "usage limit" in row["reply"].lower():
+        row.update(grade="error", kind="?", why="skill call failed: " + (row["error"] or row["reply"])[:200], judge_cost=0.0)
+    else:
+        row.update(judge(q, graded, a.judge_model, a.timeout))
     row["ok"] = row["grade"] == "pass" and not row["cards_missing"]
     return row
 
@@ -242,7 +245,7 @@ def report(rows, a, started):
              "| Tool calls per run | %.1f |" % (sum(r["tools"] for r in rows) / max(1, len(rows))),
              "| Seconds per run | %.0f |" % (sum(r["seconds"] for r in rows) / max(1, len(rows))),
              "| Cost | $%.2f |" % sum(r["cost"] + r["judge_cost"] for r in rows),
-             "| Judge errors | %d |" % (len(rows) - len(done)), ""]
+             "| Runs that errored (not graded) | %d |" % (len(rows) - len(done)), ""]
     tags = sorted({t for r in rows for t in r["tags"]})
     lines += ["## By tag", "", "| Tag | Passed |", "|---|---|"]
     for t in tags:
@@ -302,6 +305,11 @@ def main():
         for fut in concurrent.futures.as_completed(futures):
             r = fut.result()
             rows.append(r)
+            if r["grade"] == "error" and "limit" in r["why"]:  # the account's usage limit: the rest would fail too
+                print("Stopping: " + r["why"], flush=True)
+                for f in futures:
+                    f.cancel()
+                break
             print("%-34s run %d  %-5s level=%-6s lookups=%d  %3.0fs  %s" % (
                 r["id"], r["run"], "ok" if r["ok"] else r["grade"].upper() if r["grade"] != "pass" else "CARDS",
                 r["level"], r["lookups"], r["seconds"], r["error"] or ""), flush=True)

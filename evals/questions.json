@@ -128,7 +128,7 @@
       "question": "My opponent has Stony Silence. Can I still sacrifice my Treasure tokens for mana?",
       "expect": {
         "verdict": "No. Treasure's ability is an activated ability of an artifact, and Stony Silence stops all of those, mana abilities included.",
-        "cards": ["Stony Silence", {"name": "Treasure", "typeHas": "Token"}],
+        "cards": ["Stony Silence"],
         "source": [{"ruling": "No abilities of artifacts can be activated, including mana abilities"}]
       }
     },

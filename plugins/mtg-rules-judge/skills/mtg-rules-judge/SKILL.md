@@ -113,10 +113,18 @@ python3 <skill-dir>/scripts/lookup.py --card "Card A" --card "Card B" \
   section (`613`) prints its first 60 rules, which is all of most sections; a longer one
   (`702`) is cut and says so, so ask for the rule you need (`702.19`). Asking for an
   extra rule costs nothing; a second round trip costs time.
-- `--glossary` for each keyword or game term; `--search` when you don't know the number.
-- Read **every** ruling printed. Rulings exist to settle interactions, and a ruling on
-  a third card sometimes settles the question outright. Each has an id like
-  `ruby-medallion-1`; those ids are what you cite.
+- `--glossary` for each keyword or game term; `--search` when you don't know the number
+  (a search on a known topic, such as `--search lose all abilities`, starts with the
+  rules that govern it).
+- `--rulings WORDS` searches the rulings of **every** card (`--rulings Blood Moon
+  Saga`). Use it when the cards' own rulings don't settle the interaction: a ruling on
+  a third card sometimes does. To cite one, add its card to `cards`.
+- Read **every** ruling printed. Rulings exist to settle interactions. Each has an id
+  like `ruby-medallion-1`; those ids are what you cite.
+- Read the `ALSO RELEVANT` block when there is one. It holds rules the cards' text
+  calls for and you didn't request (layers when a card removes abilities or sets a land
+  type, the copy rule, the ordering of two replacement effects). They are the rules
+  most often missed.
 
 Where to look in the CR (a map, not a checklist):
 
