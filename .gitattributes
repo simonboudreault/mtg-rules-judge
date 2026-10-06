@@ -1,3 +1,5 @@
 * text=auto eol=lf
 *.gz binary
 *.png binary
+# Rebuilt by the workflow; collapsed in GitHub diffs
+plugins/mtg-rules-judge/skills/mtg-rules-judge/data/cards.json linguist-generated

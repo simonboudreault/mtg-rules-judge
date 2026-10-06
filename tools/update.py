@@ -22,7 +22,6 @@ Claude to fetch the new copy for everyone who installed the plugin.
 """
 import argparse
 import datetime
-import gzip
 import html
 import json
 import os
@@ -36,7 +35,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLUGIN = os.path.join(ROOT, "plugins", "mtg-rules-judge")
 SKILL = os.path.join(PLUGIN, "skills", "mtg-rules-judge")
 RULES_TXT = os.path.join(SKILL, "references", "MagicCompRules.txt")
-CARDS_GZ = os.path.join(SKILL, "data", "cards.json.gz")
+CARDS_JSON = os.path.join(SKILL, "data", "cards.json")
 PLUGIN_JSON = os.path.join(PLUGIN, ".claude-plugin", "plugin.json")
 BUILD_CARD_DB = os.path.join(SKILL, "scripts", "build_card_db.py")
 
@@ -116,12 +115,12 @@ def apply_rules(raw):
 # ---------------------------------------------------------------- cards
 
 def bundled_cards_meta():
-    if not os.path.exists(CARDS_GZ):
+    if not os.path.exists(CARDS_JSON):
         return {}
-    with gzip.open(CARDS_GZ, "rt", encoding="utf-8") as f:
-        # the file starts with {"meta":{...},"cards":[ — read just enough for the meta
-        head = f.read(2000)
-    m = re.search(r'"meta":(\{.*?\}),"cards"', head)
+    with open(CARDS_JSON, encoding="utf-8") as f:
+        # the first line is {"meta":{...}, — read just that
+        head = f.readline()
+    m = re.search(r'"meta":(\{.*\}),', head)
     return json.loads(m.group(1)) if m else {}
 
 
@@ -160,7 +159,7 @@ def check_cards(today):
 
 
 def apply_cards(french=True):
-    cmd = [sys.executable, BUILD_CARD_DB, "--out", CARDS_GZ] + (["--french"] if french else [])
+    cmd = [sys.executable, BUILD_CARD_DB, "--out", CARDS_JSON] + (["--french"] if french else [])
     print("+", " ".join(cmd), flush=True)
     subprocess.run(cmd, check=True)
 

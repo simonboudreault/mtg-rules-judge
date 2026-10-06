@@ -1,4 +1,4 @@
-"""Shared helpers for the offline card database (data/cards.json.gz).
+"""Shared helpers for the offline card database (data/cards.json).
 
 Used by lookup.py, build.py and build_card_db.py. Standard library only.
 """
@@ -11,7 +11,9 @@ import urllib.parse
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.environ.get("MTG_CARD_DB", os.path.join(HERE, "..", "data", "cards.json.gz"))
+DB_PATH = os.environ.get("MTG_CARD_DB", os.path.join(HERE, "..", "data", "cards.json"))
+if not os.path.exists(DB_PATH) and os.path.exists(DB_PATH + ".gz"):
+    DB_PATH += ".gz"  # the manual-upload zip ships it gzipped
 CACHE_PATH = os.environ.get("MTG_CARD_CACHE", os.path.join(os.getcwd(), "mtg_cards_cache.json"))
 API = "https://api.scryfall.com"
 HEADERS = {"User-Agent": "mtg-rules-judge-skill/2.0", "Accept": "application/json"}
@@ -66,7 +68,8 @@ class CardDB:
         self.meta, self.cards, self.rulings, self.fr = {}, [], {}, {}
         self.loaded = False
         if os.path.exists(DB_PATH):
-            with gzip.open(DB_PATH, "rt", encoding="utf-8") as f:
+            opener = gzip.open if DB_PATH.endswith(".gz") else open
+            with opener(DB_PATH, "rt", encoding="utf-8") as f:
                 d = json.load(f)
             self.meta, self.cards, self.rulings, self.fr = d["meta"], d["cards"], d["rulings"], d.get("fr", {})
             self.loaded = True
@@ -146,7 +149,7 @@ class CardDB:
 def to_template_card(rec, source):
     """Record -> card object for the answer template."""
     faces = rec.get("f") or []
-    card = {"id": slug(rec["n"]), "name": rec["n"]}
+    card = {"id": slug(rec["n"]), "name": rec["n"], "oracleId": rec.get("id")}
     if faces:  # double-faced, split, adventure...: the template draws each face
         card["faces"] = [{k2: f[k1] for k1, k2 in (("n", "name"), ("m", "manaCost"), ("t", "typeLine"), ("o", "oracleText"),
                                                       ("p", "power"), ("th", "toughness"), ("l", "loyalty"), ("d", "defense")) if k1 in f}

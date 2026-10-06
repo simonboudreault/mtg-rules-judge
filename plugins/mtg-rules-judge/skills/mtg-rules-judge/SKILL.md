@@ -40,7 +40,7 @@ Put independent tool calls in the same turn.
 ## Resources
 
 - `scripts/lookup.py` — cards, rulings, CR rules, glossary and rule search in one call.
-- `data/cards.json.gz` — offline Oracle text and rulings for every card (built from
+- `data/cards.json` — offline Oracle text and rulings for every card (built from
   Scryfall bulk data by `scripts/build_card_db.py`, run on a computer with internet).
 - `scripts/build.py` — turns your compact answer JSON into the finished page, filling
   in every verbatim text and checking every reference. It renders the page to static

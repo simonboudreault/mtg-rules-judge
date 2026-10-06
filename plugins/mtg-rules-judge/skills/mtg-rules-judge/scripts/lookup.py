@@ -13,7 +13,7 @@ glossary entries and rule searches.
   --search WORDS    repeatable; rules containing ALL the words ("generic reduce").
   --max N           cap per --rule / --search query (default 40 / 15).
 
-Cards come from the bundled database (data/cards.json.gz). A card missing from it
+Cards come from the bundled database (data/cards.json). A card missing from it
 is fetched from the Scryfall API when the sandbox allows it; otherwise the output
 says NOT_IN_BUNDLE and lists close names.
 """

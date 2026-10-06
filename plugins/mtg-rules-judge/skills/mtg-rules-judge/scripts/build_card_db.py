@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the offline card database this skill reads (data/cards.json.gz).
+"""Build the offline card database this skill reads (data/cards.json).
 
 Normally run by tools/update.py from the GitHub Actions workflow, which rebuilds it
 after each new set. You can also run it yourself (it needs internet access to
@@ -25,7 +25,7 @@ import time
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "..", "data", "cards.json.gz")
+OUT = os.path.join(HERE, "..", "data", "cards.json")
 sys.path.insert(0, HERE)
 from carddb import compact_card, norm  # noqa: E402
 
@@ -120,6 +120,21 @@ def find_local(d, pattern):
     return hits[-1] if hits else None
 
 
+def write_db(path, meta, cards, rulings, fr):
+    """Plain JSON, one card / ruling list / French name per line, keys sorted. Unlike
+    gzip, git can delta-compress this: a rebuild only stores the lines that changed."""
+    def j(v):
+        return json.dumps(v, ensure_ascii=False, separators=(",", ":"))
+
+    def obj(d):
+        return ",\n".join(j(k) + ":" + j(d[k]) for k in sorted(d))
+
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write('{"meta":' + j(meta) + ',\n"cards":[\n')
+        f.write(",\n".join(j(c) for c in cards))
+        f.write('\n],\n"rulings":{\n' + obj(rulings) + '\n},\n"fr":{\n' + obj(fr) + "\n}}\n")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--french", action="store_true", help="also index French printed names (big download)")
@@ -189,8 +204,7 @@ def main():
 
         meta["cards"], meta["cards_with_rulings"] = len(cards), len(rulings)
         os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
-        with gzip.open(a.out, "wt", encoding="utf-8", compresslevel=9) as f:
-            json.dump({"meta": meta, "cards": cards, "rulings": rulings, "fr": fr}, f, ensure_ascii=False, separators=(",", ":"))
+        write_db(a.out, meta, cards, rulings, fr)
     finally:
         for t in temps:
             try:
