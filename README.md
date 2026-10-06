@@ -49,7 +49,7 @@ You'll have to re-upload it yourself after each release; the plugin route doesn'
 | Source | Check | Action |
 |---|---|---|
 | **Comprehensive Rules** | The "effective as of" date on [magic.wizards.com/en/rules](https://magic.wizards.com/en/rules) is later than the bundled file's | Download the new `.txt` |
-| **Cards and rulings** | Scryfall lists a real set (not tokens/promos) released since the database was built, or the database is over 90 days old | Rebuild `cards.json.gz` from Scryfall's bulk data, French names included |
+| **Cards and rulings** | Scryfall lists a real set (not tokens/promos) released since the database was built, or the database is over 90 days old | Rebuild `cards.json` from Scryfall's bulk data, French names included |
 
 When either changed, it bumps the plugin version (`YYYY.MDD.n`, e.g. `2026.1005.0`),
 commits, pushes and publishes a GitHub release with the zip. Claude only re-downloads
@@ -69,17 +69,11 @@ The card rebuild downloads Scryfall's "all cards" file (large) for the French na
 
 ## Repository size
 
-Each card rebuild adds a ~9 MB gzip file that git can't delta-compress, and anyone
-who adds the marketplace clones the whole repository, history included. To keep that
-clone small, `tools/compact.sh` runs after every data release:
-
-- it keeps only the newest 5 GitHub releases (older zips are deleted with their tags);
-- once the packed history passes 150 MB, it replaces `main` with a single snapshot
-  commit of the current files and force-pushes it.
-
-Installed plugins aren't affected: they always fetch the current tree. If you have a
-local clone when a compaction happens, `git pull` will refuse; run
-`git fetch origin && git reset --hard origin/main` instead.
+The card database is committed as plain JSON with one card, ruling list or French
+name per line, sorted, rather than gzipped. Git delta-compresses it, so a rebuild only
+adds the lines that changed to the history (about 1 KB for a one-card update, against
+~9 MB for each gzip blob). It's ~32 MB in the working tree but ~9 MB to clone, and the
+history is never rewritten. The release zip ships it gzipped; `carddb.py` reads either.
 
 ## Repository layout
 
@@ -90,11 +84,10 @@ plugins/mtg-rules-judge/
   skills/mtg-rules-judge/
     SKILL.md                           the skill Claude follows
     scripts/                           lookup.py, build.py, rules.py, build_card_db.py, ...
-    data/cards.json.gz                 Oracle text, rulings, French names (Scryfall)
+    data/cards.json                    Oracle text, rulings, French names (Scryfall)
     references/MagicCompRules.txt      the Comprehensive Rules (Wizards of the Coast)
     assets/answer-template.html        the interactive answer page
 tools/update.py                        the updater the workflow runs
-tools/compact.sh                       prunes old releases, compacts history when heavy
 .github/workflows/update.yml           daily schedule
 ```
 
