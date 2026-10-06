@@ -38,7 +38,10 @@ ROOT = os.path.dirname(HERE)
 PLUGIN = os.path.join(ROOT, "plugins", "mtg-rules-judge")
 
 REF_RE = re.compile(r"\[\[(card|rule|ruling):([^\]|]+)(?:\|[^\]]+)?\]\]")
-TOOLS = "Bash,Read,Write,Edit,Skill,Glob,Grep,WebFetch,WebSearch"
+# The runs are unattended, so Bash is limited to the skill's own scripts (lookup.py, build.py, rules.py);
+# anything else the model tries through Bash is denied, and the reply shows it.
+TOOLS = ("Bash(python *lookup.py*),Bash(python3 *lookup.py*),Bash(python *build.py*),Bash(python3 *build.py*),"
+         "Bash(python *rules.py*),Bash(python3 *rules.py*),Read,Write,Edit,Skill,Glob,Grep,WebFetch,WebSearch")
 
 JUDGE = """You are grading an answer to a Magic: The Gathering rules question against a reference.
 Judge only whether the answer agrees with the reference; do not use your own knowledge of the rules.
