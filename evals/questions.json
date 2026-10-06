@@ -138,7 +138,7 @@
       "question": "The Ring tempts me for the second time and I choose a different creature. Do I now have two Ring-bearers?",
       "expect": {
         "verdict": "No. Each player can have only one Ring-bearer at a time; the newly chosen creature becomes the Ring-bearer and the first one stops being it.",
-        "cards": ["The Ring // The Ring Tempts You"],
+        "cards": [],
         "source": [{"ruling": "only one Ring-bearer at a time"}, {"rule": "701.54a"}]
       }
     },

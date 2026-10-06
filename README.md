@@ -24,10 +24,12 @@ installed the plugin gets it automatically.
 Then just ask: *"Does Ruby Medallion reduce the X in Fireball?"* Claude loads the
 skill when a question matches. To force it, type `/` and pick `mtg-rules-judge`.
 
-By default the reply is a link to the full answer page, and nothing else. Start or
-end your message with `quick` (`rapide` or `vite` in French) to get the short answer
-and the confidence level first, without the link; type `link` afterwards if you want
-the page too.
+By default the reply is a link to the full answer page, and nothing else — except one
+line above it when the answer rests on an assumption or isn't high confidence, and a
+question back when a fact the verdict depends on is missing. Start or end your
+message with `quick` (`rapide` or `vite` in French) to get the short answer and the
+confidence level first, without the link; type `link` afterwards if you want the
+page too.
 
 A plugin installed here also shows up in Claude Code the next time you start a
 session with the same account.

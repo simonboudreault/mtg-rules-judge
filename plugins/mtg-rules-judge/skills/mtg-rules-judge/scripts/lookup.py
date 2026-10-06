@@ -271,9 +271,9 @@ def main():
 
     # The model reads this right before it decides what to do next (see SKILL.md, steps 5-7).
     print("\n## NEXT\n"
-          "Write answer.json, then reply with the short answer and the confidence level, and end your turn.\n"
-          "Don't run build.py and don't build a page or an artifact: the link comes only if the person\n"
-          "then asks for it.")
+          "Write answer.json, then run build.py on it: --link-only for the default mode (reply with the\n"
+          "link), --check for a `quick` message (reply with the short answer and the confidence level).\n"
+          "Fix what it refuses, re-read the quotes it prints, then end your turn. No page, no artifact.")
 
 
 if __name__ == "__main__":

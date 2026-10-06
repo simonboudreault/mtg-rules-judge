@@ -1,6 +1,6 @@
 ---
 name: mtg-rules-judge
-description: "Answer Magic: The Gathering rules questions like a careful judge, grounded in the bundled Comprehensive Rules and an offline database of Oracle text and official card rulings, delivered as a link to a full answer page (hover cards, rules and rulings) or, when the message starts or ends with the flag \"quick\" (\"rapide\", \"vite\"), as a short answer with a confidence level first and the link when the person then asks for it (\"link\"), with Reddit discussion on request. Use it for ANY MTG rules question, card interaction, \"does X work with Y\", \"what happens if\", timing, stack, layers, replacement effects, combat, commander rules or a disputed play at the table, in English or French, even when the person only names cards and describes a board state without saying \"rules\", and for the follow-up \"link\" / \"lien\" after such an answer."
+description: "Answer Magic: The Gathering rules questions like a careful judge, grounded in the bundled Comprehensive Rules and an offline database of Oracle text and official card rulings, delivered as a link to a full answer page (hover cards, rules and rulings), with one caveat line when the answer rests on an assumption or isn't high confidence, or, when the message starts or ends with the flag \"quick\" (\"rapide\", \"vite\"), as a short answer with a confidence level first and the link when the person then asks for it (\"link\"), with Reddit discussion on request. Use it for ANY MTG rules question, card interaction, \"does X work with Y\", \"what happens if\", timing, stack, layers, replacement effects, combat, commander rules or a disputed play at the table, in English or French, even when the person only names cards and describes a board state without saying \"rules\", and for the follow-up \"link\" / \"lien\" after such an answer."
 ---
 
 # MTG Rules Judge
@@ -32,29 +32,38 @@ card name is not the flag. The flag is not part of the question: leave it out of
 
 | The message has | The first turn ends with | The link |
 |---|---|---|
-| no flag (default) | the link, and nothing else | built in the first turn |
+| no flag (default) | the link alone — one caveat line above it when confidence isn't high or an assumption matters | built in the first turn |
 | the `quick` flag | the short answer and the confidence level | a second turn, when the person types "link" |
+
+In either mode, when a fact the verdict flips on is missing and both branches can't be
+given in a line each, the reply is one clarifying question instead (step 1).
 
 The evidence is all local, so either way an answer is four short steps, and then you
 stop:
 
 1. **One `lookup.py` call** with every card and every rule you expect to need.
-2. **Think it through.** At most one more `lookup.py` call if the reasoning turns up
-   a rule you didn't ask for.
+2. **Think it through.** At most one more `lookup.py` call: when a name resolved to
+   several cards, or when the reasoning or the `ALSO RELEVANT` block turns up a rule
+   you haven't read.
 3. **Write `answer.json`** (prose and ids only).
-4. **Finish the turn in the mode the message set:**
-   - **default:** one `build.py --link-only` call, then a reply that is the link and
-     nothing else;
-   - **`quick`:** a reply with the short answer and the confidence level, and no
-     `build.py`. The person is mid-game and the short answer is what they are waiting
-     for, so nothing else runs before it. The link is a second turn, and only when
+4. **Check it, then finish the turn in the mode the message set:**
+   - **default:** one `build.py --link-only` call, then the reply it asks for: the
+     link, with a caveat line above it only when the output says so;
+   - **`quick`:** one `build.py --check` call (a second or two, no link), then the
+     short answer and the confidence level. The link is a second turn, and only when
      they ask for it.
+
+   `build.py` refuses an invented id, a hand-written ruling with no source, and a
+   confidence of `high` that the evidence doesn't support; fix `answer.json` and run
+   it again. It also prints the text behind each citation in your short answer:
+   re-read each one against your sentence before replying.
 
 Neither mode builds a page or an artifact.
 
-Don't create a task list, don't read the template or the schema file (the example
-below is enough), and don't run `rules.py info` (the lookup header shows the dates).
-Put independent tool calls in the same turn.
+Don't create a task list, don't read the template, and don't read the schema file
+except for a web-fallback card, a hand-written ruling or the `reddit` object (the
+example below covers the rest). Don't run `rules.py info` (the lookup header shows
+the dates). Put independent tool calls in the same turn.
 
 ### Finding the scripts
 
@@ -93,8 +102,11 @@ every later command.
 - The game-state facts given: zones, controllers, phase/step, what's on the stack.
 - The actual question — often narrower than the story around it.
 - Missing facts that would change the answer (format, haste, who is the active
-  player...). If the answer flips on one, ask, or answer both branches explicitly.
-  Don't silently assume.
+  player, which of several cards share the short name given...). If the answer flips
+  on one, answer both branches explicitly when each fits in a line; otherwise reply
+  with one clarifying question and nothing else, in either mode. Don't silently
+  assume. An assumption you do make goes in `confidence.assumptions`, and in the
+  default mode it is the caveat line above the link.
 
 ### 2. Gather the evidence in one call
 
@@ -158,10 +170,19 @@ parallel and keeping the first that works:
 
 Ask WebFetch for verbatim fields: *"Copy character for character, no paraphrase: name,
 mana cost, type line, full Oracle text, power/toughness, and every ruling with its
-date."* Put that card in `answer.json` as a full object (see below) and say where its
-text came from under `confidence.notRetrieved`. If nothing works, ask the person to
-paste the Oracle text and mark confidence Low. For a French name the database doesn't
-know, WebSearch `"<nom>" carte magic` for the English name, then look it up again.
+date."* Put that card in `answer.json` as a full object (see below) with the page's
+address in `"url"` (`build.py` refuses a web card or ruling without one), say where
+its text came from under `confidence.notRetrieved`, and keep confidence at most
+`medium`: text that reached you through a fetch was not verified against Scryfall,
+and the page says so. If nothing works, ask the person to paste the Oracle text and
+mark confidence Low. For a French name the database doesn't know, WebSearch `"<nom>"
+carte magic` for the English name, then look it up again.
+
+**Format legality and ban lists are not in the bundle.** For "is X legal in
+Commander?", fetch the card's Scryfall page (`https://scryfall.com/search?q=!"<name>"`)
+or the format's banned list and cite it with its date under `notRetrieved`; if that
+fails, say the legality wasn't retrieved. Never answer it from memory: ban lists change
+between updates.
 
 ### 3. Reason it through
 
@@ -176,6 +197,18 @@ decides it, say so — that is a real and useful answer.
 
 Check the result against the official rulings: if a ruling contradicts your trace,
 the ruling wins and your trace has a mistake — find it.
+
+**Confidence level** — it is a claim about the evidence, not about how sure you feel:
+
+- `high`: every card came from the database, every step cites retrieved text, no
+  assumption flips the verdict, and either a ruling addresses this interaction or no
+  step of the chain can reasonably be read another way.
+- `medium`: one step rests on interpretation, or on a stated assumption.
+- `low`: something could not be retrieved, text came from the web or from the person,
+  or the rules don't settle it.
+
+An answer that gives two branches because a fact is missing is not `high`. Put the
+reason in `confidence.reasons` whenever the level isn't `high`.
 
 ### 4. Community discussion — only on request
 
@@ -203,7 +236,7 @@ links.
   "lang": "en",
   "title": "Ruby Medallion and X spells",
   "question": "How does Ruby Medallion interact with {X} spells?",
-  "shortAnswer": "It reduces the X part. You announce X first ([[rule:601.2b]]), then [[card:Ruby Medallion]] takes {1} off the total cost ([[rule:601.2f]], [[ruling:ruby-medallion-1]]).",
+  "shortAnswer": "It takes {1} off the total cost once, whatever X is. You choose X first ([[rule:601.2b]]), then [[card:Ruby Medallion]] reduces the generic part of the total cost by {1} ([[rule:601.2f]], [[ruling:ruby-medallion-5]]).",
   "confidence": {
     "level": "high",
     "reasons": ["An official ruling on Ruby Medallion addresses X spells directly."],
@@ -239,13 +272,18 @@ nothing: they travel as ids). A few short steps beat a long walkthrough.
 
 ### 6. Finish the turn
 
-**No `quick` flag (default): the link alone.** As soon as `answer.json` is written,
-build the link (step 7) and reply with it. The reply is the link and nothing else: no
-verdict, no confidence line, no summary, no offer. All of that is on the page the link
-opens.
+**No `quick` flag (default): the link, with a caveat line only when it is owed.** As
+soon as `answer.json` is written, build the link (step 7) and reply with it. When the
+level is `high` and `assumptions` is empty, the reply is the link and nothing else: no
+verdict, no confidence line, no summary, no offer. Otherwise it is one line, then the
+link: the assumption the answer rests on, or the reason confidence isn't high
+("Assumes the creature had haste." / "Medium confidence: no ruling covers this pair;
+the page shows the reasoning."). `build.py` tells you which of the two applies.
 
-**`quick` flag: the short answer, then stop.** As soon as `answer.json` is written,
-send the reply, without running `build.py`. It holds, in the person's language:
+**`quick` flag: check, then the short answer.** As soon as `answer.json` is written,
+run `build.py answer.json --check` (step 7, without the link), fix anything it
+refuses, re-read the quotes it prints, then send the reply. It holds, in the person's
+language:
 
 - the verdict: 1–3 sentences per question asked, with the key rule/ruling number;
 - the confidence level, with the reason in a few words when it isn't high;
@@ -253,8 +291,9 @@ send the reply, without running `build.py`. It holds, in the person's language:
 - a last line offering the link.
 
 ```
-No. Ruby Medallion takes {1} off the total cost once, not once per X (CR 601.2f;
-ruling of 2004-10-04). Confidence: high.
+It takes {1} off the total cost once, whatever X is: you choose X first, then the
+reduction applies to the generic part (CR 601.2f; ruling of 2023-07-28).
+Confidence: high.
 
 Say "link" for the full page: cards, rules, rulings and the step-by-step.
 ```
@@ -262,10 +301,9 @@ Say "link" for the full page: cards, rules, rulings and the step-by-step.
 In French the last line is: `Dites « lien » pour la page complète : cartes, règles,
 rulings et le déroulement pas à pas.`
 
-Then **end your turn**. In `quick` mode there is no other tool call after
-`answer.json`: no `build.py`, no HTML page, no artifact, no file sent. The person may
-never ask for the link, and everything built ahead of the answer is time they spend
-waiting.
+Then **end your turn**. In `quick` mode nothing else runs after the check: no link,
+no HTML page, no artifact, no file sent. The person may never ask for the link, and
+everything built ahead of the answer is time they spend waiting.
 
 If a `quick` message also asks for the link, do step 7 in this turn and put the link
 under the short answer.
@@ -281,14 +319,20 @@ step.
 python3 <skill-dir>/scripts/build.py answer.json --link-only
 ```
 
-It writes no file. It checks every reference and prints a `Link: …` line.
+It writes no file. It checks every reference, prints the cards it resolved to and the
+text behind each citation in your short answer, then a `Link: …` line. (`--check`
+instead of `--link-only` does the same without the link: the `quick` mode.)
 
-- If it prints `ERROR` lines, fix those ids in `answer.json` and run it again.
+- If it prints `ERROR` lines, fix `answer.json` and run it again: a wrong id, a web
+  card or ruling without its `url`, a confidence of `high` the evidence doesn't earn.
+- Read the `RE-READ` quotes against your short answer. A quote that doesn't say what
+  your sentence says means the sentence or the citation is wrong: fix it, run again.
 - If `answer.json` is gone (new session, cleaned sandbox), write it again from the
   conversation, then run the command.
-- When the line holds a URL, the reply is that URL alone on one line: no label in
-  front of it, no sentence before or after. The answer is on the page, and in `quick`
-  mode the person already has it. The URL is long (2,000 characters or more) and mostly readable: your own prose with `+` for
+- When the line holds a URL, the reply is that URL on one line, with no label in
+  front of it and nothing after it; above it, only the one caveat line when the
+  output asks for it. The answer is on the page, and in `quick` mode the person
+  already has it. The URL is long (2,000 characters or more) and mostly readable: your own prose with `+` for
   spaces and `!` codes for punctuation. Copy it character for character, to the very
   end; never shorten it, rebuild it, or tidy a word, an accent or a code inside it.
 - If the line says the link was omitted, say in one sentence that the answer is too

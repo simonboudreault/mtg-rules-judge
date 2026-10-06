@@ -120,7 +120,7 @@ https://<viewer>/#1.<base64url(zlib_compress(utf8(json)))>
   "rulings": [
     // (a) a ruling from the database: reference. The viewer fetches the card's rulings from Scryfall
     //     and picks the one whose text hash matches; if none matches it falls back to the date and says so.
-    { "id": "ruby-medallion-1", "card": "ruby-medallion", "d": "2004-10-04", "h": "a1b2c3d4" },
+    { "id": "ruby-medallion-1", "card": "ruby-medallion", "d": "2023-07-28", "h": "a1b2c3d4" },
     // (b) a hand-written ruling (answer.json gave a full object, or the card is a web-fallback card): full.
     { "id": "new-card-1", "card": "new-card", "date": "2026-09-01", "source": "wotc", "text": "..." }
   ]
