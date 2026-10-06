@@ -21,7 +21,7 @@ import os
 import sys
 import zlib
 
-DEFAULT_SITE_URL = ""  # set to the viewer's URL once it is live; empty = print no link
+DEFAULT_SITE_URL = "https://simonboudreault.github.io/mtg-rules-judge/"  # $MTG_JUDGE_SITE overrides; empty = print no link
 ENCODING_VERSION = "1"
 PAYLOAD_VERSION = 1
 LINK_MAX_CHARS = 3000  # a long link is slow and error-prone for Claude to type into the reply

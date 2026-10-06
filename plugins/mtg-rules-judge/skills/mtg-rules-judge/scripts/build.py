@@ -210,7 +210,7 @@ def main():
           f"{len(rulings)} ruling(s), CR {eff}." + (f" Data: {a.json}." if a.json else "")
           + " Publish this file by path; don't paste it.")
     if not a.no_link:
-        line = share.link_line(out)  # empty until a viewer URL is configured
+        line = share.link_line(out)  # empty when no viewer URL is configured
         if line:
             print(line)
 
