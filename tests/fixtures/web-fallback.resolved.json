@@ -1,0 +1,147 @@
+{
+ "lang": "en",
+ "generatedAt": "2026-10-06",
+ "title": "A brand-new card and Lightning Bolt",
+ "question": "Can I respond to Nonexistent Test Card's triggered ability with Lightning Bolt?",
+ "shortAnswer": "Yes. The trigger goes on the stack and you can respond ([[rule:603.3]]); [[card:Lightning Bolt]] resolves first ([[rule:608.1]]). [[card:Nonexistent Test Card]]'s own ruling says the ability still resolves if the creature leaves ([[ruling:nonexistent-test-card-1]]).",
+ "confidence": {
+  "level": "medium",
+  "reasons": [
+   "The stack rules are unambiguous."
+  ],
+  "assumptions": [],
+  "notRetrieved": [
+   "Nonexistent Test Card is not in the bundled database; its text and ruling were fetched from the web (test fixture)."
+  ]
+ },
+ "steps": [
+  {
+   "text": "**The trigger goes on the stack** ([[rule:603.3]]) above nothing; you get priority."
+  },
+  {
+   "text": "**Cast [[card:Lightning Bolt]]** targeting the creature. It goes on the stack above the trigger ([[rule:608.1]])."
+  },
+  {
+   "text": "**Resolve top-down**: Bolt kills the creature, then the trigger resolves anyway ([[ruling:nonexistent-test-card-1]])."
+  }
+ ],
+ "reddit": {
+  "searched": true,
+  "threads": [
+   {
+    "title": "Responding to ETB triggers with removal",
+    "url": "https://www.reddit.com/r/mtgrules/comments/example1/",
+    "subreddit": "r/mtgrules",
+    "date": "2024-05-12",
+    "comments": 23,
+    "judgeFlair": true,
+    "summary": "Consensus: the trigger resolves even if the source is gone."
+   },
+   {
+    "title": "Does killing the creature counter its ETB?",
+    "url": "https://www.reddit.com/r/mtgrules/comments/example2/",
+    "subreddit": "r/mtgrules",
+    "date": "2023-11-02",
+    "comments": 9,
+    "judgeFlair": false,
+    "summary": "Same answer; one commenter confused it with Stifle effects."
+   }
+  ],
+  "overview": "Both threads agree with the official rules.",
+  "opinions": [
+   "Killing the source does not counter the trigger (everyone).",
+   "You need a counter-ability effect like [[card:Stifle]] to stop it (judge-flaired reply)."
+  ],
+  "agreesWithOfficial": "yes",
+  "notes": "Thread URLs in this fixture are placeholders.",
+  "searchUrl": "https://www.reddit.com/r/mtgrules/search/?q=%22Lightning+Bolt%22+ETB+trigger"
+ },
+ "schemaVersion": 1,
+ "crEffectiveDate": "September 25, 2026",
+ "cardDataDate": "2026-10-05",
+ "cards": [
+  {
+   "id": "lightning-bolt",
+   "name": "Lightning Bolt",
+   "oracleId": "4457ed35-7c10-48c8-9776-456485fdf070",
+   "manaCost": "{R}",
+   "typeLine": "Instant",
+   "oracleText": "Lightning Bolt deals 3 damage to any target.",
+   "colors": [
+    "R"
+   ],
+   "scryfallUri": "https://scryfall.com/search?q=%21%22Lightning%20Bolt%22",
+   "imageUrl": "https://api.scryfall.com/cards/named?exact=Lightning%20Bolt&format=image&version=normal",
+   "source": "Scryfall bulk data, 2026-10-05"
+  },
+  {
+   "id": "stifle",
+   "name": "Stifle",
+   "oracleId": "b3b00911-ece7-4484-bc36-f211ce72b6cc",
+   "manaCost": "{U}",
+   "typeLine": "Instant",
+   "oracleText": "Counter target activated or triggered ability. (Mana abilities can't be targeted.)",
+   "colors": [
+    "U"
+   ],
+   "scryfallUri": "https://scryfall.com/search?q=%21%22Stifle%22",
+   "imageUrl": "https://api.scryfall.com/cards/named?exact=Stifle&format=image&version=normal",
+   "source": "Scryfall bulk data, 2026-10-05"
+  },
+  {
+   "name": "Nonexistent Test Card",
+   "manaCost": "{1}{U}{U}",
+   "typeLine": "Creature — Merfolk Wizard",
+   "oracleText": "Flash\nWhen Nonexistent Test Card enters, draw a card.",
+   "power": "2",
+   "toughness": "2",
+   "colors": [
+    "U"
+   ],
+   "source": "test fixture",
+   "id": "nonexistent-test-card"
+  }
+ ],
+ "rules": [
+  {
+   "id": "603.3",
+   "text": "Once an ability has triggered, its controller puts it on the stack as an object that’s not a card the next time a player would receive priority. See rule 117, “Timing and Priority.” The ability becomes the topmost object on the stack. It has the text of the ability that created it, and no other characteristics. It remains on the stack until it’s countered, it resolves, a rule causes it to be removed from the stack, or an effect moves it elsewhere."
+  },
+  {
+   "id": "608.1",
+   "text": "Each time all players pass in succession, the spell or ability on top of the stack resolves. (See rule 609, “Effects.”)"
+  }
+ ],
+ "rulings": [
+  {
+   "id": "stifle-1",
+   "card": "stifle",
+   "date": "2004-10-04",
+   "source": "wotc",
+   "text": "It can target delayed triggered abilities. For example, a card that says \"Whenever a player cycles a card, you may exile target creature. If you do, return that creature to the battlefield at the beginning of the end step.\" triggers when a player cycles a card and creates a delayed trigger that happens at the beginning of the end step. You can choose to target the \"at the beginning of the end step\" trigger when it is placed on the stack at end of turn."
+  },
+  {
+   "id": "stifle-2",
+   "card": "stifle",
+   "date": "2004-10-04",
+   "source": "wotc",
+   "text": "An activated ability has a \"Cost: Effect\" format. Look for the colon. A triggered ability starts with \"when\", \"whenever\", or \"at\"."
+  },
+  {
+   "id": "stifle-3",
+   "card": "stifle",
+   "date": "2004-10-04",
+   "source": "wotc",
+   "text": "Turn-based actions and special actions like the normal card draw, combat damage, or turning a face-down creature face up can't be targeted."
+  },
+  {
+   "id": "nonexistent-test-card-1",
+   "card": "nonexistent-test-card",
+   "date": "2026-10-01",
+   "source": "wotc",
+   "text": "If Nonexistent Test Card leaves the battlefield before its ability resolves, you still draw a card.",
+   "custom": true
+  }
+ ],
+ "allCardsLink": "https://scryfall.com/search?q=%21%22Lightning+Bolt%22+or+%21%22Stifle%22+or+%21%22Nonexistent+Test+Card%22&unique=cards"
+}

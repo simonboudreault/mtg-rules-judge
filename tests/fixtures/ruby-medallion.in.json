@@ -1,0 +1,21 @@
+{
+ "lang": "en",
+ "generatedAt": "2026-10-06",
+ "title": "Ruby Medallion and X spells",
+ "question": "If I control Ruby Medallion and cast Fireball with X = 5, how much do I actually pay?",
+ "shortAnswer": "You pay {4}{R}. [[card:Ruby Medallion]] reduces the total cost of a red spell by {1} after X is chosen and the total cost is determined ([[rule:601.2f]]), so X stays 5 while the generic part drops by one ([[ruling:ruby-medallion-1]]).",
+ "confidence": {
+  "level": "high",
+  "reasons": ["Rule 601.2f applies cost reductions after X is chosen.", "The Ruby Medallion ruling says exactly this."],
+  "assumptions": ["Fireball is cast as a normal spell, not with an alternative cost."],
+  "notRetrieved": []
+ },
+ "cards": ["Ruby Medallion", "Fireball"],
+ "rules": ["601.2b"],
+ "rulings": ["ruby-medallion-*"],
+ "steps": [
+  {"text": "**Announce [[card:Fireball]] and choose X = 5** ([[rule:601.2b]]). The total cost is now {5}{R}."},
+  {"text": "**Apply cost reductions** ([[rule:601.2f]]). [[card:Ruby Medallion]] takes {1} off: {4}{R}.", "note": "Additional costs and increases are applied in the same step, before reductions."},
+  {"text": "**Pay {4}{R}** ([[rule:601.2h]]). X is still 5 for everything Fireball does."}
+ ]
+}

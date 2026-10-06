@@ -29,6 +29,7 @@ sys.path.insert(0, HERE)
 import rules as cr  # noqa: E402
 from carddb import CardDB, slug, to_template_card  # noqa: E402
 from render import render_page  # noqa: E402
+import share  # noqa: E402
 
 TEMPLATE = os.path.join(HERE, "..", "assets", "answer-template.html")
 REF_RE = re.compile(r"\[\[(card|rule|ruling):([^\]|]+)(?:\|[^\]]+)?\]\]")
@@ -60,6 +61,7 @@ def main():
     ap.add_argument("-o", "--out", default="answer.html")
     ap.add_argument("--json", help="also write the resolved answer data to this file")
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--no-link", action="store_true", help="don't print the hosted-viewer link")
     a = ap.parse_args()
 
     src = json.load(open(a.answer, encoding="utf-8"))
@@ -130,7 +132,7 @@ def main():
     wanted, rulings = [], []
     for entry in list(src.get("rulings", [])) + refs["ruling"]:
         if isinstance(entry, dict):
-            rulings.append(entry)
+            rulings.append(dict(entry, custom=True))  # hand-written: travels in full in the share link
             continue
         if entry.endswith("-*") or entry.endswith(":all"):
             base = entry[:-2] if entry.endswith("-*") else slug(entry[:-4])
@@ -177,6 +179,8 @@ def main():
     out["schemaVersion"] = 1
     out.setdefault("generatedAt", datetime.date.today().isoformat())
     out["crEffectiveDate"] = eff
+    if db.loaded:
+        out["cardDataDate"] = db.meta.get("built")
     out["cards"], out["rules"], out["rulings"] = cards, rules_out, rulings
     if names:
         q = " or ".join(f'!"{n}"' for n in names)
@@ -205,6 +209,10 @@ def main():
     print(f"Wrote {a.out} ({len(page.encode()) // 1024} KB): {len(cards)} card(s), {len(rules_out)} rule(s), "
           f"{len(rulings)} ruling(s), CR {eff}." + (f" Data: {a.json}." if a.json else "")
           + " Publish this file by path; don't paste it.")
+    if not a.no_link:
+        line = share.link_line(out)  # empty until a viewer URL is configured
+        if line:
+            print(line)
 
 if __name__ == "__main__":
     main()

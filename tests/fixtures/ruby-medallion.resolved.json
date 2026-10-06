@@ -1,0 +1,120 @@
+{
+ "lang": "en",
+ "generatedAt": "2026-10-06",
+ "title": "Ruby Medallion and X spells",
+ "question": "If I control Ruby Medallion and cast Fireball with X = 5, how much do I actually pay?",
+ "shortAnswer": "You pay {4}{R}. [[card:Ruby Medallion]] reduces the total cost of a red spell by {1} after X is chosen and the total cost is determined ([[rule:601.2f]]), so X stays 5 while the generic part drops by one ([[ruling:ruby-medallion-1]]).",
+ "confidence": {
+  "level": "high",
+  "reasons": [
+   "Rule 601.2f applies cost reductions after X is chosen.",
+   "The Ruby Medallion ruling says exactly this."
+  ],
+  "assumptions": [
+   "Fireball is cast as a normal spell, not with an alternative cost."
+  ],
+  "notRetrieved": []
+ },
+ "steps": [
+  {
+   "text": "**Announce [[card:Fireball]] and choose X = 5** ([[rule:601.2b]]). The total cost is now {5}{R}."
+  },
+  {
+   "text": "**Apply cost reductions** ([[rule:601.2f]]). [[card:Ruby Medallion]] takes {1} off: {4}{R}.",
+   "note": "Additional costs and increases are applied in the same step, before reductions."
+  },
+  {
+   "text": "**Pay {4}{R}** ([[rule:601.2h]]). X is still 5 for everything Fireball does."
+  }
+ ],
+ "schemaVersion": 1,
+ "crEffectiveDate": "September 25, 2026",
+ "cardDataDate": "2026-10-05",
+ "cards": [
+  {
+   "id": "ruby-medallion",
+   "name": "Ruby Medallion",
+   "oracleId": "0c367958-729e-416d-988b-098e90e7a1fd",
+   "manaCost": "{2}",
+   "typeLine": "Artifact",
+   "oracleText": "Red spells you cast cost {1} less to cast.",
+   "colors": [],
+   "scryfallUri": "https://scryfall.com/search?q=%21%22Ruby%20Medallion%22",
+   "imageUrl": "https://api.scryfall.com/cards/named?exact=Ruby%20Medallion&format=image&version=normal",
+   "source": "Scryfall bulk data, 2026-10-05"
+  },
+  {
+   "id": "fireball",
+   "name": "Fireball",
+   "oracleId": "aa7714b0-2bfb-458a-8ebf-37ec2c53383e",
+   "manaCost": "{X}{R}",
+   "typeLine": "Sorcery",
+   "oracleText": "This spell costs {1} more to cast for each target beyond the first.\nFireball deals X damage divided evenly, rounded down, among any number of targets.",
+   "colors": [
+    "R"
+   ],
+   "scryfallUri": "https://scryfall.com/search?q=%21%22Fireball%22",
+   "imageUrl": "https://api.scryfall.com/cards/named?exact=Fireball&format=image&version=normal",
+   "source": "Scryfall bulk data, 2026-10-05"
+  }
+ ],
+ "rules": [
+  {
+   "id": "601.2b",
+   "text": "If the spell is modal, the player announces the mode choice (see rule 700.2). If the player wishes to splice any cards onto the spell (see rule 702.47), they reveal those cards in their hand. If the spell has alternative or additional costs that will be paid as it’s being cast such as buyback or kicker costs (see rules 118.8 and 118.9), the player announces their intentions to pay any or all of those costs (see rule 601.2f). A player can’t apply two alternative methods of casting or two alternative costs to a single spell. If the spell has a variable cost that will be paid as it’s being cast (such as an {X} in its mana cost; see rule 107.3), the player announces the value of that variable. If the value of that variable is defined in the text of the spell by a choice that player would make later in the announcement or resolution of the spell, that player makes that choice at this time instead of that later time. If a cost that will be paid as the spell is being cast includes hybrid mana symbols, the player announces the nonhybrid equivalent cost they intend to pay. If a cost that will be paid as the spell is being cast includes Phyrexian mana symbols, the player announces whether they intend to pay 2 life or a corresponding colored mana cost for each of those symbols. Previously made choices (such as choosing to cast a spell with flashback from a graveyard or choosing to cast a creature with morph face down) may restrict the player’s options when making these choices."
+  },
+  {
+   "id": "601.2f",
+   "text": "The player determines the total cost of the spell. Usually this is just the mana cost. Some spells have additional or alternative costs. Some effects may increase or reduce the cost to pay, or may provide other alternative costs. Costs may include paying mana, tapping permanents, sacrificing permanents, discarding cards, and so on. The total cost is the mana cost or alternative cost (as determined in rule 601.2b), plus all additional costs and cost increases, and minus all cost reductions. If multiple cost reductions apply, the player may apply them in any order. If the mana component of the total cost is reduced to nothing by cost reduction effects, it is considered to be {0}. It can’t be reduced to less than {0}. Once the total cost is determined, any effects that directly affect the total cost are applied. Then the resulting total cost becomes “locked in.” If effects would change the total cost after this time, they have no effect."
+  },
+  {
+   "id": "601.2h",
+   "text": "The player pays the total cost. First, they pay all costs that don’t involve random elements or moving objects from the library to a public zone, in any order. Then they pay all remaining costs in any order. Partial payments are not allowed. Unpayable costs can’t be paid.\n    Example: You cast Altar’s Reap, which costs {1}{B} and has an additional cost of sacrificing a creature. You sacrifice Thunderscape Familiar, whose effect makes your black spells cost {1} less to cast. Because a spell’s total cost is “locked in” before payments are actually made, you pay {B}, not {1}{B}, even though you’re sacrificing the Familiar."
+  }
+ ],
+ "rulings": [
+  {
+   "id": "ruby-medallion-1",
+   "card": "ruby-medallion",
+   "date": "2023-07-28",
+   "source": "wotc",
+   "text": "The ability can't reduce the amount of colored mana you pay for a spell. It reduces only the generic mana component of that cost."
+  },
+  {
+   "id": "ruby-medallion-2",
+   "card": "ruby-medallion",
+   "date": "2023-07-28",
+   "source": "wotc",
+   "text": "The ability doesn't change the mana cost or mana value of any spell. It changes only the total cost you pay."
+  },
+  {
+   "id": "ruby-medallion-3",
+   "card": "ruby-medallion",
+   "date": "2023-07-28",
+   "source": "wotc",
+   "text": "The cost reduction can apply to alternative costs such as flashback costs."
+  },
+  {
+   "id": "ruby-medallion-4",
+   "card": "ruby-medallion",
+   "date": "2023-07-28",
+   "source": "wotc",
+   "text": "If there are additional costs to cast a spell, or if the cost to cast a spell is increased by an effect (such as the one created by Thalia, Guardian of Thraben's ability), apply those increases before applying cost reductions."
+  },
+  {
+   "id": "ruby-medallion-5",
+   "card": "ruby-medallion",
+   "date": "2023-07-28",
+   "source": "wotc",
+   "text": "If a spell you cast has {X} in its mana cost, you choose the value of X before calculating the spell's total cost."
+  }
+ ],
+ "allCardsLink": "https://scryfall.com/search?q=%21%22Ruby+Medallion%22+or+%21%22Fireball%22&unique=cards",
+ "reddit": {
+  "searched": false,
+  "threads": [],
+  "overview": "Not searched for this answer — the official sources settle it. Community threads, if you want them:",
+  "agreesWithOfficial": "unknown",
+  "searchUrl": "https://www.reddit.com/r/mtgrules/search/?q=%22Ruby+Medallion%22+%22Fireball%22"
+ }
+}

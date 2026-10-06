@@ -74,10 +74,12 @@ Text fields may contain:
 }
 ```
 
-`build.py` adds `crEffectiveDate`, `generatedAt`, `allCardsLink` (one Scryfall link
-for all cards), each card's text, link and image, and the verbatim text of every
-rule and ruling. A card id is its name in lowercase with dashes
-(`Thassa's Oracle` → `thassas-oracle`), which is also the prefix of its ruling ids.
+`build.py` adds `crEffectiveDate`, `cardDataDate`, `generatedAt`, `allCardsLink` (one
+Scryfall link for all cards), each card's text, link, image and `oracleId`, and the
+verbatim text of every rule and ruling (hand-written ruling objects get `"custom": true`).
+A card id is its name in lowercase with dashes (`Thassa's Oracle` → `thassas-oracle`),
+which is also the prefix of its ruling ids. The same data, reduced to prose and ids,
+is what the share link carries: see `share-payload.md`.
 
 Never invent a thread URL: if nothing could be retrieved, leave `threads` empty and
 keep `searchUrl` so the person can look themselves.

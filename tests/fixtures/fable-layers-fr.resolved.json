@@ -1,0 +1,278 @@
+{
+ "lang": "fr",
+ "generatedAt": "2026-10-06",
+ "title": "Reflet de Kiki-Jiki et les couches d'effets",
+ "question": "Si Reflet de Kiki-Jiki devient une copie d'une créature pendant qu'un effet lui donne +1/+1, qu'est-ce qui s'applique en premier ?",
+ "shortAnswer": "L'effet de copie s'applique d'abord (couche 1, [[rule:613.2a]]), puis les modifications de force et d'endurance (couche 7c, [[rule:613.4c]]). [[card:Fable of the Mirror-Breaker // Reflection of Kiki-Jiki]] garde donc le +1/+1 par-dessus les caractéristiques copiées, et la carte reste une créature double face transformée ([[ruling:fable-of-the-mirror-breaker-reflection-of-kiki-jiki-1]]).",
+ "confidence": {
+  "level": "high",
+  "reasons": [
+   "Le système de couches (613) est explicite sur l'ordre : copie avant modifications de F/E.",
+   "Les rulings de la carte confirment le comportement du côté transformé."
+  ],
+  "assumptions": [
+   "Le +1/+1 vient d'un effet jusqu'à la fin du tour (couche 7c), pas d'un marqueur (couche 7d, même résultat)."
+  ],
+  "notRetrieved": []
+ },
+ "steps": [
+  {
+   "text": "**Couche 1 : l'effet de copie** ([[rule:613.2a]]). Reflet de Kiki-Jiki prend les valeurs copiables de la créature choisie."
+  },
+  {
+   "text": "**Couche 7c : le +1/+1** ([[rule:613.4c]]) s'ajoute aux valeurs copiées.",
+   "note": "La couche 7 se lit toujours après les couches 1 à 6, quel que soit l'ordre dans lequel les effets ont commencé ([[rule:613.1]])."
+  },
+  {
+   "text": "**Le résultat** : une copie avec +1/+1, toujours sur sa face arrière ([[ruling:fable-of-the-mirror-breaker-reflection-of-kiki-jiki-1]]). Un [[card:Treasure]] sacrifié entre-temps ne change rien, et [[card:Fire // Ice]] n'y est que pour montrer une carte partagée."
+  }
+ ],
+ "schemaVersion": 1,
+ "crEffectiveDate": "September 25, 2026",
+ "cardDataDate": "2026-10-05",
+ "cards": [
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "name": "Fable of the Mirror-Breaker // Reflection of Kiki-Jiki",
+   "oracleId": "c0957e5e-c71b-439c-931c-9f55d2f76ace",
+   "faces": [
+    {
+     "name": "Fable of the Mirror-Breaker",
+     "manaCost": "{2}{R}",
+     "typeLine": "Enchantment — Saga",
+     "oracleText": "(As this Saga enters and after your draw step, add a lore counter.)\nI — Create a 2/2 red Goblin Shaman creature token with \"Whenever this token attacks, create a Treasure token.\"\nII — You may discard up to two cards. If you do, draw that many cards.\nIII — Exile this Saga, then return it to the battlefield transformed under your control."
+    },
+    {
+     "name": "Reflection of Kiki-Jiki",
+     "typeLine": "Enchantment Creature — Goblin Shaman",
+     "oracleText": "{1}, {T}: Create a token that's a copy of another target nonlegendary creature you control, except it has haste. Sacrifice it at the beginning of the next end step.",
+     "power": "2",
+     "toughness": "2"
+    }
+   ],
+   "typeLine": "Enchantment — Saga // Enchantment Creature — Goblin Shaman",
+   "colors": [
+    "R"
+   ],
+   "scryfallUri": "https://scryfall.com/search?q=%21%22Fable%20of%20the%20Mirror-Breaker%20//%20Reflection%20of%20Kiki-Jiki%22",
+   "imageUrl": "https://api.scryfall.com/cards/named?exact=Fable%20of%20the%20Mirror-Breaker%20//%20Reflection%20of%20Kiki-Jiki&format=image&version=normal",
+   "source": "Scryfall bulk data, 2026-10-05"
+  },
+  {
+   "id": "fire-ice",
+   "name": "Fire // Ice",
+   "oracleId": "ae92942b-919c-4ea9-b693-85fcef765d5a",
+   "faces": [
+    {
+     "name": "Fire",
+     "manaCost": "{1}{R}",
+     "typeLine": "Instant",
+     "oracleText": "Fire deals 2 damage divided as you choose among one or two targets."
+    },
+    {
+     "name": "Ice",
+     "manaCost": "{1}{U}",
+     "typeLine": "Instant",
+     "oracleText": "Tap target permanent.\nDraw a card."
+    }
+   ],
+   "manaCost": "{1}{R} // {1}{U}",
+   "typeLine": "Instant // Instant",
+   "colors": [
+    "R",
+    "U"
+   ],
+   "scryfallUri": "https://scryfall.com/search?q=%21%22Fire%20//%20Ice%22",
+   "imageUrl": "https://api.scryfall.com/cards/named?exact=Fire%20//%20Ice&format=image&version=normal",
+   "source": "Scryfall bulk data, 2026-10-05"
+  },
+  {
+   "id": "treasure",
+   "name": "Treasure",
+   "oracleId": "3365a79e-3e2d-4f4b-861c-a970ae23345b",
+   "typeLine": "Card",
+   "oracleText": "(Theme color: {R})",
+   "colors": [],
+   "scryfallUri": "https://scryfall.com/search?q=%21%22Treasure%22",
+   "imageUrl": "https://api.scryfall.com/cards/named?exact=Treasure&format=image&version=normal",
+   "source": "Scryfall bulk data, 2026-10-05",
+   "note": "token"
+  }
+ ],
+ "rules": [
+  {
+   "id": "613.1",
+   "text": "The values of an object’s characteristics are determined by starting with the actual object. For a card, that means the values of the characteristics printed on that card. For a token or a copy of a spell or card, that means the values of the characteristics defined by the effect that created it. Then all applicable continuous effects are applied in a series of layers in the following order:"
+  },
+  {
+   "id": "613.1a",
+   "text": "Layer 1: Rules and effects that modify copiable values are applied."
+  },
+  {
+   "id": "613.1b",
+   "text": "Layer 2: Control-changing effects are applied."
+  },
+  {
+   "id": "613.1c",
+   "text": "Layer 3: Text-changing effects are applied. See rule 612, “Text-Changing Effects.”"
+  },
+  {
+   "id": "613.1d",
+   "text": "Layer 4: Type-changing effects are applied. These include effects that change an object’s card type, subtype, and/or supertype."
+  },
+  {
+   "id": "613.1e",
+   "text": "Layer 5: Color-changing effects are applied."
+  },
+  {
+   "id": "613.1f",
+   "text": "Layer 6: Ability-adding effects, keyword counters, ability-removing effects, and effects that say an object can’t have an ability are applied."
+  },
+  {
+   "id": "613.1g",
+   "text": "Layer 7: Power- and/or toughness-changing effects are applied."
+  },
+  {
+   "id": "613.2",
+   "text": "Within layer 1, apply effects in a series of sublayers in the order described below. Within each sublayer, apply effects in timestamp order (see rule 613.7). Note that dependency may alter the order in which effects are applied within a sublayer. (See rule 613.8.)"
+  },
+  {
+   "id": "613.2a",
+   "text": "Layer 1a: Copiable effects are applied. This includes copy effects (see rule 707, “Copying Objects”) and changes to an object’s characteristics determined by merging an object with a permanent (see rule 730, “Merging with Permanents”). “As . . . enters” and “as . . . is turned face up” abilities generate copiable effects if they set power and toughness, even if they also define other characteristics."
+  },
+  {
+   "id": "613.2b",
+   "text": "Layer 1b: Face-down spells and permanents have their characteristics modified as defined in rule 708.2."
+  },
+  {
+   "id": "613.3",
+   "text": "Within layers 2–6, apply effects from characteristic-defining abilities first (see rule 604.3), then all other effects in timestamp order (see rule 613.7). Note that dependency may alter the order in which effects are applied within a layer. (See rule 613.8.)"
+  },
+  {
+   "id": "613.4",
+   "text": "Within layer 7, apply effects in a series of sublayers in the order described below. Within each sublayer, apply effects in timestamp order. (See rule 613.7.) Note that dependency may alter the order in which effects are applied within a sublayer. (See rule 613.8.)"
+  },
+  {
+   "id": "613.4a",
+   "text": "Layer 7a: Effects from characteristic-defining abilities that define power and/or toughness are applied. See rule 604.3."
+  },
+  {
+   "id": "613.4b",
+   "text": "Layer 7b: Effects that set power and/or toughness to a specific number or value are applied. Effects that refer to the base power and/or toughness of a creature apply in this layer."
+  },
+  {
+   "id": "613.4c",
+   "text": "Layer 7c: Effects and counters that modify power and/or toughness (but don’t set power and/or toughness to a specific number or value) are applied."
+  },
+  {
+   "id": "613.4d",
+   "text": "Layer 7d: Effects that switch a creature’s power and toughness are applied. Such effects take the value of power and apply it to the creature’s toughness, and take the value of toughness and apply it to the creature’s power.\n    Example: A 1/3 creature is given +0/+1 by an effect. Then another effect switches the creature’s power and toughness. Its new power and toughness is 4/1. A new effect gives the creature +5/+0. Its “unswitched” power and toughness would be 6/4, so its actual power and toughness is 4/6.\n    Example: A 1/3 creature is given +0/+1 by an effect. Then another effect switches the creature’s power and toughness. Its new power and toughness is 4/1. If the +0/+1 effect ends before the switch effect ends, the creature becomes 3/1.\n    Example: A 1/3 creature is given +0/+1 by an effect. Then another effect switches the creature’s power and toughness. Then another effect switches its power and toughness again. The two switches essentially cancel each other, and the creature becomes 1/4."
+  },
+  {
+   "id": "613.5",
+   "text": "The application of continuous effects as described by the layer system is continually and automatically performed by the game. All resulting changes to an object’s characteristics are instantaneous.\n    Example: Honor of the Pure is an enchantment that reads “White creatures you control get +1/+1.” Honor of the Pure and a 2/2 black creature are on the battlefield under your control. If an effect then turns the creature white (layer 5), it gets +1/+1 from Honor of the Pure (layer 7c), becoming 3/3. If the creature’s color is later changed to red (layer 5), Honor of the Pure’s effect stops applying to it, and it will return to being 2/2.\n    Example: Gray Ogre, a 2/2 creature, is on the battlefield. An effect puts a +1/+1 counter on it (layer 7c), making it 3/3. A spell targeting it that says “Target creature gets +4/+4 until end of turn” resolves (layer 7c), making it 7/7. An enchantment that says “Creatures you control get +0/+2” enters the battlefield (layer 7c), making it 7/9. An effect that says “Target creature becomes 0/1 until end of turn” is applied to it (layer 7b), making it 5/8 (0/1, with +4/+4 from the resolved spell, +0/+2 from the enchantment, and +1/+1 from the counter)."
+  },
+  {
+   "id": "613.6",
+   "text": "If an effect should be applied in different layers and/or sublayers, the parts of the effect each apply in their appropriate ones. If an effect starts to apply in one layer and/or sublayer, it will continue to be applied to the same set of objects in each other applicable layer and/or sublayer, even if the ability generating the effect is removed during this process.\n    Example: An effect that reads “This creature gets +1/+1 and becomes the color of your choice until end of turn” is both a power- and toughness-changing effect and a color-changing effect. The “becomes the color of your choice” part is applied in layer 5, and then the “gets +1/+1” part is applied in layer 7c.\n    Example: Act of Treason has an effect that reads “Gain control of target creature until end of turn. Untap that creature. It gains haste until end of turn.” This is both a control-changing effect and an effect that adds an ability to an object. The “gain control” part is applied in layer 2, and then the “it gains haste” part is applied in layer 6.\n    Example: An effect that reads “All noncreature artifacts become 2/2 artifact creatures until end of turn” is both a type-changing effect and a power- and toughness-setting effect. The type-changing effect is applied to all noncreature artifacts in layer 4 and the power- and toughness-setting effect is applied to those same permanents in layer 7b, even though those permanents aren’t noncreature artifacts by then.\n    Example: Svogthos, the Restless Tomb, is on the battlefield. An effect that says “Until end of turn, target land becomes a 3/3 creature that’s still a land” is applied to it (layers 4 and 7b). An effect that says “Target creature gets +1/+1 until end of turn” is applied to it (layer 7c), making it a 4/4 land creature. Then while you have ten creature cards in your graveyard, you activate Svogthos’s ability: “Until end of turn, this land becomes a black and green Plant Zombie creature with ‘This creature’s power and toughness are each equal to the number of creature cards in your graveyard.’ It’s still a land.” (layers 4, 5, and 7b). It becomes an 11/11 land creature. If a creature card enters or leaves your graveyard, Svogthos’s power and toughness will be modified accordingly. If the first effect is applied to it again, it will become a 4/4 land creature again."
+  },
+  {
+   "id": "613.7",
+   "text": "Within a layer or sublayer, determining which order effects are applied in is usually done using a timestamp system. An effect with an earlier timestamp is applied before an effect with a later timestamp."
+  }
+ ],
+ "rulings": [
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-1",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "The token created by Reflection of Kiki-Jiki copies exactly what was printed on the original creature (except that the copy also has haste) and nothing else (unless it's copying a creature that's a token or that's copying something else; see below). It doesn't copy whether the creature is tapped or untapped, whether it has any counters on it or Auras and/or Equipment attached to it, or any non-copy effects that changed its power, toughness, types, color, and so on. Most notably, if the target creature isn't normally a creature, the copy won't be a creature."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-2",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "A transforming double-faced card enters the battlefield with its front face up by default, unless a spell or ability instructs you to put it onto the battlefield transformed or you cast it transformed, in which case it enters with its back face up."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-3",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "The mana value of a transforming double-faced card is the mana value of its front face, no matter which face is up."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-4",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "If a copied creature is a token that isn't a copy of something else, the copy copies the original characteristics of that token as stated by the effect that created it."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-5",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "If you are instructed to put a card that isn't a double-faced card onto the battlefield transformed, it will not enter the battlefield at all. In that case, it stays in the zone it was previously in. For example, if a single-faced card is a copy of Azusa's Many Journeys, the chapter III ability will cause it to be exiled and then remain in exile."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-6",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "If another creature becomes a copy of, or enters the battlefield as a copy of, the token, that creature will copy the creature card the token is copying, except it will also have haste. However, you won't sacrifice the new copy at the beginning of the next end step."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-7",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "If a copied creature is copying something else, the token you create will use the copiable values of the target creature. In most cases, it will just be a copy of whatever that creature is copying."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-8",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "If Reflection of Kiki-Jiki's ability creates multiple tokens due to a replacement effect (such as the one Doubling Season creates), you'll sacrifice each of them."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-9",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "If the copied creature has {X} in its mana cost, X is 0."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-10",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "The back face of a transforming double-faced card usually has a color indicator that defines its color."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-11",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "Each transforming double-faced card in this set is cast face up. In every zone other than the battlefield, consider only the characteristics of its front face. If it is on the battlefield, consider only the characteristics of the face that's up; the other face's characteristics are ignored."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-12",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "Any enters-the-battlefield abilities of the copied creature will trigger when the token enters the battlefield. Any “as [this permanent] enters the battlefield” or “[this permanent] enters the battlefield with” abilities of the copied creature card will also work."
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-13",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "date": "2022-02-18",
+   "source": "wotc",
+   "text": "Each face of a transforming double-faced card has its own set of characteristics: name, types, subtypes, abilities, and so on. While a transforming double-faced permanent is on the battlefield, consider only the characteristics of the face that's currently up. The other set of characteristics is ignored."
+  }
+ ],
+ "allCardsLink": "https://scryfall.com/search?q=%21%22Fable+of+the+Mirror-Breaker+%2F%2F+Reflection+of+Kiki-Jiki%22+or+%21%22Fire+%2F%2F+Ice%22+or+%21%22Treasure%22&unique=cards"
+}
