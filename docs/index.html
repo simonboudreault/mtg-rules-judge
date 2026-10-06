@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.scryfall.com; img-src 'self' https://cards.scryfall.io data:; style-src 'self' 'unsafe-inline'; script-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.scryfall.com https://api.pullpush.io; img-src 'self' https://cards.scryfall.io data:; style-src 'self' 'unsafe-inline'; script-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="Magic: The Gathering rules answers from the MTG Rules Judge plugin for Claude.">
 <title>MTG rules answer</title>
@@ -16,6 +16,7 @@
 <link rel="modulepreload" href="labels.js">
 <link rel="modulepreload" href="rules.js">
 <link rel="modulepreload" href="scryfall.js">
+<link rel="modulepreload" href="reddit.js">
 <script type="module" src="app.js"></script>
 </head>
 <body>

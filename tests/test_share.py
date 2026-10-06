@@ -138,6 +138,12 @@ class Readable(unittest.TestCase):
                              encoding="utf-8")
         self.assertEqual(res.returncode, 0, res.stdout + res.stderr)
 
+    @unittest.skipUnless(shutil.which("node"), "node is not installed")
+    def test_viewer_finds_reddit_threads(self):
+        res = subprocess.run(["node", os.path.join(HERE, "test_reddit.mjs")], capture_output=True, text=True,
+                             encoding="utf-8")
+        self.assertEqual(res.returncode, 0, res.stdout + res.stderr)
+
 
 class Payload(unittest.TestCase):
     def test_db_cards_are_slim_and_external_cards_full(self):

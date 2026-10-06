@@ -160,6 +160,11 @@ the text retrieved at the time and remains the verified copy.
 - Scryfall: one `POST https://api.scryfall.com/cards/collection` with
   `{"identifiers": [{"oracle_id": ...}, {"name": ...}]}` (75 max), then
   `GET <card.rulings_uri>` for each card that has ruling references.
+- PullPush (an archive of Reddit; Reddit itself refuses requests from other sites): when
+  the `reddit` block has no threads, one
+  `GET https://api.pullpush.io/reddit/search/submission/?subreddit=mtgrules&q="Card A" "Card B"`
+  with the first three card names, then the first two if nothing names all three. The
+  newest six threads are listed as found by the page, not read for the answer.
 
 ## Fixtures
 

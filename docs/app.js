@@ -6,6 +6,7 @@ import { Page, esc, slug, searchLink } from "./render.js";
 import { SITE, REDDIT_DEFAULT } from "./labels.js";
 import { loadMeta, loadRules } from "./rules.js";
 import { fetchCards, fetchRulings, imagesOf, h8, cardCanon } from "./scryfall.js";
+import { fetchThreads } from "./reddit.js";
 
 const SUPPORTED = [1];
 const app = document.getElementById("app");
@@ -32,6 +33,9 @@ function viewModel(p) {
       searched: false, threads: [], overview: REDDIT_DEFAULT[lang], agreesWithOfficial: "unknown",
       searchUrl: "https://www.reddit.com/r/mtgrules/search/?q=" + quotePlus(names.slice(0, 3).map((n) => `"${n}"`).join(" ")),
     };
+  }
+  if (reddit && typeof reddit === "object") { // no thread came with the answer: the page looks for some itself
+    reddit = { ...reddit, _live: !(reddit.threads || []).length && names.length ? "loading" : undefined };
   }
   return {
     lang, title: p.title, question: p.question, shortAnswer: p.shortAnswer,
@@ -60,6 +64,15 @@ function draw() {
   document.title = vm.title || "MTG rules answer";
   pop.dataset.pinHint = page.L.pinHint;
   setupNav();
+}
+
+// Threads arrive seconds after the rest: redraw their section alone, so an open popover stays open.
+function drawCommunity() {
+  const el = document.getElementById("community");
+  if (!el) return;
+  const t = document.createElement("template");
+  t.innerHTML = new Page(vm).communitySection();
+  if (t.content.firstElementChild) el.innerHTML = t.content.firstElementChild.innerHTML;
 }
 
 function message(kind) {
@@ -166,6 +179,17 @@ async function hydrateRulings(gen) {
   }
 }
 
+async function hydrateThreads(gen) {
+  const r = vm.reddit;
+  if (!r || r._live !== "loading") return;
+  let threads = null;
+  try { threads = await fetchThreads(vm.cards.map((c) => c.name)); } catch { /* the search link stays */ }
+  if (gen !== generation) return;
+  if (threads && threads.length) r.threads = threads;
+  r._live = !threads ? "unavailable" : threads.length ? "ok" : "empty";
+  drawCommunity();
+}
+
 // ---------------------------------------------------------------- boot
 
 async function readPayload() {
@@ -194,6 +218,7 @@ async function boot() {
   draw();
   hydrateRules(gen);
   hydrateCards(gen);
+  hydrateThreads(gen);
 }
 
 // Only answer links reload the page; "#rules" and other in-page anchors just scroll.

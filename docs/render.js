@@ -270,8 +270,9 @@ export class Page {
   }
 
   communitySection() {
-    const r = this.d.reddit, L = this.L;
+    const r = this.d.reddit, L = this.L, S = this.S;
     if (!r) return "";
+    const live = r._live; // set when the page looks for threads itself (app.js hydrateThreads)
     const [cls, txt] = ({ yes: ["high", L.yes], partly: ["medium", L.partly], no: ["low", L.no] })[r.agreesWithOfficial]
       || ["", L.unknown];
     const threads = r.threads || [];
@@ -286,17 +287,20 @@ export class Page {
         return `<li><div class="t-head">${head}</div>${summ}</li>`;
       });
       th = `<ul class="threads">${lis.join("")}</ul>`;
+    } else if (live === "loading" || live === "empty") {
+      th = `<p class="muted">${esc(live === "loading" ? S.threadsLoading : S.threadsNone)}</p>`;
     } else {
       th = r.searched === false ? "" : `<p class="muted">${esc(L.noThreads)}</p>`;
     }
-    const agree = threads.length ? `<div class="agree">${esc(L.agrees)} <span class="pill ${cls}">${esc(txt)}</span></div>` : "";
+    const liveNote = live === "ok" ? `<p class="muted notes">${esc(S.threadsLive)}</p>` : "";
+    const agree = threads.length && live !== "ok" ? `<div class="agree">${esc(L.agrees)} <span class="pill ${cls}">${esc(txt)}</span></div>` : "";
     const ops = r.opinions || [];
     const opsH = ops.length ? `<div class="eyebrow opinions-head">${esc(L.opinions)}</div><ul class="opinions">` +
       `${ops.map((o) => `<li>${this.inline(o)}</li>`).join("")}</ul>` : "";
     const notes = r.notes ? `<p class="muted notes">${this.inline(r.notes)}</p>` : "";
     const search = r.searchUrl ? `<p><a href="${esc(safeUrl(r.searchUrl))}"${EXT}>${esc(L.searchReddit)} →</a></p>` : "";
     return `<section id="community" class="community"><div class="eyebrow">${esc(L.communityKicker)}</div>` +
-      `<h2>${esc(L.community)}</h2>${agree}${r.overview ? this.paras(r.overview) : ""}${opsH}${th}${notes}${search}</section>`;
+      `<h2>${esc(L.community)}</h2>${agree}${r.overview ? this.paras(r.overview) : ""}${opsH}${th}${liveNote}${notes}${search}</section>`;
   }
 
   footer() {

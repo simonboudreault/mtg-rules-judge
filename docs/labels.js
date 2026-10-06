@@ -64,6 +64,9 @@ export const SITE = {
     scryfallDown: "Scryfall couldn't be reached, so card text and rulings are missing. The answer itself is complete; reload the page to try again.",
     damagedLink: "This link was changed on its way here: a character differs from what the plugin wrote, so a word or a reference below may be wrong. Ask Claude for the link again to be sure.",
     flip: "Flip",
+    threadsLoading: "Looking for threads on r/mtgrules…",
+    threadsNone: "No thread on r/mtgrules names these cards together.",
+    threadsLive: "The latest r/mtgrules threads that name these cards, found by this page in the PullPush archive of Reddit. Nobody read or checked them for this answer.",
     sources: "Card text, images and rulings: Scryfall, live.",
     attribution: "Card data and images provided by Scryfall. Unofficial Fan Content permitted under the Fan Content Policy; not endorsed by Wizards of the Coast or Scryfall. Rules text © Wizards of the Coast.",
     boot: "Loading…",
@@ -72,7 +75,7 @@ export const SITE = {
       Ask Claude a <i>Magic: The Gathering</i> rules question and it replies with a link that opens here.</p>
       <p>Nothing is stored on this site: the whole answer travels inside the link, after the <code>#</code>,
       which your browser never sends to a server. Rules text comes from the Comprehensive Rules bundled with
-      the plugin; card text, images and rulings come from Scryfall.</p>`,
+      the plugin; card text, images and rulings come from Scryfall, and Reddit threads from the PullPush archive.</p>`,
     badLinkTitle: "This link is damaged or incomplete",
     badLinkHtml: `<p>Part of the link was probably lost when it was copied. Ask Claude for the link again in the
       same chat.</p>`,
@@ -98,6 +101,9 @@ export const SITE = {
     scryfallDown: "Scryfall est injoignable : le texte des cartes et les rulings manquent. La réponse elle-même est complète ; rechargez la page pour réessayer.",
     damagedLink: "Ce lien a été modifié en chemin : un caractère diffère de ce que le plugin a écrit, donc un mot ou une référence ci-dessous peut être faux. Redemandez le lien à Claude pour en être sûr.",
     flip: "Retourner",
+    threadsLoading: "Recherche de fils sur r/mtgrules…",
+    threadsNone: "Aucun fil de r/mtgrules ne nomme ces cartes ensemble.",
+    threadsLive: "Les derniers fils de r/mtgrules qui nomment ces cartes, trouvés par cette page dans l'archive PullPush de Reddit. Personne ne les a lus ni vérifiés pour cette réponse.",
     sources: "Texte des cartes, images et rulings : Scryfall, en direct.",
     attribution: "Données et images des cartes fournies par Scryfall. Contenu de fan non officiel autorisé par la Fan Content Policy ; non approuvé par Wizards of the Coast ni Scryfall. Texte des règles © Wizards of the Coast.",
     boot: "Chargement…",
@@ -106,7 +112,7 @@ export const SITE = {
       Posez à Claude une question de règles de <i>Magic: The Gathering</i> : il répond avec un lien qui s'ouvre ici.</p>
       <p>Rien n'est stocké sur ce site : toute la réponse voyage dans le lien, après le <code>#</code>, que votre
       navigateur n'envoie jamais à un serveur. Le texte des règles vient des règles complètes incluses dans le plugin ;
-      le texte des cartes, les images et les rulings viennent de Scryfall.</p>`,
+      le texte des cartes, les images et les rulings viennent de Scryfall, et les fils Reddit de l'archive PullPush.</p>`,
     badLinkTitle: "Ce lien est abîmé ou incomplet",
     badLinkHtml: `<p>Une partie du lien s'est probablement perdue à la copie. Redemandez le lien à Claude dans la
       même conversation.</p>`,

@@ -166,8 +166,8 @@ the ruling wins and your trace has a mistake — find it.
 
 ### 4. Community discussion — only on request
 
-By default, skip it: the answer page carries a small "search r/mtgrules yourself"
-link. Search only when the person asks, or when the official sources truly don't
+By default, skip it: the answer page lists the latest r/mtgrules threads that name
+the cards on its own, with a "search r/mtgrules yourself" link. Search only when the person asks, or when the official sources truly don't
 decide the question. Then do one WebSearch (e.g. `reddit mtgrules "<Card A>" "<Card B>"`)
 and work from the snippets — don't try to open Reddit threads, they can't be fetched.
 Never invent a thread.
