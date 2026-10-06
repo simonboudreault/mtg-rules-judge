@@ -1,6 +1,6 @@
 {
   "name": "mtg-rules-judge",
-  "version": "2026.1006.0",
+  "version": "2026.1006.1",
   "description": "Answer Magic: The Gathering rules questions like a careful judge, grounded in the bundled Comprehensive Rules (effective September 25, 2026) and an offline database of Oracle text and official rulings.",
   "author": {
     "name": "Simon Boudreault"

@@ -201,6 +201,12 @@ is the slowest thing this skill could do. If there is no artifact tool, send the
 key rule/ruling number), the confidence level, and any assumption or missing fact that matters. That's
 enough to read at the table; the page carries the evidence.
 
+**Share link:** `build.py` ends with a `Link: …` line. When it holds a URL, put that URL
+in the reply exactly as printed, on its own line at the end (e.g. "Shareable link:
+<url>"); it opens the same page for anyone, without the artifact. Copy it character for
+character; never shorten or rebuild it. If the line says the link was omitted, say in
+one sentence that the answer was too large for a share link.
+
 **Language:** write the prose in the language the person used and set `"lang"`
 (`"en"` or `"fr"`) so the page labels match. CR text, Oracle text and rulings stay
 verbatim in English; when the person writes in French, add a short translation after a
