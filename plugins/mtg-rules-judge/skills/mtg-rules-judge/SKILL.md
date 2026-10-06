@@ -21,19 +21,23 @@ Your memory of Magic is useful for knowing *where to look* and *what might matte
 It is not a source. Cards get errata, rules get rewritten every few months, and
 memory blends versions.
 
-## Speed: about four steps
+## Speed: the answer first, the link second
 
-The evidence is all local, so a full answer takes about four tool steps:
+The evidence is all local, so a full answer is five short steps, and the person sees
+your reply in **two parts**:
 
 1. **One `lookup.py` call** with every card and every rule you expect to need.
 2. **Think it through.** At most one more `lookup.py` call if the reasoning turns up
    a rule you didn't ask for.
-3. **Say the short answer in the chat, then write `answer.json`** (prose and ids only)
-   in the same turn and run **`build.py`** on it.
-4. **Close with the link** `build.py` printed. Don't publish an artifact.
+3. **Part one of the reply: write the short answer to the person now**, as visible
+   reply text, before any further tool call.
+4. **Write `answer.json`** (prose and ids only) and run **`build.py`** on it.
+5. **Part two of the reply: the short answer again in brief, then the link**
+   `build.py` printed. Don't publish an artifact.
 
-The person is often mid-game: the short answer is what they are waiting for, and the
-page takes a while to write. So the answer goes out first and the link follows.
+The person is often mid-game: the short answer is what they are waiting for, and steps
+4 and 5 take a minute or more. A final reply that shows only the link has failed them
+even when the answer is right: they have to open a page to learn what you already knew.
 
 Don't create a task list, don't read the template or the schema file (the example
 below is enough), and don't run `rules.py info` (the lookup header shows the dates).
@@ -135,7 +139,33 @@ decides it, say so — that is a real and useful answer.
 Check the result against the official rulings: if a ruling contradicts your trace,
 the ruling wins and your trace has a mistake — find it.
 
-### 4. Community discussion — only on request
+### 4. Send the short answer now
+
+The moment your reasoning is settled, write the short answer to the person. This is
+part one of the reply and it goes out **before** you search Reddit, write
+`answer.json` or call any other tool:
+
+- 1–3 sentences per question asked, with the key rule/ruling number;
+- the confidence level;
+- any assumption or missing fact that matters.
+
+**Where it goes matters.** Your reasoning (thinking) is hidden from the person: a
+conclusion you reach there, however clearly worded, has not been said to them. The
+short answer must be a **text block of your reply**, and it must come before the tool
+call that writes `answer.json`. The message has this shape:
+
+```
+[text]      No. Ruby Medallion takes {1} off the total cost once, not once per X
+            (CR 601.2f; ruling of 2004-10-04). Confidence: high. Full page coming.
+[tool call] Write answer.json
+```
+
+A message that goes from the lookup result straight to the tool call, with no text
+block before it, is the mistake this step exists to prevent. The person reads the
+answer while you build the page behind the link; that's enough to read at the table,
+and the linked page carries the evidence.
+
+### 5. Community discussion — only on request
 
 By default, skip it: `build.py` adds a small "search r/mtgrules yourself" link to the
 page. Search only when the person asks, or when the official sources truly don't
@@ -149,7 +179,10 @@ only for the separate community section: what people concluded, where they disag
 and whether the consensus matches the official sources (if it contradicts the CR or a
 ruling, say so plainly). Note thread dates when old rules may be involved.
 
-### 5. Build and share the link
+### 6. Build and share the link
+
+You sent the short answer in step 4; the final reply states it again before the link
+(see "The final reply" below).
 
 Write `answer.json` in your working directory. You write **only prose and ids**;
 `build.py` fills in the verbatim Oracle text, rule text and ruling text, the dates
@@ -206,19 +239,27 @@ artifact tool. Never paste the HTML into your reply — it's a 25–50 KB file a
 is the slowest thing this skill could do. If there is no artifact tool, send the file.
 -->
 
-**In the chat, before you write `answer.json`:** the short answer (1–3 sentences per
-question asked, with the key rule/ruling number), the confidence level, and any
-assumption or missing fact that matters. Write it as soon as your reasoning is settled,
-as plain text ahead of the tool calls in the same turn, so it reaches the person while
-the page is still being built. That's enough to read at the table; the linked page
-carries the evidence.
+**The final reply, after `build.py`:** two things, always in this order.
 
-**After `build.py`:** it ends with a `Link: …` line. When it holds a URL, finish the
-reply with that URL on its own line (e.g. "Full answer: <url>"); it opens the complete
-page for anyone. Copy it character for character; never shorten or rebuild it. Don't
-repeat the answer or add anything after the link. If writing the page changed your
-conclusion, say so plainly before the link. If the line says the link was omitted, say
-in one sentence that the answer was too large for a link.
+1. **The short answer, once more, in brief:** the verdict in one or two sentences with
+   the key rule/ruling number, then the confidence level. Include it every time, even
+   though you wrote it in step 4: many apps fold away or never show what is written
+   between tool calls, and then this is the only answer the person sees. It comes
+   first so they are reading it while the link is still being typed.
+2. **The link.** `build.py` ends with a `Link: …` line. When it holds a URL, put that
+   URL on its own line (e.g. "Full answer: <url>"); it opens the complete page for
+   anyone. Copy it character for character; never shorten or rebuild it, and add
+   nothing after it. If the line says the link was omitted, say in one sentence that
+   the answer was too large for a link.
+
+```
+No. Ruby Medallion takes {1} off the total cost once, not once per X (CR 601.2f;
+ruling of 2004-10-04). Confidence: high.
+
+Full answer: https://…
+```
+
+If writing the page changed your conclusion, say so plainly at the top.
 
 **Keep the link short:** you type the link by hand, and its length follows the length
 of your prose in `answer.json` (card, rule and ruling texts cost almost nothing: they

@@ -210,7 +210,9 @@ def main():
         f.write(page)
     print(f"Wrote {a.out} ({len(page.encode()) // 1024} KB): {len(cards)} card(s), {len(rules_out)} rule(s), "
           f"{len(rulings)} ruling(s), CR {eff}." + (f" Data: {a.json}." if a.json else "")
-          + " Don't publish or paste it; the link below is what the person gets.")
+          + " Don't publish or paste it; the link below is what the person gets."
+          + " Final reply: the short answer in one or two sentences with the confidence level,"
+          + " then the link on its own line. Never the link alone.")
     if url_len:  # 0 = no viewer URL configured, or --no-link
         print(f"Link: {url}" if url and url_len <= share.link_max() else
               f"Link: omitted, URL would be {url_len} chars (cap {share.link_max()}); say so in the reply.")

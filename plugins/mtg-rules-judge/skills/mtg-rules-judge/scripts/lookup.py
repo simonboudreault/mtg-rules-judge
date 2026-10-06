@@ -119,6 +119,14 @@ def main():
             first = t.split("\n")[0]
             print(cr.fmt(n, first if len(first) < 300 else first[:300] + " [...]"))
 
+    # The model reads this right before it decides what to do next (see SKILL.md, step 4).
+    print("\n## NEXT\n"
+          "Once your reasoning is settled, the message in which you write answer.json has two blocks, in\n"
+          "this order: (1) a TEXT block with the short answer for the person (1-3 sentences with the key\n"
+          "rule number, confidence, assumptions), (2) the tool call. Your thinking is hidden from them:\n"
+          "an answer you only reasoned out has not been said. They are waiting for it now; the link takes\n"
+          "another minute.")
+
 
 if __name__ == "__main__":
     main()
