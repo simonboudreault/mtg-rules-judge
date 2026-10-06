@@ -110,8 +110,9 @@ python3 <skill-dir>/scripts/lookup.py --card "Card A" --card "Card B" \
   person means, and when the question doesn't say which, ask. Either way, read the
   Oracle text that comes back and check it is the card the person described.
 - `--rule`: ask generously. A rule without a letter (`702.19`) prints its subrules; a
-  section (`613`) prints the whole section. Asking for an extra rule costs nothing; a
-  second round trip costs time.
+  section (`613`) prints its first 60 rules, which is all of most sections; a longer one
+  (`702`) is cut and says so, so ask for the rule you need (`702.19`). Asking for an
+  extra rule costs nothing; a second round trip costs time.
 - `--glossary` for each keyword or game term; `--search` when you don't know the number.
 - Read **every** ruling printed. Rulings exist to settle interactions, and a ruling on
   a third card sometimes settles the question outright. Each has an id like

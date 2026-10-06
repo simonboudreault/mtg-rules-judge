@@ -11,7 +11,7 @@ glossary entries and rule searches.
                     a section (613) prints the whole section (capped by --max).
   --glossary TERM   repeatable.
   --search WORDS    repeatable; rules containing ALL the words ("generic reduce").
-  --max N           cap per --rule / --search query (default 40 / 15).
+  --max N           cap per --rule / --search query (default 60 / 15).
 
 Cards come from the bundled database (data/cards.json). A card missing from it
 is fetched from the Scryfall API when the sandbox allows it; otherwise the output
@@ -65,6 +65,8 @@ def main():
     ap.add_argument("--search", action="append", nargs="+", default=[])
     ap.add_argument("--max", type=int, default=None)
     a = ap.parse_args()
+    if hasattr(sys.stdout, "reconfigure"):  # card text holds "−" and "—"; a Windows pipe can't encode them
+        sys.stdout.reconfigure(encoding="utf-8")
     a.glossary = [" ".join(g) for g in a.glossary]
     a.search = [" ".join(q) for q in a.search]
 
@@ -137,7 +139,7 @@ def main():
     for q in a.rule:
         q = q.rstrip(".")
         hits = [(n, t) for n, t in rules if cr.in_scope(n, q)]
-        cap = a.max or 40
+        cap = a.max or 60
         print(f"\n## RULE {q}")
         if not hits:
             print(f"  [no rule {q} in the bundled Comprehensive Rules]")
