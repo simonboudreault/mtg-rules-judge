@@ -1,0 +1,120 @@
+{
+ "v": 1,
+ "lang": "en",
+ "title": "A brand-new card and Lightning Bolt",
+ "question": "Can I respond to Nonexistent Test Card's triggered ability with Lightning Bolt?",
+ "shortAnswer": "Yes. The trigger goes on the stack and you can respond ([[rule:603.3]]); [[card:Lightning Bolt]] resolves first ([[rule:608.1]]). [[card:Nonexistent Test Card]]'s own ruling says the ability still resolves if the creature leaves ([[ruling:nonexistent-test-card-1]]).",
+ "confidence": {
+  "level": "medium",
+  "reasons": [
+   "The stack rules are unambiguous."
+  ],
+  "assumptions": [],
+  "notRetrieved": [
+   "Nonexistent Test Card is not in the bundled database; its text and ruling were fetched from the web (test fixture)."
+  ]
+ },
+ "steps": [
+  {
+   "text": "**The trigger goes on the stack** ([[rule:603.3]]) above nothing; you get priority."
+  },
+  {
+   "text": "**Cast [[card:Lightning Bolt]]** targeting the creature. It goes on the stack above the trigger ([[rule:608.1]])."
+  },
+  {
+   "text": "**Resolve top-down**: Bolt kills the creature, then the trigger resolves anyway ([[ruling:nonexistent-test-card-1]])."
+  }
+ ],
+ "reddit": {
+  "searched": true,
+  "threads": [
+   {
+    "title": "Responding to ETB triggers with removal",
+    "url": "https://www.reddit.com/r/mtgrules/comments/example1/",
+    "subreddit": "r/mtgrules",
+    "date": "2024-05-12",
+    "comments": 23,
+    "judgeFlair": true,
+    "summary": "Consensus: the trigger resolves even if the source is gone."
+   },
+   {
+    "title": "Does killing the creature counter its ETB?",
+    "url": "https://www.reddit.com/r/mtgrules/comments/example2/",
+    "subreddit": "r/mtgrules",
+    "date": "2023-11-02",
+    "comments": 9,
+    "judgeFlair": false,
+    "summary": "Same answer; one commenter confused it with Stifle effects."
+   }
+  ],
+  "overview": "Both threads agree with the official rules.",
+  "opinions": [
+   "Killing the source does not counter the trigger (everyone).",
+   "You need a counter-ability effect like [[card:Stifle]] to stop it (judge-flaired reply)."
+  ],
+  "agreesWithOfficial": "yes",
+  "notes": "Thread URLs in this fixture are placeholders.",
+  "searchUrl": "https://www.reddit.com/r/mtgrules/search/?q=%22Lightning+Bolt%22+ETB+trigger"
+ },
+ "cr": "September 25, 2026",
+ "at": "2026-10-06",
+ "db": "2026-10-05",
+ "cards": [
+  {
+   "id": "lightning-bolt",
+   "name": "Lightning Bolt",
+   "oid": "4457ed35-7c10-48c8-9776-456485fdf070",
+   "h": "ad45cb2a"
+  },
+  {
+   "id": "stifle",
+   "name": "Stifle",
+   "oid": "b3b00911-ece7-4484-bc36-f211ce72b6cc",
+   "h": "d858dd52"
+  },
+  {
+   "name": "Nonexistent Test Card",
+   "manaCost": "{1}{U}{U}",
+   "typeLine": "Creature — Merfolk Wizard",
+   "oracleText": "Flash\nWhen Nonexistent Test Card enters, draw a card.",
+   "power": "2",
+   "toughness": "2",
+   "colors": [
+    "U"
+   ],
+   "source": "test fixture",
+   "id": "nonexistent-test-card"
+  }
+ ],
+ "rules": [
+  "603.3",
+  "608.1"
+ ],
+ "rulings": [
+  {
+   "id": "stifle-1",
+   "card": "stifle",
+   "d": "2004-10-04",
+   "h": "c68f79c0"
+  },
+  {
+   "id": "stifle-2",
+   "card": "stifle",
+   "d": "2004-10-04",
+   "h": "b6fc4a6f"
+  },
+  {
+   "id": "stifle-3",
+   "card": "stifle",
+   "d": "2004-10-04",
+   "h": "a083ef3b"
+  },
+  {
+   "id": "nonexistent-test-card-1",
+   "card": "nonexistent-test-card",
+   "date": "2026-10-01",
+   "source": "wotc",
+   "text": "If Nonexistent Test Card leaves the battlefield before its ability resolves, you still draw a card."
+  }
+ ]
+}

@@ -1,0 +1,157 @@
+{
+ "v": 1,
+ "lang": "fr",
+ "title": "Reflet de Kiki-Jiki et les couches d'effets",
+ "question": "Si Reflet de Kiki-Jiki devient une copie d'une créature pendant qu'un effet lui donne +1/+1, qu'est-ce qui s'applique en premier ?",
+ "shortAnswer": "L'effet de copie s'applique d'abord (couche 1, [[rule:613.2a]]), puis les modifications de force et d'endurance (couche 7c, [[rule:613.4c]]). [[card:Fable of the Mirror-Breaker // Reflection of Kiki-Jiki]] garde donc le +1/+1 par-dessus les caractéristiques copiées, et la carte reste une créature double face transformée ([[ruling:fable-of-the-mirror-breaker-reflection-of-kiki-jiki-1]]).",
+ "confidence": {
+  "level": "high",
+  "reasons": [
+   "Le système de couches (613) est explicite sur l'ordre : copie avant modifications de F/E.",
+   "Les rulings de la carte confirment le comportement du côté transformé."
+  ],
+  "assumptions": [
+   "Le +1/+1 vient d'un effet jusqu'à la fin du tour (couche 7c), pas d'un marqueur (couche 7d, même résultat)."
+  ],
+  "notRetrieved": []
+ },
+ "steps": [
+  {
+   "text": "**Couche 1 : l'effet de copie** ([[rule:613.2a]]). Reflet de Kiki-Jiki prend les valeurs copiables de la créature choisie."
+  },
+  {
+   "text": "**Couche 7c : le +1/+1** ([[rule:613.4c]]) s'ajoute aux valeurs copiées.",
+   "note": "La couche 7 se lit toujours après les couches 1 à 6, quel que soit l'ordre dans lequel les effets ont commencé ([[rule:613.1]])."
+  },
+  {
+   "text": "**Le résultat** : une copie avec +1/+1, toujours sur sa face arrière ([[ruling:fable-of-the-mirror-breaker-reflection-of-kiki-jiki-1]]). Un [[card:Treasure]] sacrifié entre-temps ne change rien, et [[card:Fire // Ice]] n'y est que pour montrer une carte partagée."
+  }
+ ],
+ "reddit": false,
+ "cr": "September 25, 2026",
+ "at": "2026-10-06",
+ "db": "2026-10-05",
+ "cards": [
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "name": "Fable of the Mirror-Breaker // Reflection of Kiki-Jiki",
+   "oid": "c0957e5e-c71b-439c-931c-9f55d2f76ace",
+   "h": "a01c63a0"
+  },
+  {
+   "id": "fire-ice",
+   "name": "Fire // Ice",
+   "oid": "ae92942b-919c-4ea9-b693-85fcef765d5a",
+   "h": "2f9cc0c3"
+  },
+  {
+   "id": "treasure",
+   "name": "Treasure",
+   "oid": "3365a79e-3e2d-4f4b-861c-a970ae23345b",
+   "h": "ae3ab175",
+   "note": "token"
+  }
+ ],
+ "rules": [
+  "613.1",
+  "613.1a",
+  "613.1b",
+  "613.1c",
+  "613.1d",
+  "613.1e",
+  "613.1f",
+  "613.1g",
+  "613.2",
+  "613.2a",
+  "613.2b",
+  "613.3",
+  "613.4",
+  "613.4a",
+  "613.4b",
+  "613.4c",
+  "613.4d",
+  "613.5",
+  "613.6",
+  "613.7"
+ ],
+ "rulings": [
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-1",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "40a8e390"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-2",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "c8da9e36"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-3",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "cba16ce1"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-4",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "3f6b90f2"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-5",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "d1aaefa0"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-6",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "6c4f38f7"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-7",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "b30727cf"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-8",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "d1d85157"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-9",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "602bf769"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-10",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "8dff2c25"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-11",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "4d5c3fbb"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-12",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "7409fd1a"
+  },
+  {
+   "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki-13",
+   "card": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
+   "d": "2022-02-18",
+   "h": "22502308"
+  }
+ ]
+}
