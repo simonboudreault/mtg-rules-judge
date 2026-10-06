@@ -61,6 +61,51 @@ def compact_card(c):
     return rec
 
 
+# ---------- what a record is ----------
+
+# Scryfall's Oracle list also holds objects that are not cards in a deck. They stay in the
+# database (people ask about tokens and planes), but a real card of the same name wins.
+OTHER_LAYOUTS = {"front_card": "theme card", "vanguard": "Vanguard", "planar": "plane", "scheme": "scheme",
+                 "emblem": "emblem"}
+TOKEN_LAYOUTS = {"token", "double_faced_token"}
+
+
+def kind(rec):
+    """'card', 'token', or the name of another kind of object ('Vanguard', 'plane', ...)."""
+    lay = rec.get("lay")
+    if lay in OTHER_LAYOUTS:
+        return OTHER_LAYOUTS[lay]
+    return "token" if rec.get("tok") or lay in TOKEN_LAYOUTS else "card"
+
+
+def _rank(rec):
+    k = kind(rec)
+    return 0 if k == "card" else 1 if k == "token" else 2
+
+
+def type_line(rec):
+    return rec.get("t") or " // ".join(f.get("t", "") for f in rec.get("f") or [])
+
+
+# Table shorthand that no printed name contains. Checked after printed names, so a card
+# really named like one of these wins. Every target must exist (tests/test_lookup.py).
+NICKNAMES = {
+    "bob": "Dark Confidant", "goyf": "Tarmogoyf", "bolt": "Lightning Bolt", "snappy": "Snapcaster Mage",
+    "tim": "Prodigal Sorcerer", "gary": "Gray Merchant of Asphodel", "bbe": "Bloodbraid Elf",
+    "sfm": "Stoneforge Mystic", "jtms": "Jace, the Mind Sculptor", "tnn": "True-Name Nemesis",
+    "stp": "Swords to Plowshares", "swords": "Swords to Plowshares", "pte": "Path to Exile",
+    "path": "Path to Exile", "fow": "Force of Will", "fon": "Force of Negation", "tks": "Thought-Knot Seer",
+    "finks": "Kitchen Finks", "pod": "Birthing Pod", "scooze": "Scavenging Ooze", "primetime": "Primeval Titan",
+    "rhystic": "Rhystic Study", "cycrift": "Cyclonic Rift", "clamp": "Skullclamp", "sdt": "Sensei's Divining Top",
+    "top": "Sensei's Divining Top", "dockside": "Dockside Extortionist", "thoracle": "Thassa's Oracle",
+    "labman": "Laboratory Maniac", "consult": "Demonic Consultation", "hoof": "Craterhoof Behemoth",
+    "delver": "Delver of Secrets // Insectile Aberration", "darkrit": "Dark Ritual", "mom": "Mother of Runes",
+    "strix": "Baleful Strix", "drs": "Deathrite Shaman", "esg": "Elvish Spirit Guide", "ssg": "Simian Spirit Guide",
+    "gsz": "Green Sun's Zenith", "chalice": "Chalice of the Void", "ballista": "Walking Ballista",
+    "w6": "Wrenn and Six",
+}
+
+
 # ---------- database ----------
 
 class CardDB:
@@ -83,26 +128,50 @@ class CardDB:
         self._index()
 
     def _index(self):
-        self.by_name, self.by_face = {}, {}
-        for rec in self.cache["cards"] + self.cards:  # cache first: freshest text wins
+        self.by_name, self.by_face, self.comma = {}, {}, {}
+        # Several records can share a name (the card Inferno and a theme card; the Treasure token
+        # and a theme card): a card comes first, then a token. Within a rank the cache comes
+        # first, so the freshest text wins.
+        for rec in sorted(self.cache["cards"] + self.cards, key=_rank):
             self.by_name.setdefault(norm(rec["n"]), rec)
             for f in rec.get("f", []):
                 if f.get("n"):
                     self.by_face.setdefault(norm(f["n"]), rec)
+            if "," in rec["n"] and kind(rec) == "card":  # "Urborg, Tomb of Yawgmoth" is what "Urborg" often means
+                names = self.comma.setdefault(norm(rec["n"].split(",")[0]), [])
+                if rec["n"] not in names:
+                    names.append(rec["n"])
         self.rulings_all = dict(self.rulings, **self.cache.get("rulings", {}))
 
     # -- lookup --
     def find(self, query):
-        """Return (record or None, how, suggestions)."""
+        """Return (record or None, how, suggestions).
+
+        A card or a token is returned as itself; the suggestions then list the cards named
+        "<query>, ..." (asking for "Urborg" often means Urborg, Tomb of Yawgmoth). Another
+        kind of object (Vanguard, theme card, plane...) gives way to those cards: the only one
+        is returned in its place, several make the query "ambiguous" and return no record.
+        """
         k = norm(query)
         if not k:
             return None, "empty", []
+        forms = self.comma.get(k, [])
+        rec, how = None, ""
         if k in self.by_name:
-            return self.by_name[k], "exact", []
-        if k in self.by_face:
-            return self.by_face[k], "face name", []
-        if k in self.fr and norm(self.fr[k]) in self.by_name:
-            return self.by_name[norm(self.fr[k])], "French name", []
+            rec, how = self.by_name[k], "exact"
+        elif k in self.by_face:
+            rec, how = self.by_face[k], "face name"
+        elif k in self.fr and norm(self.fr[k]) in self.by_name:
+            rec, how = self.by_name[norm(self.fr[k])], "French name"
+        elif k in NICKNAMES and norm(NICKNAMES[k]) in self.by_name:
+            rec, how = self.by_name[norm(NICKNAMES[k])], f"nickname '{query}'"
+        if rec is not None and not (forms and kind(rec) not in ("card", "token")):
+            return rec, how, [n for n in forms if n != rec["n"]]
+        if len(forms) == 1:
+            what = f"'{query}' alone is a {kind(rec)}" if rec is not None else f"no card is named just '{query}'"
+            return self.by_name[norm(forms[0])], f"{what}; the only card named '{query}, ...'", []
+        if forms:
+            return None, "ambiguous", forms
         starts = [n for n in self.by_name if n.startswith(k)]
         if len(starts) == 1:
             return self.by_name[starts[0]], "prefix", []
@@ -116,7 +185,22 @@ class CardDB:
                 names.append(rec["n"])
         if len(names) == 1 or (names and difflib.SequenceMatcher(None, k, norm(names[0])).ratio() > 0.92):
             return self.by_name[norm(names[0])], f"fuzzy match for '{query}'", names[1:]
-        return None, "not found", names or [self.by_name[s]["n"] for s in starts[:5]]
+        return None, "not found", self._suggest(k, starts, names)
+
+    def _suggest(self, k, starts, close, cap=8):
+        """Names to offer when nothing matched: those starting with the query, then those
+        containing it, then the close spellings. Cards before tokens and other objects; among
+        names containing the query, the cards with the most rulings (the most played) first."""
+        begin = sorted((self.by_name[n] for n in starts), key=lambda r: (_rank(r), r["n"]))
+        inside = []
+        if len(k) >= 4:
+            inside = [self.by_name[n] for n in self.by_name if k in n and not n.startswith(k)]
+            inside.sort(key=lambda r: (_rank(r), -len(self.rulings_all.get(r.get("id"), [])), r["n"]))
+        out = []
+        for n in [r["n"] for r in begin + inside] + close:
+            if n not in out:
+                out.append(n)
+        return out[:cap]
 
     def rulings_for(self, rec):
         rows = self.rulings_all.get(rec.get("id"), [])

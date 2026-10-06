@@ -24,7 +24,29 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import rules as cr  # noqa: E402
-from carddb import CardDB, card_text  # noqa: E402
+from carddb import CardDB, card_text, kind, norm, type_line  # noqa: E402
+
+FULL = 3  # up to this many cards sharing a short name are printed whole; more are listed
+
+
+def print_card(db, rec, note="", close=()):
+    rs = db.rulings_for(rec)
+    k = kind(rec)
+    print(f"\n## CARD {rec['n']}{note}" + ("" if k == "card" else f"  [{k}]"))
+    print(card_text(rec))
+    if close:
+        print(f"  (other close names: {', '.join(close)})")
+    print(f"  Rulings ({len(rs)}):" if rs else "  No rulings.")
+    for r in rs:
+        src = "" if r["source"] == "wotc" else " [Scryfall note, not official]"
+        print(f"   [{r['id']}] {r['date']}{src} {r['text']}")
+
+
+def print_names(db, names, cap=20):
+    for n in names[:cap]:
+        print(f"   - {n} · {type_line(db.by_name[norm(n)])}")
+    if len(names) > cap:
+        print(f"   ... and {len(names) - cap} more")
 
 
 def cr_data():
@@ -63,12 +85,29 @@ def main():
     shown = set()
     for q in a.card:
         rec, how, alts = db.find(q)
+        if how == "ambiguous":  # several cards are named "<q>, ...", and none is named just <q>
+            other = db.by_name.get(norm(q))
+            print(f"\n## AMBIGUOUS: {q}")
+            print(f"  {len(alts)} cards are named \"{q}, ...\"" + (f", and \"{q}\" alone is a {kind(other)}" if other else "")
+                  + ". Use the one the person means, under its full name; if the question doesn't say which, ask.")
+            if len(alts) <= FULL:
+                for n in alts:
+                    if n not in shown:
+                        shown.add(n)
+                        print_card(db, db.by_name[norm(n)], f"  (one of the cards named \"{q}, ...\")")
+            else:
+                print_names(db, alts)
+                print("  -> Look up the right one by its full name.")
+            if other is not None:
+                print(f"\n  \"{q}\" alone  [{kind(other)}]\n{card_text(other)}")
+            continue
         if rec is not None and rec["n"] in shown:
             print(f"\n## CARD {q}: same card as {rec['n']} above")
             continue
         if rec is None:
             try:
                 rec, how = db.fetch_remote(q), "fetched from the Scryfall API (not in the bundle)"
+                alts = []  # they were guesses for a name the bundle doesn't have
             except Exception as e:  # network blocked, unknown card...
                 code = getattr(e, "code", None)
                 why = f"Scryfall has no card '{q}'" if code == 404 else "Scryfall API unreachable from this sandbox"
@@ -79,16 +118,21 @@ def main():
                       " and pass the card to build.py as a full object.")
                 continue
         shown.add(rec["n"])
-        rs = db.rulings_for(rec)
-        tag = "" if how == "exact" else f"  ({how})"
-        print(f"\n## CARD {rec['n']}{tag}" + ("  [token]" if rec.get("tok") else ""))
-        print(card_text(rec))
-        if alts:
-            print(f"  (other close names: {', '.join(alts)})")
-        print(f"  Rulings ({len(rs)}):" if rs else "  No rulings.")
-        for r in rs:
-            src = "" if r["source"] == "wotc" else " [Scryfall note, not official]"
-            print(f"   [{r['id']}] {r['date']}{src} {r['text']}")
+        close = alts if how.startswith("fuzzy") else []      # near spellings of a misspelt name
+        same = [] if how.startswith("fuzzy") else alts       # cards named "<q>, ..."
+        if same:
+            print(f"\n## NOTE: \"{q}\" is also the start of {len(same)} other card name(s), "
+                  + ("printed" if len(same) <= FULL else "listed") + " after it. Make sure which card the person means,"
+                  " and write its full name in answer.json.")
+        print_card(db, rec, "" if how == "exact" else f"  ({how})", close)
+        if len(same) <= FULL:
+            for n in same:
+                if n not in shown:
+                    shown.add(n)
+                    print_card(db, db.by_name[norm(n)], f"  (also matches \"{q}\")")
+        else:
+            print(f"\n  Other cards named \"{q}, ...\":")
+            print_names(db, same)
 
     for q in a.rule:
         q = q.rstrip(".")

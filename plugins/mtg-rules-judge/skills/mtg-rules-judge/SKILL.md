@@ -103,8 +103,12 @@ python3 <skill-dir>/scripts/lookup.py --card "Card A" --card "Card B" \
     --rule 601.2f 118.7a 702.19 --glossary trample --search generic reduce
 ```
 
-- `--card` for **every** card. English or French names, face names and small
-  misspellings all resolve; the output says which card it resolved to — check it.
+- `--card` for **every** card, under its full printed name when you know it
+  (`Urborg, Tomb of Yawgmoth`, not `Urborg`; `Dark Confidant`, not `Bob`). English or
+  French names, face names and small misspellings resolve. A short name several cards
+  share prints a `NOTE` and those cards, or `AMBIGUOUS` and a list: pick the one the
+  person means, and when the question doesn't say which, ask. Either way, read the
+  Oracle text that comes back and check it is the card the person described.
 - `--rule`: ask generously. A rule without a letter (`702.19`) prints its subrules; a
   section (`613`) prints the whole section. Asking for an extra rule costs nothing; a
   second round trip costs time.

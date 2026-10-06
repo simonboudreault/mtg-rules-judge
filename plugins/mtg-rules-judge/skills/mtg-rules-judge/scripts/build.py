@@ -28,7 +28,7 @@ import urllib.parse
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import rules as cr  # noqa: E402
-from carddb import CardDB, slug, to_template_card  # noqa: E402
+from carddb import CardDB, slug, to_template_card, type_line  # noqa: E402
 from render import render_page  # noqa: E402
 import share  # noqa: E402
 
@@ -99,12 +99,18 @@ def main():
         else:
             name = entry if isinstance(entry, str) else entry.get("name", "")
             rec, how, alts = db.find(name)
+            if how == "ambiguous":
+                errors.append(f"card '{name}' is ambiguous: {', '.join(alts)} — write the full name of the one you mean")
+                return None
             if rec is None:
                 errors.append(f"card '{name}' not in the card DB" + (f" (close: {', '.join(alts)})" if alts else "")
                               + " — look it up by its exact name, or pass a full card object")
                 return None
             if how not in ("exact", "face name"):
                 warnings.append(f"card '{name}' resolved to '{rec['n']}' ({how})")
+            elif alts:  # "Urborg" is a card of its own, and so is "Urborg, Tomb of Yawgmoth"
+                warnings.append(f"card '{name}' is '{rec['n']}' ({type_line(rec)}); {', '.join(alts)} also exist(s)"
+                                " — make sure this is the card the person means")
             c = to_template_card(rec, db_source)
             if isinstance(entry, dict):
                 c.update({k: v for k, v in entry.items() if k != "name"})
