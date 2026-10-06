@@ -55,6 +55,8 @@ jobs:
           python plugins/mtg-rules-judge/skills/mtg-rules-judge/scripts/rules.py info
           python tests/make_fixtures.py
           python tests/test_share.py
+          # only what holds whatever the new card list is; a failure here blocks the release
+          python tests/test_lookup.py Invariants
 
       - name: Commit and push
         if: steps.update.outputs.changed == 'true'
@@ -65,6 +67,12 @@ jobs:
           git commit -m "Update to ${{ steps.update.outputs.version }}" \
                      -m "${{ steps.update.outputs.summary }}"
           git push
+
+      - name: Check the examples against the new data
+        # Named cards and rule numbers: a data change can move them. Reported, never blocking.
+        if: steps.update.outputs.changed == 'true'
+        continue-on-error: true
+        run: python tests/test_lookup.py Examples
 
       - name: Zip the skill for manual upload
         if: steps.update.outputs.changed == 'true'
