@@ -20,7 +20,7 @@ Text fields may contain:
   "question": "The person's question, lightly cleaned up",
   "shortAnswer": "1–3 sentences with [[rule:...]] and [[ruling:...]] refs.",
   "confidence": {
-    "level": "high",                   // "high" | "medium" | "low"
+    "level": "high",                   // "high" | "medium" | "low" — see the levels below
     "reasons": ["Why the evidence settles it (or doesn't)."],
     "assumptions": ["Game-state facts you had to assume."],
     "notRetrieved": ["Anything you could not fetch, or fetched from the web, and how it affects the answer."]
@@ -37,6 +37,7 @@ Text fields may contain:
       "power": "1", "toughness": "3",  // or "loyalty", or "defense"
       "colors": ["U"],
       "faces": [ { "name": "Front", "manaCost": "...", "typeLine": "...", "oracleText": "..." } ],  // optional
+      "url": "https://mtg.wtf/card/...",   // required: the page the text was copied from
       "source": "mtg.wtf, 2026-10-02"
     }
   ],
@@ -49,7 +50,8 @@ Text fields may contain:
     {                                  // a ruling for a web-fallback card: full object
       "id": "new-card-1", "card": "new-card", "date": "2026-09-01",
       "source": "wotc",                // "wotc" = official; "scryfall" = Scryfall note
-      "text": "Verbatim ruling text."
+      "text": "Verbatim ruling text.",
+      "url": "https://..."             // required: the page it was copied from
     }
   ],
 
@@ -73,6 +75,28 @@ Text fields may contain:
   }
 }
 ```
+
+## Confidence levels
+
+- **high** — every card came from the database, every step cites retrieved text, no
+  assumption flips the verdict, and either a ruling addresses this interaction or no step
+  of the rules chain can reasonably be read another way.
+- **medium** — one step rests on interpretation, or on a stated assumption.
+- **low** — something could not be retrieved, text came from the web or from the person,
+  or the rules don't settle it.
+
+`build.py` enforces what it can check: `high` is refused when `notRetrieved` isn't
+empty, when a card or a ruling came from the web, or when the short answer cites no rule
+or ruling. The rest is judgment.
+
+## What build.py checks
+
+Every id must resolve. A card or ruling written by hand (web fallback) must carry the
+`url` it was copied from, is shown on the page as "from the web, not verified", and keeps
+confidence below `high`. A hand-written ruling on a card the database holds, dated on or
+before the database build, is refused: a real one would be in the database. With
+`--check` or `--link-only`, the script also prints the verbatim text behind each rule and
+ruling the short answer cites, so you can re-read them against your sentence.
 
 `build.py` adds `crEffectiveDate`, `cardDataDate`, `generatedAt`, `allCardsLink` (one
 Scryfall link for all cards), each card's text, link, image and `oracleId`, and the

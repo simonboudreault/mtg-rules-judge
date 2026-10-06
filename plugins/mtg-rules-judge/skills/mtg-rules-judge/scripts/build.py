@@ -2,6 +2,7 @@
 """Turn a compact answer JSON (prose + ids) into the finished answer page.
 
   build.py answer.json --link-only          check the references, print the link, write nothing
+  build.py answer.json --check              check the references only (the quick mode, before the reply)
   build.py answer.json [-o answer.html] [--json answer.data.json] [--force]
 
 You write only the prose and the ids; this script fills in, verbatim:
@@ -65,7 +66,10 @@ def main():
     ap.add_argument("--no-link", action="store_true", help="no hosted-viewer link: neither printed nor in the page")
     ap.add_argument("--link-only", action="store_true",
                     help="check every reference and print the hosted-viewer link; write no page")
+    ap.add_argument("--check", action="store_true", help="check every reference; no link, no page")
     a = ap.parse_args()
+    if a.check:
+        a.link_only, a.no_link = True, True
     if hasattr(sys.stdout, "reconfigure"):  # the link holds accented letters; a Windows pipe would mangle them
         sys.stdout.reconfigure(encoding="utf-8")
 
@@ -88,7 +92,7 @@ def main():
                 refs[kind].append(key.strip())
 
     # ---- cards ----
-    cards, seen = [], set()
+    cards, seen, web = [], set(), []
 
     def add_card(entry):
         full = isinstance(entry, dict) and (entry.get("oracleText") is not None or entry.get("faces"))
@@ -96,6 +100,13 @@ def main():
             c = dict(entry)  # full object (web fallback): pass through
             c.setdefault("id", slug(c["name"]))
             c.setdefault("source", "web (see confidence notes)")
+            web.append(c["name"])
+            if not str(c.get("url", "")).startswith("http"):
+                errors.append(f"card '{c['name']}' was written by hand: give the page it was copied from in \"url\"")
+            rec = db.find(c["name"])[0]
+            if rec is not None and rec["n"].lower() == c["name"].lower():
+                warnings.append(f"card '{c['name']}' is in the card DB (built {db.meta.get('built')}); your text replaces"
+                                " the DB text — only right for an erratum newer than the DB")
         else:
             name = entry if isinstance(entry, str) else entry.get("name", "")
             rec, how, alts = db.find(name)
@@ -144,6 +155,13 @@ def main():
     for entry in list(src.get("rulings", [])) + refs["ruling"]:
         if isinstance(entry, dict):
             rulings.append(dict(entry, custom=True))  # hand-written: travels in full in the share link
+            rid = str(entry.get("id", "?"))
+            if not str(entry.get("url", "")).startswith("http"):
+                errors.append(f"ruling '{rid}' was written by hand: give the page it was copied from in \"url\"")
+            card = by_key.get(str(entry.get("card") or rid.rsplit("-", 1)[0]))
+            if card is not None and "_rec" in card and str(entry.get("date", "")) <= str(db.meta.get("built", "")):
+                errors.append(f"ruling '{rid}' is dated {entry.get('date', '?')} on a card the DB holds: a real ruling of"
+                              " that date would be in the DB, so cite it by its id from lookup.py")
             continue
         if entry.endswith("-*") or entry.endswith(":all"):
             base = entry[:-2] if entry.endswith("-*") else slug(entry[:-4])
@@ -171,6 +189,20 @@ def main():
             rules_out.append({"id": rid, "text": rule_text[rid]})
         else:
             errors.append(f"rule '{rid}' not in the bundled Comprehensive Rules (use exact subrule numbers)")
+
+    # ---- the answer itself ----
+    conf = src.get("confidence") or {}
+    level = conf.get("level")
+    short_refs = [(k, v.strip()) for k, v in REF_RE.findall(src.get("shortAnswer", "")) if k != "card"]
+    custom = [r for r in rulings if r.get("custom")]
+    if not short_refs:
+        warnings.append("the short answer cites no rule or ruling")
+    for i, step in enumerate(src.get("steps") or [], 1):
+        if not any(k != "card" for k, _ in REF_RE.findall(step.get("text", "") if isinstance(step, dict) else str(step))):
+            warnings.append(f"step {i} cites no rule or ruling")
+    if level == "high":
+        for why in ([f"confidence.notRetrieved is not empty"] if conf.get("notRetrieved") else []) +                    ([f"card(s) {', '.join(web)} came from the web"] if web else []) +                    (["a ruling was written by hand"] if custom else []) +                    (["the short answer cites no rule or ruling"] if not short_refs else []):
+            errors.append(f"confidence can't be \"high\": {why} (see SKILL.md, confidence levels)")
 
     # ---- assemble ----
     for c in cards:
@@ -217,10 +249,25 @@ def main():
     url, url_len = (None, 0) if a.no_link else share.make_link(share.to_share_payload(out))
     counts = f"{len(cards)} card(s), {len(rules_out)} rule(s), {len(rulings)} ruling(s), CR {eff}"
     if a.link_only:
-        print(f"Checked {a.answer}: {counts}. No page written."
-              + (" Reply with the link below on its own line and nothing else. It is long, mostly"
-                 " readable words: copy all of it, to the last character." if url_len else
-                 " No viewer URL is configured, so there is no link; say so in the reply."))
+        print(f"Checked {a.answer}: {counts}.")
+        print("Cards: " + "; ".join(f"{c['name']} ({c.get('typeLine', '')})" for c in cards))
+        if short_refs:
+            print("\n## RE-READ: does each quote say what your short answer says? If not, fix answer.json and run again.")
+            rulings_by_id = {r["id"]: r for r in rulings}
+            for kind, key in dict.fromkeys(short_refs):
+                text = rule_text.get(key.rstrip(".")) if kind == "rule" else (rulings_by_id.get(key) or {}).get("text")
+                text = (text or "[not found]").split("\n")[0]
+                print(f"  {key}: {text if len(text) <= 300 else text[:300] + ' [...]'}")
+        caveat = level != "high" or bool(conf.get("assumptions"))
+        if a.check:
+            print("\nChecked, no link built. Reply with the short answer and the confidence level now.")
+        elif url_len:
+            print("\nReply with " + ("ONE line stating the assumption or the reason confidence isn't high, then "
+                                     if caveat else "") + "the link below on its own line"
+                  + ("" if caveat else " and nothing else") + ". It is long, mostly readable words: copy all of it,"
+                  " to the last character.")
+        else:
+            print("\nNo viewer URL is configured, so there is no link; say so in the reply.")
     else:
         page = render_page(out, open(TEMPLATE, encoding="utf-8").read(), share_url=url)
         with open(a.out, "w", encoding="utf-8") as f:

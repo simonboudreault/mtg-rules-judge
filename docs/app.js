@@ -44,7 +44,7 @@ function viewModel(p) {
     cards,
     rules: (Array.isArray(p.rules) ? p.rules : []).map((id) => ({ id: String(id), text: undefined })),
     rulings: (Array.isArray(p.rulings) ? p.rulings : []).filter((r) => r && r.id).map((r) => (r.text != null
-      ? { ...r, _state: "ok" }
+      ? { ...r, _state: "ok", _web: true } // came with its own text: copied from the web, not from Scryfall
       : { id: r.id, card: r.card, date: r.d, _h: r.h, _state: "loading" })),
     allCardsLink: names.length
       ? "https://scryfall.com/search?q=" + quotePlus(names.map((n) => `!"${n}"`).join(" or ")) + "&unique=cards" : null,

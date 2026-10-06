@@ -167,6 +167,7 @@ export class Page {
   }
 
   rulingSrc(r) {
+    if (r._web || r.custom) return `<span class="src scryfall">${esc(this.L.webRuling)}</span>`;
     if (r.source === "wotc") return `<span class="src">${esc(this.L.official)}</span>`;
     return `<span class="src scryfall">${esc(r.sourceLabel || this.L.scryfallNote)}</span>`;
   }

@@ -17,7 +17,7 @@ LABELS = {
         "rulings": "Official rulings", "walkthrough": "How it plays out", "confidence": "Confidence",
         "community": "Reddit discussions", "communityKicker": "Unofficial · community opinions",
         "crVersion": "Comprehensive Rules effective", "generated": "Researched", "allCards": "All cards on Scryfall",
-        "card": "Card", "rule": "Rule", "ruling": "Ruling", "official": "Official", "scryfallNote": "Scryfall note",
+        "card": "Card", "rule": "Rule", "ruling": "Ruling", "official": "Official", "scryfallNote": "Scryfall note", "webRuling": "From the web, not verified",
         "openOn": "Open on", "why": "Why", "assumptions": "Assumptions", "notRetrieved": "Not retrieved",
         "high": "High", "medium": "Medium", "low": "Low", "agrees": "Matches the official sources:",
         "yes": "Yes", "partly": "Partly", "no": "No", "unknown": "Unknown",
@@ -39,7 +39,7 @@ LABELS = {
         "communityKicker": "Non officiel · opinions de la communauté",
         "crVersion": "Règles complètes en vigueur le", "generated": "Recherche effectuée le",
         "allCards": "Toutes les cartes sur Scryfall", "card": "Carte", "rule": "Règle", "ruling": "Ruling",
-        "official": "Officiel", "scryfallNote": "Note Scryfall", "openOn": "Ouvrir sur", "why": "Pourquoi",
+        "official": "Officiel", "scryfallNote": "Note Scryfall", "webRuling": "Copié du web, non vérifié", "openOn": "Ouvrir sur", "why": "Pourquoi",
         "assumptions": "Hypothèses", "notRetrieved": "Non récupéré", "high": "Élevée", "medium": "Moyenne",
         "low": "Faible", "agrees": "Concorde avec les sources officielles :", "yes": "Oui", "partly": "En partie",
         "no": "Non", "unknown": "Inconnu", "noThreads": "Aucun fil Reddit n'a pu être récupéré pour cette question.",
@@ -183,6 +183,8 @@ class Page:
                 + (f'<div class="pt">{pt}</div>' if pt else "") + '</div></div></a>')
 
     def ruling_src(self, r):
+        if r.get("custom"):
+            return f'<span class="src scryfall">{esc(self.L["webRuling"])}</span>'
         if r.get("source") == "wotc":
             return f'<span class="src">{esc(self.L["official"])}</span>'
         return f'<span class="src scryfall">{esc(r.get("sourceLabel") or self.L["scryfallNote"])}</span>'
