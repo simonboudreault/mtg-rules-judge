@@ -275,6 +275,16 @@
         "cards": [],
         "source": [{"rule": "702.2b"}, {"rule": "701.14a"}]
       }
+    },
+    {
+      "id": "dack-venser-loop",
+      "tags": ["triggers", "control"],
+      "question": "If I play Dack Fayden, Helping Hand and pull Venser, Fervent Forger, can I target my own Venser with its trigger and copy it over and over for unlimited haste tokens? How does it work?",
+      "expect": {
+        "verdict": "Yes. Venser enters under your control, so its enters trigger is yours even though an opponent gains control of Venser before the trigger is put on the stack: nothing happens at the time an ability triggers, it goes on the stack the next time a player would receive priority. Target the Venser the opponent now controls to make two hasty token copies; each token's own trigger repeats it. The legend rule keeps only one of your Venser tokens at a time, and the tokens are sacrificed at the next end step.",
+        "cards": ["Dack Fayden, Helping Hand", "Venser, Fervent Forger"],
+        "source": [{"rule": "117.2a"}]
+      }
     }
   ]
 }

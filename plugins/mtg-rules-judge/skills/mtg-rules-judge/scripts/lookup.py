@@ -53,19 +53,72 @@ CONCEPTS = [
 ]
 
 # Text on the looked-up cards -> rules printed whole under ALSO RELEVANT, whether or not they
-# were asked for. Kept to the few phrases that mark an interaction players get wrong; the last
-# number is how many of the cards must carry the phrase.
+# were asked for: the rules most often missed. A row is (label, regex on the Oracle text and the
+# "TYPE: ..." line, rules, how many of the cards must carry the phrase, labels of rows that must
+# also have fired). A row with no rules is only a condition for another. Each rule carries the
+# first words of its text, so a CR update that renumbers it is noticed (tests/test_lookup.py).
+# Every rule prints whole: a rule cut short is the one the reasoning then has to go back for.
 CARD_HINTS = [
-    ("loses all abilities", r"loses? all abilities", ["613.1f"], 1),
+    ("an enters trigger", r"\bwhen(ever)?\b[^.]{0,60}\benters\b",
+     [("603.6a", "Enters-the-battlefield abilities trigger"), ("117.2a", "Triggered abilities can trigger")], 1, ()),
+    ("a change of control", r"gains? control|exchange control",
+     [("603.3a", "A triggered ability is controlled"), ("110.2", "A permanent")], 1, ()),
+    ("an enters trigger while control changes", r"gains? control|exchange control",
+     [("603.3", "Once an ability has triggered")], 1, ("an enters trigger",)),
+    ("putting an object onto the battlefield", r"onto the battlefield", [("110.2a", "If an effect instructs")], 1, ()),
+    ("creating tokens", r"creates? [^.]{0,40}\btokens?\b", [("111.2", "The player who creates")], 1, ()),
+    ("copying a spell or ability", r"\bcop(y|ies)\b[^.]{0,40}\b(spell|ability)", [("707.10", "To copy a spell")], 1, ()),
+    ("copies an object", r"\b(as|becomes?|is|that's|that are) (a )?cop(y|ies) of\b", [("707.2", "When copying an object")], 1, ()),
+    ("a modal trigger", r"^(when|whenever|at)\b[^.]*choose (one|two|any number)",
+     [("603.3c", "If a triggered ability is modal")], 1, ()),
+    ("a delayed trigger", r"at the beginning of the next",
+     [("603.7", "An effect may create"), ("603.7a", "Delayed triggered abilities are created")], 1, ()),
+    ("the legend rule, with copies or tokens of a legendary permanent", r"^TYPE:.*\bLegendary\b",
+     [("704.5j", "If two or more legendary")], 1, ("copies an object", "creating tokens")),
+    ("a dies or leaves-the-battlefield trigger", r"\bwhen(ever)?\b[^.]{0,60}\b(dies|leaves the battlefield|is put into a graveyard)",
+     [("603.6c", "Leaves-the-battlefield abilities trigger"), ("603.10a", "Some zone-change triggers look back")], 1, ()),
+    ("a return to hand (a new object)", r"return[^.]{0,40}to (its|their) owner'?s? hand", [("400.7", "An object that moves")], 1, ()),
+    ("+1/+1 counters", r"\+1/\+1 counter", [], 1, ()),
+    ("+1/+1 and -1/-1 counters together", r"-1/-1 counter", [("704.5q", "If a permanent has both")], 1, ("+1/+1 counters",)),
+    ("prevention", r"\bprevent\b", [("615.1", "Some continuous effects are prevention")], 1, ()),
+    ("loses all abilities", r"loses? all abilities", [("613.1f", "Layer 6: Ability-adding")], 1, ()),
     ("sets or adds a basic land type", r"\b(is|are) (an? |every )?(basic land type|Plains|Islands?|Swamps?|Mountains?|Forests?)\b",
-     ["305.7", "613.8a"], 1),
-    ("copies an object", r"\b(as|becomes?|is|that's|that are) (a )?cop(y|ies) of\b", ["707.2"], 1),
-    ("two replacement effects ('instead')", r"\binstead\b", ["616.1"], 2),
+     [("305.7", "If an effect sets"), ("613.8a", "An effect is said to")], 1, ()),
+    ("two replacement effects ('instead')", r"\binstead\b", [("616.1", "If two or more replacement")], 2, ()),
 ]
+
+# Keyword abilities and actions a looked-up card carries -> the definition (the a and b subrules of
+# the 701/702 rule headed by the keyword) under ALSO RELEVANT. The rule is found by its heading at
+# run time, so a CR release that renumbers 702 can't make the table print the wrong one. Only these
+# words: a 701 heading such as "Counter" or "Exile" is also an everyday verb on cards.
+KEYWORDS = {
+    "Flash": r"\bflash\b", "Haste": r"\bhaste\b", "Flying": r"\bflying\b", "Deathtouch": r"\bdeathtouch\b",
+    "Trample": r"\btrample\b", "Indestructible": r"\bindestructible\b", "Hexproof": r"\bhexproof\b",
+    "Ward": r"\bward\b", "Lifelink": r"\blifelink\b", "Menace": r"\bmenace\b",
+    "First Strike": r"\bfirst strike\b", "Double Strike": r"\bdouble strike\b",
+    "Goad": r"\bgoad(s|ed)?\b", "Fight": r"\bfights?\b", "Mill": r"\bmills?\b",
+}
+
+
+def keyword_rows(rules):
+    """CARD_HINTS-shaped rows for KEYWORDS, each resolved to the 701/702 rule headed by the keyword."""
+    heads = {t: n for n, t in rules if re.fullmatch(r"70[12]\.\d+", n)}
+    rows = []
+    for kw, pattern in KEYWORDS.items():
+        n = heads.get(kw)
+        if n:
+            ids = [(m, "") for m, _ in rules if re.fullmatch(re.escape(n) + r"[ab]", m)]
+            rows.append((f"the keyword {kw}", pattern, ids, 1, ()))
+    return rows
 
 
 def oracle_text(rec):
     return "\n".join([rec.get("o", "")] + [f.get("o", "") for f in rec.get("f") or []])
+
+
+def hint_text(rec):
+    """What CARD_HINTS patterns see: the type line, marked, then the Oracle text."""
+    return f"TYPE: {type_line(rec)}\n{oracle_text(rec)}"
 
 
 def print_card(db, rec, note="", close=()):
@@ -255,19 +308,23 @@ def main():
 
     # Rules the cards' own text calls for and nobody asked for.
     asked = [q.rstrip(".") for q in a.rule]
-    also, seen = [], set()
-    for name, pattern, ids, need in CARD_HINTS:
-        cards = [rec["n"] for rec in printed if re.search(pattern, oracle_text(rec), re.I)]
-        new = [n for n in ids if n in text_of and n not in seen and not any(n == q or cr.in_scope(n, q) for q in asked)]
-        if len(cards) >= need and new:
+    also, seen, fired = [], set(), set()
+    for name, pattern, ids, need, only_with in CARD_HINTS + keyword_rows(rules):
+        cards = [rec["n"] for rec in printed if re.search(pattern, hint_text(rec), re.I | re.M)]
+        if len(cards) < need or not all(o in fired for o in only_with):
+            continue
+        fired.add(name)
+        new = [n for n, _ in ids if n in text_of and n not in seen and not any(n == q or cr.in_scope(n, q) for q in asked)]
+        if new:
             seen.update(new)
             also.append((f"{name}: {', '.join(cards)}", new))
     if also:
-        print("\n## ALSO RELEVANT (the text of these cards calls for rules you didn't ask for)")
+        print("\n## ALSO RELEVANT (the text of these cards calls for rules you didn't ask for; rule text only,"
+              " --rule N adds the examples)")
         for why, ids in also:
             print(f"  {why}")
             for n in ids:
-                print(cr.fmt(n, text_of[n]))
+                print(cr.fmt(n, "\n".join(l for l in text_of[n].split("\n") if not l.strip().startswith("Example:"))))
 
     # The model reads this right before it decides what to do next (see SKILL.md, steps 5-7).
     print("\n## NEXT\n"

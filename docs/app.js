@@ -48,7 +48,7 @@ function viewModel(p) {
       : { id: r.id, card: r.card, date: r.d, _h: r.h, _state: "loading" })),
     allCardsLink: names.length
       ? "https://scryfall.com/search?q=" + quotePlus(names.map((n) => `!"${n}"`).join(" or ")) + "&unique=cards" : null,
-    _notices: p._damaged ? [SITE[lang].damagedLink] : [],
+    _notices: p._damaged ? [SITE[lang].damagedLink] : p._truncated ? [SITE[lang].truncatedLink] : [],
   };
 }
 

@@ -23,6 +23,7 @@ import datetime
 import json
 import os
 import re
+import subprocess
 import sys
 import urllib.parse
 
@@ -57,6 +58,26 @@ def rule_key(rid):
     return (int(m.group(1)), int(m.group(2) or 0), m.group(3) or "") if m else (9999, 0, rid)
 
 
+def open_in_browser(url):
+    """Open the page from here, where the whole URL is known: the link in the reply streams in, and a
+    click before the end opens a cut version of it. Never waits on the browser. Returns one line."""
+    if os.environ.get("MTG_JUDGE_OPEN") == "0":
+        return "Not opened (MTG_JUDGE_OPEN=0)."
+    quiet = {"stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL}
+    try:
+        if sys.platform == "win32":
+            os.startfile(url)
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", url], **quiet)
+        elif os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"):
+            subprocess.Popen(["xdg-open", url], start_new_session=True, **quiet)
+        else:  # a sandbox with no display: webbrowser.open would hand the URL to a console browser and wait
+            return "Browser not available here."
+    except OSError:
+        return "Browser not available here."
+    return "Opened in your browser."
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("answer")
@@ -67,6 +88,8 @@ def main():
     ap.add_argument("--link-only", action="store_true",
                     help="check every reference and print the hosted-viewer link; write no page")
     ap.add_argument("--check", action="store_true", help="check every reference; no link, no page")
+    ap.add_argument("--open", action="store_true",
+                    help="also open the link in the browser (off with MTG_JUDGE_OPEN=0, or without a display)")
     a = ap.parse_args()
     if a.check:
         a.link_only, a.no_link = True, True
@@ -277,6 +300,8 @@ def main():
     if url_len:  # 0 = no viewer URL configured, or --no-link
         print(f"Link: {url}" if url else
               f"Link: omitted, URL would be {url_len} chars, too long to type; say so in the reply.")
+        if url and a.open:
+            print(open_in_browser(url))
 
 if __name__ == "__main__":
     main()

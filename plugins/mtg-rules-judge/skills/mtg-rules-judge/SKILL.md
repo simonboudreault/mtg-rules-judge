@@ -47,8 +47,8 @@ stop:
    you haven't read.
 3. **Write `answer.json`** (prose and ids only).
 4. **Check it, then finish the turn in the mode the message set:**
-   - **default:** one `build.py --link-only` call, then the reply it asks for: the
-     link, with a caveat line above it only when the output says so;
+   - **default:** one `build.py --link-only --open` call, then the reply it asks for:
+     the link, with a caveat line above it only when the output says so;
    - **`quick`:** one `build.py --check` call (a second or two, no link), then the
      short answer and the confidence level. The link is a second turn, and only when
      they ask for it.
@@ -134,9 +134,12 @@ python3 <skill-dir>/scripts/lookup.py --card "Card A" --card "Card B" \
 - Read **every** ruling printed. Rulings exist to settle interactions. Each has an id
   like `ruby-medallion-1`; those ids are what you cite.
 - Read the `ALSO RELEVANT` block when there is one. It holds rules the cards' text
-  calls for and you didn't request (layers when a card removes abilities or sets a land
-  type, the copy rule, the ordering of two replacement effects). They are the rules
-  most often missed.
+  calls for and you didn't request: trigger timing (enters, dies, delayed, modal), a
+  change of control, tokens, copies, zone changes, counters, prevention, the legend rule,
+  layers when a card removes abilities or sets a land type, the ordering of two
+  replacement effects, and the definition of each keyword the cards carry. They are the
+  rules most often missed: read every one before you reason, and cite the ones that
+  decide a step.
 
 Where to look in the CR (a map, not a checklist):
 
@@ -268,7 +271,9 @@ links.
 
 **Keep it tight:** the person is waiting while you write this file, and the length of
 the link follows the length of your prose (card, rule and ruling texts cost almost
-nothing: they travel as ids). A few short steps beat a long walkthrough.
+nothing: they travel as ids). Three to six steps of one or two sentences each, naming
+the rule rather than paraphrasing it, beat a long walkthrough: the quoted texts are on
+the page.
 
 ### 6. Finish the turn
 
@@ -316,12 +321,16 @@ details / the sources" after an answer means this step, and nothing more than th
 step.
 
 ```
-python3 <skill-dir>/scripts/build.py answer.json --link-only
+python3 <skill-dir>/scripts/build.py answer.json --link-only --open
 ```
 
 It writes no file. It checks every reference, prints the cards it resolved to and the
 text behind each citation in your short answer, then a `Link: …` line. (`--check`
-instead of `--link-only` does the same without the link: the `quick` mode.)
+instead of `--link-only` does the same without the link: the `quick` mode.) `--open`
+also opens the page in the person's browser, with the whole link, before your reply
+streams in (a click on the link in the reply before it has finished would open a cut
+version). Don't mention the browser in the reply: the person sees it, and where it
+can't open the output says so and nothing changes.
 
 - If it prints `ERROR` lines, fix `answer.json` and run it again: a wrong id, a web
   card or ruling without its `url`, a confidence of `high` the evidence doesn't earn.

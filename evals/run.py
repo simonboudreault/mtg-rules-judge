@@ -299,6 +299,7 @@ def main():
     # card names are resolved with the measured plugin's own code, as its build.py would
     sys.path.insert(0, os.path.join(a.plugin_dir, "skills", "mtg-rules-judge", "scripts"))
     os.environ.setdefault("MTG_CARD_DB", os.path.join(a.plugin_dir, "skills", "mtg-rules-judge", "data", "cards.json"))
+    os.environ.setdefault("MTG_JUDGE_OPEN", "0")  # build.py --open would open a browser tab per question
     from carddb import CardDB
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")

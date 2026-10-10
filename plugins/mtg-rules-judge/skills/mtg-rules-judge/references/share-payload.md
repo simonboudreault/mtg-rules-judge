@@ -66,8 +66,11 @@ doesn't know.
   `base64url(zlib_compress(json))` of `{"cards": [[index, card]...], "rulings": [[index, ruling]...], "reddit": {...}}`,
   with `.` in place of `_`; each `[index, object]` is inserted at that index, in order.
 - `=z`: the low 16 bits of CRC-32 over the UTF-8 bytes of everything before `=z`
-  (NFC-normalised), as 4 hex digits. When it doesn't match, or is missing, the viewer still
-  shows the page, with a notice that the link was altered; `share.py` raises.
+  (NFC-normalised), as 4 hex digits. When it doesn't match, the viewer still shows the
+  page, with a notice that the link was altered. When it is missing, the link was cut
+  short (clicked while the reply was still streaming, say): the viewer drops the last,
+  partial field, shows the rest and says the link isn't complete. `share.py` raises in
+  both cases.
 
 `share.encode_readable` decodes what it wrote and compares it with the payload (see
 `canon`); for a payload this form can't carry exactly (an unknown field, a number where

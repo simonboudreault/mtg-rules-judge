@@ -77,11 +77,21 @@ export function checksum(head) {
 }
 
 async function parseReadable(frag) {
-  const cut = frag.lastIndexOf("=z");
-  const head = cut < 0 ? frag : frag.slice(0, cut);
-  // A link cut short or with a changed character still shows; the page says it may be inexact.
-  const damaged = cut < 0 || frag.slice(cut + 2) !== checksum(head);
+  // "=z" + 4 hex digits end a complete link. Without them the link was cut short (clicked while the
+  // reply was still streaming, or copied in part): the last, partial field is dropped and the page
+  // shows the rest, saying so. With them but wrong, a character was changed: the page says that instead.
+  const end = /=z([0-9a-f]{4})$/.exec(frag);
+  let head, damaged = false, truncated = false;
+  if (end) {
+    head = frag.slice(0, end.index);
+    damaged = end[1] !== checksum(head);
+  } else {
+    truncated = true;
+    const last = frag.lastIndexOf("=");
+    head = last < 0 ? frag : frag.slice(0, last);
+  }
   const [lang, ...parts] = head.slice(READABLE_VERSION.length + 1).split("=");
+  if (truncated && !/^[a-z]{2}$/.test(lang)) throw new Error("cut before the language");
   const p = { v: 1, lang: unesc(lang), steps: [], cards: [], rules: [], rulings: [] };
   const conf = () => (p.confidence ||= { reasons: [], assumptions: [], notRetrieved: [] });
   const last = (list) => {
@@ -129,6 +139,7 @@ async function parseReadable(frag) {
   }
   if ("reddit" in extra) p.reddit = extra.reddit;
   if (damaged) p._damaged = true;
+  if (truncated) p._truncated = true;
   return p;
 }
 

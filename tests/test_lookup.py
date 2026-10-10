@@ -40,12 +40,12 @@ def run(script, *args, env=None):
     return res.returncode, out.replace("\r\n", "\n")
 
 
-def build(answer, *flags):
+def build(answer, *flags, env=None):
     fd, path = tempfile.mkstemp(suffix=".json")
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         json.dump(answer, f)
     try:
-        return run("build.py", path, *flags)
+        return run("build.py", path, *flags, env=env)
     finally:
         os.remove(path)
 
@@ -88,9 +88,12 @@ class Invariants(unittest.TestCase):
         for name, _, ids in lookup.CONCEPTS:
             for n in ids:
                 self.assertIn(n, RULES, f"{name}: {n}")
-        for name, _, ids, _ in lookup.CARD_HINTS:
-            for n in ids:
+        labels = [row[0] for row in lookup.CARD_HINTS]
+        for name, _, ids, _, only_with in lookup.CARD_HINTS:
+            for n, _ in ids:
                 self.assertIn(n, RULES, f"{name}: {n}")
+            for other in only_with:
+                self.assertIn(other, labels, f"{name} depends on a row that doesn't exist: {other}")
 
     def test_build_refuses_an_invented_official_ruling(self):
         fake = dict(GOOD, shortAnswer="Yes ([[rule:100.1]], [[ruling:blood-moon-fake]]).",
@@ -153,6 +156,16 @@ class Invariants(unittest.TestCase):
         with open(out_html, encoding="utf-8") as f:
             page = f.read()
         self.assertIn("From the web, not verified", page)
+
+    def test_build_open_stays_off_when_asked(self):
+        # tests and evals set MTG_JUDGE_OPEN=0; the link is still printed, the browser is not touched
+        code, out = build(GOOD, "--link-only", "--open", env={"MTG_JUDGE_OPEN": "0"})
+        self.assertEqual(code, 0, out[-300:])
+        self.assertIn("Link: https://", out)
+        self.assertIn("Not opened (MTG_JUDGE_OPEN=0).", out)
+        code, out = build(GOOD, "--check", "--open", env={"MTG_JUDGE_OPEN": "0"})
+        self.assertEqual(code, 0, out[-300:])
+        self.assertNotIn("opened", out.lower())
 
     def test_lookup_closing_text_names_build(self):
         code, out = run("lookup.py", "--rule", "100.1")
@@ -224,6 +237,47 @@ class Examples(unittest.TestCase):
         also = out.split("## ALSO RELEVANT")[1]
         self.assertIn("616.1", also)
         self.assertIn("613.1f", also)
+
+    def test_hint_rules_still_say_what_the_table_expects(self):
+        # a CR update that renumbers a rule would make the table print the wrong one
+        for name, _, ids, _, _ in lookup.CARD_HINTS:
+            for n, words in ids:
+                self.assertTrue(RULES[n].startswith(words), f"{name}: {n} now reads {RULES[n][:60]!r}")
+        found = {row[0] for row in lookup.keyword_rows(list(RULES.items()))}
+        for kw in lookup.KEYWORDS:
+            self.assertIn(f"the keyword {kw}", found, f"no 701/702 rule is headed {kw!r}")
+        self.assertNotIn("the keyword Counter", found)  # ordinary verbs are not keywords
+
+    def test_triggers_control_and_keywords_bring_in_their_rules(self):
+        def has(block, n):
+            return re.search(rf"(?m)^{re.escape(n)}\.? ", block) is not None
+
+        # Dack Fayden hands Venser to an opponent as its enters trigger waits: the answer once missed 117.2a
+        code, out = run("lookup.py", "--card", "Dack Fayden, Helping Hand", "--card", "Venser, Fervent Forger")
+        also = out.split("## ALSO RELEVANT")[1]
+        for n in ("603.6a", "117.2a", "603.3a", "110.2", "603.3", "110.2a", "111.2", "707.10", "707.2",
+                  "603.3c", "603.7", "603.7a", "704.5j", "702.8a", "702.10a", "701.15a"):
+            self.assertTrue(has(also, n), n)
+        for label in ("the keyword Flash", "the keyword Haste", "the keyword Goad"):
+            self.assertIn(label, also)
+        self.assertFalse(has(also, "700.2b"), "700.2b repeats 603.3c")
+        self.assertFalse(has(also, "701.6a"), "'counter' is not a keyword")
+        self.assertFalse(has(also, "613.1f"), "no card loses its abilities")
+        self.assertEqual(also.count("\n603.6a "), 1, "a rule prints once")
+        self.assertNotIn("Example:", also, "rule text only; the examples cost more than they settle")
+        # a vanilla creature calls for nothing
+        code, out = run("lookup.py", "--card", "Grizzly Bears")
+        self.assertNotIn("## ALSO RELEVANT", out)
+        # what was asked for isn't printed twice; a dependent row stays out when its parent didn't fire
+        code, out = run("lookup.py", "--card", "Venser, Fervent Forger", "--rule", "603")
+        also = out.split("## ALSO RELEVANT")[1]
+        self.assertFalse(has(also, "603.6a"))
+        self.assertTrue(has(also, "702.8a"))
+        code, out = run("lookup.py", "--card", "Venser, Fervent Forger")
+        also = out.split("## ALSO RELEVANT")[1]
+        self.assertTrue(has(also, "603.6a"))
+        self.assertFalse(has(also, "603.3"), "no control change on Venser alone")
+        self.assertFalse(has(also, "603.3a"))
 
     def test_ruling_search_crosses_cards(self):
         code, out = run("lookup.py", "--rulings", "Ring tempts")
