@@ -285,10 +285,13 @@ def main():
         if a.check:
             print("\nChecked, no link built. Reply with the short answer and the confidence level now.")
         elif url_len:
+            # A Markdown link turns clickable only once its closing parenthesis has streamed in, so a click
+            # during the stream can't open a cut link (a bare URL is clickable from its first characters).
+            label = "Ouvrir la réponse complète" if out["lang"] == "fr" else "Open the full answer"
             print("\nReply with " + ("ONE line stating the assumption or the reason confidence isn't high, then "
-                                     if caveat else "") + "the link below on its own line"
-                  + ("" if caveat else " and nothing else") + ". It is long, mostly readable words: copy all of it,"
-                  " to the last character.")
+                                     if caveat else "") + f"the link below as a Markdown link, [{label}](<the URL>),"
+                  " on its own line" + ("" if caveat else " and nothing else") + ". The URL is long, mostly readable"
+                  " words: copy all of it, to the last character.")
         else:
             print("\nNo viewer URL is configured, so there is no link; say so in the reply.")
     else:

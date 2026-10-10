@@ -138,6 +138,9 @@ class Invariants(unittest.TestCase):
         code, out = build(GOOD, "--link-only")
         self.assertEqual(code, 0, out)
         self.assertIn("nothing else", out)
+        self.assertIn("[Open the full answer](", out)  # a Markdown link: not clickable until it has fully streamed
+        code, out = build(dict(GOOD, lang="fr"), "--link-only")
+        self.assertIn("[Ouvrir la réponse complète](", out)
         code, out = build(dict(GOOD, confidence=dict(GOOD["confidence"], assumptions=["The Forest is basic."])), "--link-only")
         self.assertEqual(code, 0, out)
         self.assertIn("ONE line stating the assumption", out)

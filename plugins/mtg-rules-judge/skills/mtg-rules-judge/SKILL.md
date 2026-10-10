@@ -338,12 +338,15 @@ can't open the output says so and nothing changes.
   your sentence says means the sentence or the citation is wrong: fix it, run again.
 - If `answer.json` is gone (new session, cleaned sandbox), write it again from the
   conversation, then run the command.
-- When the line holds a URL, the reply is that URL on one line, with no label in
-  front of it and nothing after it; above it, only the one caveat line when the
-  output asks for it. The answer is on the page, and in `quick` mode the person
-  already has it. The URL is long (2,000 characters or more) and mostly readable: your own prose with `+` for
-  spaces and `!` codes for punctuation. Copy it character for character, to the very
-  end; never shorten it, rebuild it, or tidy a word, an accent or a code inside it.
+- When the line holds a URL, the reply is that URL as a Markdown link on its own line,
+  `[Open the full answer](https://…)` (in French `[Ouvrir la réponse complète](https://…)`),
+  with nothing after it; above it, only the one caveat line when the output asks for
+  it. The answer is on the page, and in `quick` mode the person already has it. A
+  Markdown link becomes clickable only once its closing parenthesis has arrived, so a
+  click while the reply is still streaming can't open a cut link. The URL is long
+  (2,000 characters or more) and mostly readable: your own prose with `+` for spaces
+  and `!` codes for punctuation. Copy it character for character, to the very end;
+  never shorten it, rebuild it, or tidy a word, an accent or a code inside it.
 - If the line says the link was omitted, say in one sentence that the answer is too
   large for a link and offer the plain-text version below. In the default mode, give
   the short answer and the confidence level first, as in `quick` mode, so the person
