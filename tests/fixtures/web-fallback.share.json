@@ -83,6 +83,7 @@
     "U"
    ],
    "source": "test fixture",
+   "url": "https://example.com/cards/nonexistent-test-card",
    "id": "nonexistent-test-card"
   }
  ],

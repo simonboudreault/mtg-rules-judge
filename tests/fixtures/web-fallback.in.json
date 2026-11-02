@@ -20,13 +20,15 @@
    "oracleText": "Flash\nWhen Nonexistent Test Card enters, draw a card.",
    "power": "2", "toughness": "2",
    "colors": ["U"],
-   "source": "test fixture"
+   "source": "test fixture",
+   "url": "https://example.com/cards/nonexistent-test-card"
   }
  ],
  "rules": [],
  "rulings": [
   "stifle-*",
   {"id": "nonexistent-test-card-1", "card": "nonexistent-test-card", "date": "2026-10-01", "source": "wotc",
+   "url": "https://example.com/cards/nonexistent-test-card#rulings",
    "text": "If Nonexistent Test Card leaves the battlefield before its ability resolves, you still draw a card."}
  ],
  "steps": [
