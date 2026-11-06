@@ -99,6 +99,7 @@
     "U"
    ],
    "source": "test fixture",
+   "url": "https://example.com/cards/nonexistent-test-card",
    "id": "nonexistent-test-card"
   }
  ],
@@ -139,6 +140,7 @@
    "card": "nonexistent-test-card",
    "date": "2026-10-01",
    "source": "wotc",
+   "url": "https://example.com/cards/nonexistent-test-card#rulings",
    "text": "If Nonexistent Test Card leaves the battlefield before its ability resolves, you still draw a card.",
    "custom": true
   }
