@@ -57,8 +57,8 @@
   "searchUrl": "https://www.reddit.com/r/mtgrules/search/?q=%22Lightning+Bolt%22+ETB+trigger"
  },
  "schemaVersion": 1,
- "crEffectiveDate": "September 25, 2026",
- "cardDataDate": "2026-10-05",
+ "crEffectiveDate": "November 6, 2026",
+ "cardDataDate": "2026-11-06",
  "cards": [
   {
    "id": "lightning-bolt",
@@ -72,7 +72,7 @@
    ],
    "scryfallUri": "https://scryfall.com/search?q=%21%22Lightning%20Bolt%22",
    "imageUrl": "https://api.scryfall.com/cards/named?exact=Lightning%20Bolt&format=image&version=normal",
-   "source": "Scryfall bulk data, 2026-10-05"
+   "source": "Scryfall bulk data, 2026-11-06"
   },
   {
    "id": "stifle",
@@ -86,7 +86,7 @@
    ],
    "scryfallUri": "https://scryfall.com/search?q=%21%22Stifle%22",
    "imageUrl": "https://api.scryfall.com/cards/named?exact=Stifle&format=image&version=normal",
-   "source": "Scryfall bulk data, 2026-10-05"
+   "source": "Scryfall bulk data, 2026-11-06"
   },
   {
    "name": "Nonexistent Test Card",

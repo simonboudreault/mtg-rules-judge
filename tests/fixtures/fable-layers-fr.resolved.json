@@ -28,8 +28,8 @@
   }
  ],
  "schemaVersion": 1,
- "crEffectiveDate": "September 25, 2026",
- "cardDataDate": "2026-10-05",
+ "crEffectiveDate": "November 6, 2026",
+ "cardDataDate": "2026-11-06",
  "cards": [
   {
    "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
@@ -56,7 +56,7 @@
    ],
    "scryfallUri": "https://scryfall.com/search?q=%21%22Fable%20of%20the%20Mirror-Breaker%20//%20Reflection%20of%20Kiki-Jiki%22",
    "imageUrl": "https://api.scryfall.com/cards/named?exact=Fable%20of%20the%20Mirror-Breaker%20//%20Reflection%20of%20Kiki-Jiki&format=image&version=normal",
-   "source": "Scryfall bulk data, 2026-10-05"
+   "source": "Scryfall bulk data, 2026-11-06"
   },
   {
    "id": "fire-ice",
@@ -84,19 +84,19 @@
    ],
    "scryfallUri": "https://scryfall.com/search?q=%21%22Fire%20//%20Ice%22",
    "imageUrl": "https://api.scryfall.com/cards/named?exact=Fire%20//%20Ice&format=image&version=normal",
-   "source": "Scryfall bulk data, 2026-10-05"
+   "source": "Scryfall bulk data, 2026-11-06"
   },
   {
    "id": "treasure",
    "name": "Treasure",
-   "oracleId": "3365a79e-3e2d-4f4b-861c-a970ae23345b",
-   "typeLine": "Card",
-   "oracleText": "(Theme color: {R})",
+   "oracleId": "3c549374-6c37-42e0-8d88-a8555d46732d",
+   "typeLine": "Token Artifact — Treasure",
+   "oracleText": "{T}, Sacrifice this token: Add one mana of any color.",
    "colors": [],
+   "note": "token",
    "scryfallUri": "https://scryfall.com/search?q=%21%22Treasure%22",
    "imageUrl": "https://api.scryfall.com/cards/named?exact=Treasure&format=image&version=normal",
-   "source": "Scryfall bulk data, 2026-10-05",
-   "note": "token"
+   "source": "Scryfall bulk data, 2026-11-06"
   }
  ],
  "rules": [
@@ -138,7 +138,7 @@
   },
   {
    "id": "613.2a",
-   "text": "Layer 1a: Copiable effects are applied. This includes copy effects (see rule 707, “Copying Objects”) and changes to an object’s characteristics determined by merging an object with a permanent (see rule 730, “Merging with Permanents”). “As . . . enters” and “as . . . is turned face up” abilities generate copiable effects if they set power and toughness, even if they also define other characteristics."
+   "text": "Layer 1a: Copiable effects are applied. This includes copy effects (see rule 707, “Copying Objects”) and changes to an object’s characteristics determined by merging an object with a permanent (see rule 731, “Merging with Permanents”). “As . . . enters” and “as . . . is turned face up” abilities generate copiable effects if they set power and toughness, even if they also define other characteristics."
   },
   {
    "id": "613.2b",

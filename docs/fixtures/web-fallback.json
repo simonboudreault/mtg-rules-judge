@@ -56,9 +56,9 @@
   "notes": "Thread URLs in this fixture are placeholders.",
   "searchUrl": "https://www.reddit.com/r/mtgrules/search/?q=%22Lightning+Bolt%22+ETB+trigger"
  },
- "cr": "September 25, 2026",
+ "cr": "November 6, 2026",
  "at": "2026-10-06",
- "db": "2026-10-05",
+ "db": "2026-11-06",
  "cards": [
   {
    "id": "lightning-bolt",

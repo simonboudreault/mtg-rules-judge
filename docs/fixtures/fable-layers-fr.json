@@ -28,9 +28,9 @@
   }
  ],
  "reddit": false,
- "cr": "September 25, 2026",
+ "cr": "November 6, 2026",
  "at": "2026-10-06",
- "db": "2026-10-05",
+ "db": "2026-11-06",
  "cards": [
   {
    "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
@@ -47,8 +47,8 @@
   {
    "id": "treasure",
    "name": "Treasure",
-   "oid": "3365a79e-3e2d-4f4b-861c-a970ae23345b",
-   "h": "ae3ab175",
+   "oid": "3c549374-6c37-42e0-8d88-a8555d46732d",
+   "h": "e0944384",
    "note": "token"
   }
  ],
