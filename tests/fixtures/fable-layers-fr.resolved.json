@@ -29,7 +29,7 @@
  ],
  "schemaVersion": 1,
  "crEffectiveDate": "November 6, 2026",
- "cardDataDate": "2026-11-06",
+ "cardDataDate": "2026-11-13",
  "cards": [
   {
    "id": "fable-of-the-mirror-breaker-reflection-of-kiki-jiki",
@@ -56,7 +56,7 @@
    ],
    "scryfallUri": "https://scryfall.com/search?q=%21%22Fable%20of%20the%20Mirror-Breaker%20//%20Reflection%20of%20Kiki-Jiki%22",
    "imageUrl": "https://api.scryfall.com/cards/named?exact=Fable%20of%20the%20Mirror-Breaker%20//%20Reflection%20of%20Kiki-Jiki&format=image&version=normal",
-   "source": "Scryfall bulk data, 2026-11-06"
+   "source": "Scryfall bulk data, 2026-11-13"
   },
   {
    "id": "fire-ice",
@@ -84,7 +84,7 @@
    ],
    "scryfallUri": "https://scryfall.com/search?q=%21%22Fire%20//%20Ice%22",
    "imageUrl": "https://api.scryfall.com/cards/named?exact=Fire%20//%20Ice&format=image&version=normal",
-   "source": "Scryfall bulk data, 2026-11-06"
+   "source": "Scryfall bulk data, 2026-11-13"
   },
   {
    "id": "treasure",
@@ -96,7 +96,7 @@
    "note": "token",
    "scryfallUri": "https://scryfall.com/search?q=%21%22Treasure%22",
    "imageUrl": "https://api.scryfall.com/cards/named?exact=Treasure&format=image&version=normal",
-   "source": "Scryfall bulk data, 2026-11-06"
+   "source": "Scryfall bulk data, 2026-11-13"
   }
  ],
  "rules": [

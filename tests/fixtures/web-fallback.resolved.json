@@ -58,7 +58,7 @@
  },
  "schemaVersion": 1,
  "crEffectiveDate": "November 6, 2026",
- "cardDataDate": "2026-11-06",
+ "cardDataDate": "2026-11-13",
  "cards": [
   {
    "id": "lightning-bolt",
@@ -72,7 +72,7 @@
    ],
    "scryfallUri": "https://scryfall.com/search?q=%21%22Lightning%20Bolt%22",
    "imageUrl": "https://api.scryfall.com/cards/named?exact=Lightning%20Bolt&format=image&version=normal",
-   "source": "Scryfall bulk data, 2026-11-06"
+   "source": "Scryfall bulk data, 2026-11-13"
   },
   {
    "id": "stifle",
@@ -86,7 +86,7 @@
    ],
    "scryfallUri": "https://scryfall.com/search?q=%21%22Stifle%22",
    "imageUrl": "https://api.scryfall.com/cards/named?exact=Stifle&format=image&version=normal",
-   "source": "Scryfall bulk data, 2026-11-06"
+   "source": "Scryfall bulk data, 2026-11-13"
   },
   {
    "name": "Nonexistent Test Card",
